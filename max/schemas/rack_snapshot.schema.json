@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://slice-labeler.local/schemas/rack_snapshot.schema.json",
+  "title": "Slice Labeler rack snapshot",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "jobId", "createdAt", "track", "rack", "regions", "skippedPads"],
+  "properties": {
+    "schemaVersion": {"const": 1},
+    "jobId": {"type": "string", "minLength": 1},
+    "createdAt": {"type": "string", "format": "date-time"},
+    "track": {"$ref": "#/$defs/liveRef"},
+    "rack": {"$ref": "#/$defs/liveRef"},
+    "regions": {"type": "array", "items": {"$ref": "#/$defs/region"}},
+    "skippedPads": {"type": "array", "items": {"$ref": "#/$defs/skipped"}}
+  },
+  "$defs": {
+    "liveRef": {
+      "type": "object",
+      "required": ["displayName", "sessionPath"],
+      "properties": {
+        "displayName": {"type": "string"},
+        "sessionId": {"type": "integer"},
+        "sessionPath": {"type": "string"}
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sampleRate", "lengthFrames", "startFrame", "endFrame"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "sampleRate": {"type": "integer", "minimum": 1},
+        "lengthFrames": {"type": "integer", "minimum": 1},
+        "startFrame": {"type": "integer", "minimum": 0},
+        "endFrame": {"type": "integer", "minimum": 1}
+      }
+    },
+    "region": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["regionId", "padIndex", "padNote", "padDisplayName", "chainSessionId", "chainSessionPath", "originalChainName", "simplerSessionPath", "playbackMode", "source", "warnings"],
+      "properties": {
+        "regionId": {"type": "string", "minLength": 1},
+        "padIndex": {"type": "integer", "minimum": 0, "maximum": 127},
+        "padNote": {"type": "integer", "minimum": 0, "maximum": 127},
+        "padDisplayName": {"type": "string"},
+        "chainSessionId": {"type": "integer"},
+        "chainSessionPath": {"type": "string"},
+        "originalChainName": {"type": "string"},
+        "simplerSessionPath": {"type": "string"},
+        "playbackMode": {"type": "integer", "minimum": 0, "maximum": 2},
+        "source": {"$ref": "#/$defs/source"},
+        "warnings": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "skipped": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["padNote", "reasonCode", "message"],
+      "properties": {
+        "padNote": {"type": "integer", "minimum": 0, "maximum": 127},
+        "reasonCode": {"type": "string", "minLength": 1},
+        "message": {"type": "string", "minLength": 1}
+      }
+    }
+  }
+}

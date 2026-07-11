@@ -1,0 +1,3 @@
+# Runtime worker core has no third-party dependencies.
+# Production ADTOF backend (installed explicitly by scripts/setup_backend.*):
+adtof-pytorch @ git+https://github.com/xavriley/ADTOF-pytorch.git@85c192e78f716ea0b111cc8a5ee4a8f6a3a4f8a9
