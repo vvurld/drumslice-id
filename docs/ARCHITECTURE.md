@@ -1,5 +1,7 @@
 # Architecture
 
+This page is the concise architectural summary. See [TECHNICAL_REFERENCE.md](TECHNICAL_REFERENCE.md) for the full runtime, classification-model, preprocessing, mapping, safety, caching, and packaging reference.
+
 The device has four boundaries. The Max patch owns controls, state display, dictionaries, and unconditional MIDI pass-through. `live_controller.js` is the only layer allowed to traverse Live objects or write Live state; its sole write path is `Chain.name`. The Node orchestrator validates snapshots, normalizes and fingerprints files, groups regions by source, manages cancellation and the long-lived Python child process, and strips Live IDs from each Python request. The Python worker loads one backend instance, caches frame activations, extracts and clusters events, and maps them to authoritative Live slice starts.
 
 ## Data and safety boundaries

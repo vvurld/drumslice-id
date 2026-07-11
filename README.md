@@ -26,4 +26,6 @@ Restart Live or rescan the User Library after installation. The backend and Max-
 
 Then open `max/SliceLabeler.maxproj` in Max. See `scripts/build_max_device.md` for the source-device build and `docs/USER_GUIDE.md` for use in Live.
 
+For an implementation-level explanation of the Live Object Model scan, process boundaries, pinned ADTOF preprocessing and Frame_RNN, onset-to-slice classification, caching, naming, and Apply/Revert safety, see [`docs/TECHNICAL_REFERENCE.md`](docs/TECHNICAL_REFERENCE.md).
+
 The generated development device is committed as `dist/Slice Labeler.amxd` for convenient local reinstallation. It resolves the committed `max/` package sources at runtime. Third-party model code, model weights, backend virtual environments, and user-provided copyrighted audio are not committed.
