@@ -1,0 +1,9 @@
+{
+  "name": "slice-labeler-node",
+  "version": "0.1.0",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {"test": "node --test ../../tests/node/*.test.js"},
+  "dependencies": {"max-api": "^1.0.0"},
+  "engines": {"node": ">=18"}
+}

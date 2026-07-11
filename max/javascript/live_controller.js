@@ -1,0 +1,258 @@
+/* global LiveAPI, Dict, Task, include, arrayfromargs, messagename, outlet, post */
+"use strict";
+
+autowatch = 1;
+inlets = 2;
+outlets = 3;
+var V = SliceLabelerValues;
+var Naming = SliceLabelerNaming;
+var STATES = {INITIALIZING: 1, NO_RACK: 1, READY_TO_SCAN: 1, SCANNING: 1, SCAN_READY: 1, ANALYZING: 1, REVIEW_READY: 1, APPLYING: 1, APPLIED: 1, CANCELLING: 1, ERROR: 1};
+var state = "INITIALIZING";
+var trackPath = "";
+var targetRackIndex = 0;
+var rackCandidates = [];
+var snapshot = null;
+var plan = null;
+var chainByRegion = {};
+var lastApply = null;
+var overwriteConflicts = false;
+var analysisSettings = {backend: "adtof", modelOptions: {device: "cpu", fps: 100, maxThreads: 2, thresholds: {kick: 0.22, snare: 0.24, tom: 0.32, hihat: 0.22, cymbal: 0.30}}, mappingOptions: {preToleranceMs: 35, postToleranceMs: 90, clusterMs: 18, multiLabel: true, fallbackEnabled: true, fallbackNormalizedFloor: 0.70}, namingOptions: {numbering: "duplicates", longNames: false, preserveUnknown: false}};
+
+function emitStatus(code, message, details) { outlet(0, "status", code, message); if (details) { outlet(2, "diagnostic", JSON.stringify(details)); } }
+function setState(next) { if (!STATES[next]) { throw new Error("Unknown state " + next); } state = next; outlet(0, "state", next); }
+function error(code, message, details) { setState("ERROR"); emitStatus(code, message, details); }
+function makeApi(pathOrId) { var api = new LiveAPI(null); if (typeof pathOrId === "number") { api.id = pathOrId; } else { api.path = pathOrId; } return api; }
+function get(api, property) { try { return api.get(property); } catch (exception) { return null; } }
+function apiPath(api) { try { return String(api.path); } catch (exception) { return ""; } }
+function apiType(api) { try { return String(api.type); } catch (exception) { return ""; } }
+function newId() { return V.sha256(String(new Date().getTime()) + ":" + String(Math.random()) + ":" + String(new Date().getMilliseconds())).slice(0, 32); }
+
+function initialized() {
+    var device, track;
+    if (state !== "INITIALIZING" && state !== "ERROR") { return; }
+    try {
+        device = makeApi("this_device");
+        if (!device.id) { error("DEVICE_NOT_READY", "Slice Labeler is waiting for Live to initialize the device."); return; }
+        track = makeApi("this_device canonical_parent");
+        if (apiType(track) !== "Track") { error("NOT_ON_MIDI_TRACK", "Place Slice Labeler on a MIDI track."); return; }
+        trackPath = apiPath(track);
+        discoverRacks();
+    } catch (exception) { error("LIVE_API_INITIALIZATION_FAILED", "Could not initialize the Live connection.", {message: String(exception)}); }
+}
+
+function discoverRacks() {
+    var device = makeApi("this_device"), devicePath = apiPath(device), track = makeApi(trackPath), ids = V.idList(get(track, "devices")), current = -1, pathMatch, i, candidate, drum;
+    rackCandidates = [];
+    for (i = 0; i < ids.length; i += 1) {
+        candidate = makeApi(ids[i]);
+        if (ids[i] === Number(device.id) || (devicePath && apiPath(candidate) === devicePath)) { current = i; break; }
+    }
+    /* Some Live/Max combinations expose a valid this_device ID before the
+       track's device-ID list has caught up.  The canonical path still carries
+       the stable zero-based device index, so use it as a safe fallback. */
+    if (current < 0 && devicePath) {
+        pathMatch = /(?:^|\s)devices\s+(\d+)(?:\s|$)/.exec(devicePath);
+        if (pathMatch && Number(pathMatch[1]) >= 0 && Number(pathMatch[1]) < ids.length) { current = Number(pathMatch[1]); }
+    }
+    if (current < 0) { error("DEVICE_NOT_ON_TRACK", "Slice Labeler could not resolve its position on the track.", {deviceId: Number(device.id), devicePath: devicePath, trackPath: trackPath, trackDeviceIds: ids}); return; }
+    for (i = current + 1; i < ids.length; i += 1) {
+        candidate = makeApi(ids[i]); drum = V.number(get(candidate, "can_have_drum_pads"), 0);
+        if (drum === 1) { rackCandidates.push({id: ids[i], path: apiPath(candidate), name: V.string(get(candidate, "name")), deviceIndex: i, downstreamOffset: i - current}); }
+    }
+    outlet(0, "rack_menu_clear");
+    for (i = 0; i < rackCandidates.length; i += 1) { outlet(0, "rack_menu_append", rackCandidates[i].name + " · +" + rackCandidates[i].downstreamOffset); }
+    if (!rackCandidates.length) { setState("NO_RACK"); emitStatus("NO_DOWNSTREAM_DRUM_RACK", "Place Slice Labeler before a Drum Rack on the same MIDI track."); return; }
+    targetRackIndex = Math.min(targetRackIndex, rackCandidates.length - 1); setState("READY_TO_SCAN"); emitStatus("READY", "Ready to scan " + rackCandidates[targetRackIndex].name + ".");
+}
+
+function selectrack(index) { index = Number(index); if (index >= 0 && index < rackCandidates.length) { targetRackIndex = index; snapshot = null; plan = null; setState("READY_TO_SCAN"); } }
+
+function findReachableSimplers(chainId, maxDepth) {
+    var matches = [], warnings = [], visited = {}, walkChain, walkDevice;
+    maxDepth = maxDepth == null ? 8 : maxDepth;
+    walkChain = function (id, depth) {
+        var chain, devices, i;
+        if (depth > maxDepth) { warnings.push("Maximum nested rack depth reached."); return; }
+        if (visited[id]) { warnings.push("Repeated Live object encountered during traversal."); return; }
+        visited[id] = true; chain = makeApi(id); devices = V.idList(get(chain, "devices"));
+        for (i = 0; i < devices.length; i += 1) { walkDevice(devices[i], depth); }
+    };
+    walkDevice = function (id, depth) {
+        var device = makeApi(id), chains, i;
+        if (apiType(device) === "SimplerDevice") { matches.push({id: id, path: apiPath(device)}); return; }
+        if (V.number(get(device, "can_have_chains"), 0) === 1) { chains = V.idList(get(device, "chains")); for (i = 0; i < chains.length; i += 1) { walkChain(chains[i], depth + 1); } }
+    };
+    walkChain(chainId, 0); return {matches: matches, warnings: warnings};
+}
+
+function extractRegion(jobId, rack, pad, padIndex, chainId) {
+    var chain = makeApi(chainId), found = findReachableSimplers(chainId, 8), simpler, sampleIds, sample, path, rate, length, start, end, playback, multi, regionId;
+    if (found.matches.length === 0) { return {skip: {padNote: V.number(get(pad, "note"), padIndex), reasonCode: "NO_SIMPLER", message: "Pad contains no reachable Simpler device."}}; }
+    if (found.matches.length > 1) { return {skip: {padNote: V.number(get(pad, "note"), padIndex), reasonCode: "MULTIPLE_SIMPLERS", message: "Pad contains more than one reachable Simpler device."}}; }
+    simpler = makeApi(found.matches[0].id); multi = V.number(get(simpler, "multi_sample_mode"), 0);
+    if (multi === 1) { return {skip: {padNote: V.number(get(pad, "note"), padIndex), reasonCode: "MULTISAMPLE_SIMPLER", message: "Pad uses unsupported Simpler multisample mode."}}; }
+    sampleIds = V.idList(get(simpler, "sample"));
+    if (sampleIds.length !== 1) { return {skip: {padNote: V.number(get(pad, "note"), padIndex), reasonCode: "INVALID_SAMPLE", message: "Simpler does not expose exactly one Sample object."}}; }
+    sample = makeApi(sampleIds[0]);
+    path = V.string(get(sample, "file_path")); rate = V.number(get(sample, "sample_rate"), 0); length = V.number(get(sample, "length"), 0); start = V.number(get(sample, "start_marker"), -1); end = V.number(get(sample, "end_marker"), -1); playback = V.number(get(simpler, "playback_mode"), -1);
+    if (!path) { return {skip: {padNote: V.number(get(pad, "note"), padIndex), reasonCode: "UNREADABLE_SAMPLE_PATH", message: "Sample has no readable backing file path."}}; }
+    if (rate <= 0 || length <= 0 || start < 0 || end <= start || start > length || end > length + 1) { return {skip: {padNote: V.number(get(pad, "note"), padIndex), reasonCode: "INVALID_SAMPLE_REGION", message: "rate=" + rate + " length=" + length + " start=" + start + " end=" + end}}; }
+    regionId = V.sha256(jobId + "\0" + V.number(get(pad, "note"), padIndex) + "\0" + chainId + "\0" + path + "\0" + start + "\0" + end);
+    chainByRegion[regionId] = {chainId: chainId, chainPath: apiPath(chain)};
+    return {region: {regionId: regionId, padIndex: padIndex, padNote: V.number(get(pad, "note"), padIndex), padDisplayName: V.string(get(pad, "name")), chainSessionId: chainId, chainSessionPath: apiPath(chain), originalChainName: V.string(get(chain, "name")), simplerSessionPath: found.matches[0].path, playbackMode: playback, source: {path: path, sampleRate: rate, lengthFrames: length, startFrame: start, endFrame: end}, warnings: found.warnings}};
+}
+
+function scan() {
+    var rack, pad, padIds, chains, i, result, jobId, sourceSeen = {}, reasonCounts = {}, summary, reasonText = [];
+    if (state === "APPLYING") { emitStatus("BUSY_APPLYING", "Wait for the current Apply operation to finish before scanning again."); return; }
+    if (state === "ANALYZING" || state === "CANCELLING") { outlet(1, "cancel"); }
+    if (!rackCandidates.length) { discoverRacks(); if (!rackCandidates.length) { return; } }
+    setState("SCANNING"); chainByRegion = {}; jobId = newId(); rack = makeApi(rackCandidates[targetRackIndex].id);
+    if (!rack.id) { error("TARGET_RACK_MISSING", "The selected Drum Rack no longer exists."); return; }
+    snapshot = {schemaVersion: 1, jobId: jobId, createdAt: new Date().toISOString(), track: {displayName: V.string(get(makeApi(trackPath), "name")), sessionPath: trackPath}, rack: {displayName: V.string(get(rack, "name")), sessionId: Number(rack.id), sessionPath: apiPath(rack)}, regions: [], skippedPads: []};
+    padIds = V.idList(get(rack, "drum_pads"));
+    if (!padIds.length) { error("DRUM_PADS_UNAVAILABLE", "Live did not expose the selected rack's top-level Drum Pads."); return; }
+    for (i = 0; i < padIds.length; i += 1) {
+        pad = makeApi(padIds[i]); chains = V.idList(get(pad, "chains"));
+        if (chains.length === 0) { continue; }
+        if (chains.length !== 1) { snapshot.skippedPads.push({padNote: V.number(get(pad, "note"), i), reasonCode: "MULTIPLE_CHAINS", message: "Pad contains more than one chain."}); continue; }
+        result = extractRegion(jobId, rack, pad, i, chains[0]);
+        if (result.skip) { snapshot.skippedPads.push(result.skip); reasonCounts[result.skip.reasonCode] = (reasonCounts[result.skip.reasonCode] || 0) + 1; }
+        else { snapshot.regions.push(result.region); sourceSeen[result.region.source.path] = true; }
+    }
+    summary = {populatedPads: snapshot.regions.length + snapshot.skippedPads.length, analyzablePads: snapshot.regions.length, skippedPads: snapshot.skippedPads.length, uniqueSources: Object.keys(sourceSeen).length};
+    for (i in reasonCounts) { if (reasonCounts.hasOwnProperty(i)) { reasonText.push(i + "=" + reasonCounts[i]); } }
+    setState("SCAN_READY"); emitStatus("SCAN_COMPLETE", summary.analyzablePads + " analyzable · " + summary.skippedPads + " skipped · " + summary.uniqueSources + " source(s)" + (reasonText.length ? " · " + reasonText.join(", ") : "") + (snapshot.skippedPads.length ? " · " + snapshot.skippedPads[0].message : ""), summary); outlet(2, "snapshot", JSON.stringify(snapshot));
+}
+
+function analyze() {
+    if (state !== "SCAN_READY" || !snapshot || !snapshot.regions.length) { return; }
+    setState("ANALYZING");
+    outlet(1, "analyze", JSON.stringify({snapshot: snapshot, settings: analysisSettings}));
+}
+function cancel() { if (state !== "ANALYZING") { return; } setState("CANCELLING"); outlet(1, "cancel"); }
+function clearcache() { outlet(1, "clear_cache"); }
+function checkbackend() { outlet(1, "health", "adtof"); }
+
+function result_json() { receiveNode("result", arrayfromargs(arguments).join(" ")); }
+function error_json() { receiveNode("error", arrayfromargs(arguments).join(" ")); }
+function progress_json() { receiveNode("progress", arrayfromargs(arguments).join(" ")); }
+function receiveNode(kind, json) {
+    var payload;
+    try { payload = typeof json === "string" ? JSON.parse(json) : json; } catch (exception) { error("MALFORMED_NODE_RESPONSE", "The analysis service returned malformed data."); return; }
+    if (kind === "error") { error(payload.code || "ANALYSIS_ERROR", payload.message || "Analysis failed.", payload.details); return; }
+    if (kind === "progress") { outlet(0, "progress", Number(payload.completed || 0), Number(payload.total || 1), payload.message || "Analyzing"); return; }
+    if (!snapshot || payload.requestId == null) { return; }
+    buildPlan(payload.predictions || []); setState("REVIEW_READY"); emitStatus("ANALYSIS_COMPLETE", plan.rows.length + " analyzed · " + snapshot.skippedPads.length + " skipped · " + countUnknown(plan.rows) + " unknown"); outlet(2, "plan", JSON.stringify(plan));
+}
+
+function buildPlan(predictions) {
+    var byId = {}, seed = [], generated, i, region, prediction;
+    for (i = 0; i < predictions.length; i += 1) { byId[predictions[i].regionId] = predictions[i]; }
+    for (i = 0; i < snapshot.regions.length; i += 1) { region = snapshot.regions[i]; prediction = byId[region.regionId] || {classes: ["unknown"], scores: {}, decision: "analysis_error"}; seed.push({regionId: region.regionId, oldName: region.originalChainName, classes: prediction.classes}); }
+    generated = Naming.generate(seed, analysisSettings.namingOptions || {numbering: "duplicates"}); plan = {schemaVersion: 1, jobId: snapshot.jobId, rows: []};
+    for (i = 0; i < seed.length; i += 1) { region = snapshot.regions[i]; prediction = byId[region.regionId] || {classes: ["unknown"], scores: {}, decision: "analysis_error", warnings: []}; plan.rows.push({regionId: region.regionId, padNote: region.padNote, oldName: region.originalChainName, proposedName: generated[i].generatedName, effectiveName: generated[i].effectiveName, keepOriginal: false, userEdited: false, classes: prediction.classes, scores: prediction.scores, decision: prediction.decision, status: "ready", warnings: prediction.warnings || []}); }
+}
+function countUnknown(rows) { var n = 0, i; for (i = 0; i < rows.length; i += 1) { if (rows[i].classes.length === 1 && rows[i].classes[0] === "unknown") { n += 1; } } return n; }
+
+function validateRegion(region, row) {
+    var ref = chainByRegion[region.regionId], chain, found, simpler, sampleIds, sample, current;
+    if (!ref) { return {ok: false, stale: true, code: "CHAIN_REFERENCE_MISSING"}; }
+    chain = makeApi(ref.chainId); if (!chain.id) { return {ok: false, stale: true, code: "CHAIN_MISSING"}; }
+    found = findReachableSimplers(ref.chainId, 8); if (found.matches.length !== 1) { return {ok: false, stale: true, code: "SIMPLER_STRUCTURE_CHANGED"}; }
+    simpler = makeApi(found.matches[0].id); sampleIds = V.idList(get(simpler, "sample"));
+    if (sampleIds.length !== 1) { return {ok: false, stale: true, code: "SAMPLE_OBJECT_CHANGED"}; }
+    sample = makeApi(sampleIds[0]);
+    if (V.string(get(sample, "file_path")) !== region.source.path || V.number(get(sample, "sample_rate"), 0) !== region.source.sampleRate || V.number(get(sample, "start_marker"), -1) !== region.source.startFrame || V.number(get(sample, "end_marker"), -1) !== region.source.endFrame) { return {ok: false, stale: true, code: "SAMPLE_IDENTITY_CHANGED"}; }
+    current = V.string(get(chain, "name")); if (current !== row.oldName && !overwriteConflicts) { return {ok: false, stale: false, conflict: true, code: "CHAIN_NAME_CONFLICT", currentName: current}; }
+    return {ok: true, chain: chain, currentName: current};
+}
+
+function apply() {
+    var validations = [], i, check, writes = [], task;
+    if (state !== "REVIEW_READY" || !plan) { return; }
+    setState("APPLYING");
+    for (i = 0; i < plan.rows.length; i += 1) { check = validateRegion(snapshot.regions[i], plan.rows[i]); validations.push(check); if (check.stale) { error("PLAN_STALE", "The rack or slice markers changed. Analyze again before applying.", {regionId: plan.rows[i].regionId, reason: check.code}); return; } }
+    task = new Task(function () {
+        var row, validation, name, readback;
+        for (i = 0; i < plan.rows.length; i += 1) {
+            row = plan.rows[i]; validation = validations[i];
+            if (row.keepOriginal) { row.status = "kept"; continue; }
+            if (validation.conflict) { row.status = "conflict"; continue; }
+            name = Naming.validateUserName(row.effectiveName, 31); if (!name.ok) { row.status = "error"; continue; }
+            try { validation.chain.set("name", name.value); readback = V.string(get(validation.chain, "name")); if (readback === name.value) { writes.push({regionId: row.regionId, padNote: row.padNote, oldName: row.oldName, appliedName: name.value}); row.status = "applied"; } else { row.status = "error"; } } catch (exception) { row.status = "error"; }
+        }
+        lastApply = {applyId: newId(), rackFingerprint: V.sha256(snapshot.rack.sessionPath + "\0" + snapshot.jobId), writes: writes};
+        if (writes.length) { setState("APPLIED"); emitStatus(writes.length === plan.rows.length ? "APPLY_COMPLETE" : "PARTIAL_APPLY", writes.length + " chain name(s) applied."); } else { error("APPLY_FAILED", "No chain names were changed."); }
+        outlet(2, "plan", JSON.stringify(plan));
+    }, this); task.schedule(0);
+}
+
+function revert() {
+    var remaining = [], restored = 0, i, write, region, row, check, chain, current, task;
+    if (!lastApply || !lastApply.writes.length) { return; }
+    task = new Task(function () {
+        for (i = 0; i < lastApply.writes.length; i += 1) {
+            write = lastApply.writes[i]; region = regionById(write.regionId); row = rowById(write.regionId); if (!region || !row) { remaining.push(write); continue; }
+            check = validateRegion(region, {oldName: write.appliedName}); if (!check.ok) { remaining.push(write); continue; }
+            chain = check.chain; current = V.string(get(chain, "name")); if (current !== write.appliedName) { remaining.push(write); continue; }
+            try { chain.set("name", write.oldName); if (V.string(get(chain, "name")) === write.oldName) { restored += 1; } else { remaining.push(write); } } catch (exception) { remaining.push(write); }
+        }
+        lastApply.writes = remaining; if (!remaining.length) { lastApply = null; setState("REVIEW_READY"); }
+        emitStatus(remaining.length ? "PARTIAL_REVERT" : "REVERT_COMPLETE", restored + " chain name(s) restored.");
+    }, this); task.schedule(0);
+}
+function regionById(id) { var i; for (i = 0; snapshot && i < snapshot.regions.length; i += 1) { if (snapshot.regions[i].regionId === id) { return snapshot.regions[i]; } } return null; }
+function rowById(id) { var i; for (i = 0; plan && i < plan.rows.length; i += 1) { if (plan.rows[i].regionId === id) { return plan.rows[i]; } } return null; }
+function editname(regionId, value) { var row = rowById(String(regionId)), checked = Naming.validateUserName(value, 31); if (row && checked.ok) { row.effectiveName = checked.value; row.userEdited = true; outlet(2, "plan", JSON.stringify(plan)); } else if (row) { emitStatus(checked.code, checked.message); } }
+function keeporiginal(regionId, enabled) { var row = rowById(String(regionId)); if (row) { row.keepOriginal = Number(enabled) === 1; } }
+function resetrow(regionId) { var row = rowById(String(regionId)); if (row) { row.effectiveName = row.proposedName; row.userEdited = false; row.keepOriginal = false; } }
+function resetall() { var i; for (i = 0; plan && i < plan.rows.length; i += 1) { resetrow(plan.rows[i].regionId); } outlet(2, "plan", JSON.stringify(plan)); }
+function overwrite(value) { overwriteConflicts = Number(value) === 1; }
+function settings_json() { var parsed; try { parsed = JSON.parse(arrayfromargs(arguments).join(" ")); if (parsed && parsed.backend) { analysisSettings = parsed; } } catch (exception) { emitStatus("INVALID_SETTINGS", "Settings could not be applied."); } }
+function pythonpath() { outlet(1, "configure_python", arrayfromargs(arguments).join(" ")); }
+function refresh() { discoverRacks(); }
+
+function repairpresentation() {
+    var layouts = [
+        [[50, 105, 73, 18], [8, 7, 73, 20]],
+        [[135, 105, 190, 20], [80, 6, 190, 22]],
+        [[50, 190, 55, 22], [278, 6, 55, 22]],
+        [[120, 190, 65, 22], [338, 6, 65, 22]],
+        [[195, 190, 55, 22], [408, 6, 55, 22]],
+        [[265, 190, 55, 22], [468, 6, 55, 22]],
+        [[335, 190, 110, 22], [528, 6, 110, 22]],
+        [[470, 190, 87, 22], [643, 6, 87, 22]],
+        [[570, 190, 67, 22], [735, 6, 67, 22]],
+        [[355, 430, 500, 18], [8, 34, 794, 20]],
+        [[355, 460, 300, 41], [8, 57, 794, 41]]
+    ];
+    var box = this.patcher.firstobject, current, i, j, match, ok, repaired = 0;
+    while (box) {
+        try {
+            current = box.getboxattr("patching_rect");
+            for (i = 0; i < layouts.length; i += 1) {
+                match = layouts[i][0]; ok = current && current.length === 4;
+                for (j = 0; ok && j < 4; j += 1) { ok = Math.abs(Number(current[j]) - match[j]) < 0.01; }
+                if (ok) {
+                    box.setboxattr("presentation", 1);
+                    box.setboxattr("presentation_rect", layouts[i][1]);
+                    repaired += 1;
+                    break;
+                }
+            }
+        } catch (exception) {}
+        box = box.nextobject;
+    }
+    emitStatus(repaired === layouts.length ? "LAYOUT_REPAIRED" : "LAYOUT_REPAIR_INCOMPLETE", repaired + " presentation object(s) positioned.");
+}
+
+function anything() {
+    var args = arrayfromargs(arguments), joined = args.join(" ");
+    if (inlet === 1) {
+        if (messagename === "result") { receiveNode("result", joined); }
+        else if (messagename === "error") { receiveNode("error", joined); }
+        else if (messagename === "progress") { receiveNode("progress", joined); }
+        else if (messagename === "health") { emitStatus("BACKEND_READY", "ADTOF backend is ready."); }
+    }
+}

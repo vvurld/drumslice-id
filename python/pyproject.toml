@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "slice-labeler-worker"
+version = "0.1.0"
+description = "Local analysis worker for the Slice Labeler Max for Live device"
+requires-python = ">=3.10"
+dependencies = []
+
+[project.optional-dependencies]
+test = ["pytest>=8"]
+adtof = ["adtof-pytorch @ git+https://github.com/xavriley/ADTOF-pytorch.git@85c192e78f716ea0b111cc8a5ee4a8f6a3a4f8a9"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["slice_labeler_worker*"]
+
+[tool.pytest.ini_options]
+testpaths = ["../tests/python"]
+pythonpath = ["."]

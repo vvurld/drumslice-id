@@ -1,0 +1,74 @@
+{
+  "schemaVersion": 1,
+  "jobId": "fixture-job",
+  "createdAt": "2026-01-01T00:00:00Z",
+  "track": {
+    "displayName": "Fixture",
+    "sessionPath": "live_set tracks 0"
+  },
+  "rack": {
+    "displayName": "Fixture Rack",
+    "sessionId": 10,
+    "sessionPath": "live_set tracks 0 devices 1"
+  },
+  "regions": [
+    {
+      "regionId": "fixture-0",
+      "padIndex": 0,
+      "padNote": 36,
+      "padDisplayName": "Slice 1",
+      "chainSessionId": 20,
+      "chainSessionPath": "live_set tracks 0 devices 1 chains 0",
+      "originalChainName": "Slice 1",
+      "simplerSessionPath": "live_set tracks 0 devices 1 chains 0 devices 0",
+      "playbackMode": 1,
+      "source": {
+        "path": "tests/fixtures/synthetic drums ü.wav",
+        "sampleRate": 44100,
+        "lengthFrames": 66150,
+        "startFrame": 0,
+        "endFrame": 22050
+      },
+      "warnings": []
+    },
+    {
+      "regionId": "fixture-1",
+      "padIndex": 1,
+      "padNote": 37,
+      "padDisplayName": "Slice 2",
+      "chainSessionId": 21,
+      "chainSessionPath": "live_set tracks 0 devices 1 chains 1",
+      "originalChainName": "Slice 2",
+      "simplerSessionPath": "live_set tracks 0 devices 1 chains 1 devices 0",
+      "playbackMode": 1,
+      "source": {
+        "path": "tests/fixtures/synthetic drums ü.wav",
+        "sampleRate": 44100,
+        "lengthFrames": 66150,
+        "startFrame": 22050,
+        "endFrame": 44100
+      },
+      "warnings": []
+    },
+    {
+      "regionId": "fixture-2",
+      "padIndex": 2,
+      "padNote": 38,
+      "padDisplayName": "Slice 3",
+      "chainSessionId": 22,
+      "chainSessionPath": "live_set tracks 0 devices 1 chains 2",
+      "originalChainName": "Slice 3",
+      "simplerSessionPath": "live_set tracks 0 devices 1 chains 2 devices 0",
+      "playbackMode": 1,
+      "source": {
+        "path": "tests/fixtures/synthetic drums ü.wav",
+        "sampleRate": 44100,
+        "lengthFrames": 66150,
+        "startFrame": 44100,
+        "endFrame": 66150
+      },
+      "warnings": []
+    }
+  ],
+  "skippedPads": []
+}
