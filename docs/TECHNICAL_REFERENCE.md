@@ -426,12 +426,25 @@ The project has two separately installable pieces.
 
 ### Max device and package
 
-[`dist/Slice Labeler.amxd`](../dist/Slice%20Labeler.amxd) is the committed development device. The implementation modules, patchers, schemas, Node scripts, and generated Max-compatible JavaScript bundles are committed under [`max`](../max). [`install_local.sh`](../scripts/install_local.sh):
+[`dist/Slice Labeler.amxd`](../dist/Slice%20Labeler.amxd) is the committed development device. The implementation modules, patchers, schemas, Node scripts, and generated Max-compatible JavaScript bundles are committed under [`max`](../max).
+
+The root [`install.sh`](../install.sh) and [`install.ps1`](../install.ps1) are the clone-to-use entry points. They:
+
+1. validate required repository/runtime files and, when a current Node executable is available, the AMPF structure;
+2. install and health-check the private Python backend unless explicitly skipped;
+3. stage and atomically replace a recognized `SliceLabeler` Max package with a copied runtime tree;
+4. copy the AMXD into the selected Ableton User Library;
+5. compare the installed runtime and device with the checkout; and
+6. record the resolved paths and install a self-locating uninstaller under the backend root.
+
+An unrecognized existing package directory is never overwritten without an explicit force option. Custom Max Packages, User Library, backend, configuration, Python, and cache locations are accepted. The copied runtime does not depend on the clone remaining at the same path.
+
+For active source development, [`install_local.sh`](../scripts/install_local.sh):
 
 1. symlinks the repository's `max` directory to `~/Documents/Max 9/Packages/SliceLabeler`; and
 2. copies the `.amxd` to the Ableton User Library.
 
-The `.amxd` is not a fully self-contained Max release and does not contain Python, PyTorch, ADTOF, or weights. The development device resolves the installed `SliceLabeler` Max package at runtime. This makes source edits and local reinstallation straightforward and keeps large third-party artifacts out of Git, but it also means the `.amxd` cannot be copied by itself to a clean machine.
+The `.amxd` is not a fully self-contained Max release and does not contain Python, PyTorch, ADTOF, or weights. The device resolves the installed `SliceLabeler` Max package at runtime. The root installer now copies that package for ordinary use, while `install_local.sh` keeps source edits live through a symlink. In both cases the `.amxd` cannot be copied by itself to a clean machine.
 
 The source patchers use small loader scripts plus generated bundles in [`max/patchers`](../max/patchers). [`build_max_js_bundle.js`](../scripts/build_max_js_bundle.js) rebuilds those Max-compatible bundles from the source JavaScript modules; its `--check` mode fails if committed bundles are stale. [`verify_max_device.js`](../scripts/verify_max_device.js) compares the generated device's semantic patch graph with the source and rejects exposed development/user dependency paths. Both checks are required before the generated binary is treated as current.
 
@@ -509,7 +522,7 @@ The automated suites are split at the process boundary:
 - Node tests cover Live graph/value helpers, naming, protocol framing/validation, cache/log behavior, source grouping/fingerprinting, orchestration, cancellation, and worker error handling.
 - Python tests cover event extraction, clustering, one-owner region assignment, fallback behavior, cache reuse/invalidation, protocol behavior, backend health/error paths, RX2 companion scaling, and partial source failures.
 
-The current audited baseline is 76 passing Node tests and 48 passing Python tests.
+The current audited baseline is 80 passing Node tests and 48 passing Python tests. The Node total includes isolated macOS install, repair, verification, uninstall, and collision-safety coverage plus static compatibility/contract checks for the Windows entry points; native Windows acceptance remains a release gate.
 
 Run them from the repository root:
 

@@ -2,6 +2,15 @@
 
 Record Live/Max versions, machine, Set name, and date. For each item record Pass, Fail, or Not Run plus evidence.
 
+## Installation acceptance
+
+- From a clean macOS account, run `./install.sh`; verify it installs without Max editing, the copied package is not a symlink, `--verify-only` passes, and the installed uninstaller removes only the selected components.
+- Repeat on Windows with `install.ps1`, including a path containing spaces, `-VerifyOnly`, rerun/repair, default uninstall, and `-All`.
+- Move the repository clone after a normal install and confirm the device still loads. Separately confirm the development-only `scripts/install_local.sh` remains a symlink workflow.
+- Configure a non-default User Library and Max Packages directory on both platforms and verify the printed Live browser path matches the actual device location.
+
+## Device acceptance
+
 1. Install the exact candidate `.amxd` and its intended dependencies from a clean user account; confirm it does not resolve a developer checkout or absolute user path.
 2. Place the device before a standard sliced Drum Rack and confirm MIDI passes through unchanged.
 3. Scan a 16-pad rack; compare the count, source paths, sample rates, full source lengths, and exact Simpler marker frames with Live.

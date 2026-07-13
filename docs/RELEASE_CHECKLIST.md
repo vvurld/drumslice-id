@@ -14,6 +14,8 @@
 - Inspect the backend wheel manifest and reject `__pycache__`, `.pyc`, build-tree, or developer-path entries.
 - Confirm no absolute user paths, Live IDs, Python environments, weights, logs, or sample audio are packaged.
 - Test installation from a clean user account on each claimed platform. Confirm the release does not rely on a development symlink or the repository checkout.
+- Exercise `install.sh`, its installed uninstaller, custom-path overrides, verify-only mode, repair/reinstall, and full cleanup from a clean macOS account.
+- Exercise the corresponding `install.ps1`/`uninstall.ps1` flows from a clean Windows account; automated source-contract checks are not a substitute for native PowerShell, Max, and Live acceptance.
 - Freeze only project-owned Max/JavaScript/Node assets after a clean primary macOS setup pass. Do not bundle Python, model source, or weights without cleared rights.
 - Plan versioning, update/uninstall behavior, signing/notarization or installer signing, support requirements, privacy disclosures, and purchase/license enforcement before a paid release.
 - Do not claim performance without measuring cold inference and cache-hit timing on target machines.

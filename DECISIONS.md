@@ -22,3 +22,10 @@
 - Kept Max↔Node runtime snapshots/results as validated serialized JSON messages and reserved a named Max `Dict` for diagnostics export. This avoids duplicating large activation data in Max dictionaries and is host-proven for the current 15-region rack, but a 128-region host acceptance pass remains required.
 - Recycle the device-owned Python child on Cancel. This makes preflight cancellation immediate and lets Clear Cache wait for definitive process exit, trading the next run's model-reload cost for stale-result and stale-cache safety.
 - Cache loaded backends only by true model identity, not thresholds or `maxThreads`; apply Torch's process-global thread count immediately before inference under the same lock used for model loading.
+
+## 2026-07-13
+
+- Made the root platform installers the ordinary clone-to-use workflow. They copy the Max runtime rather than symlinking it, so moving or deleting the clone cannot break an installed device. The existing `scripts/install_local.sh` remains explicitly development-only because live source edits benefit from its symlink.
+- Kept backend installation explicit at installer execution time and never at device load. The unified installer may download the pinned backend only because the user deliberately ran it; the AMXD itself remains network-inert.
+- Refuse to replace an existing unrecognized `SliceLabeler` package without a force flag. Installation uses a staging directory and backup/restore path, then verifies the complete runtime tree and AMXD against the checkout.
+- Install a self-locating uninstaller beside the backend manifest. Default removal preserves the costly backend and cache; destructive backend/cache cleanup requires an explicit option.

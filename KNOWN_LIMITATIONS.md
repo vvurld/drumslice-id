@@ -1,6 +1,7 @@
 # Known limitations
 
 - The committed development `.amxd` in `dist/` depends on the locally installed `SliceLabeler` Max package. Copying the `.amxd` alone does not install the patchers, JavaScript, Node runtime files, or schemas it resolves. A clean self-contained freeze of project-owned dependencies is still a separate release step.
+- The repository now provides copied one-step installers and uninstallers for macOS and Windows. The macOS file-install path is automated and isolated-test covered; the Windows PowerShell path still requires its clean-machine native acceptance pass before release.
 - The acceptance build's rack discovery, scanning, production ADTOF analysis, REX2 companion resolution, and expanded Results rendering are host-verified in Live 12.4.2 on the supplied 15-slice break. The final audited binary was rebuilt, structurally verified, and installed byte-identically afterward; its final UI reload and the full production Apply/Revert/staleness/conflict checklist still require a recorded host pass.
 - The expanded Results table uses `jit.cellblock`; its newly expanded all-score/warning columns and overwrite-conflicts toggle remain host-version-sensitive and need a final recorded host pass.
 - Live Object Model traversal and writes cannot be validated by automated tests outside Live. Mock-graph tests cover ordering, recursive Simpler discovery, staleness, conflict handling, apply, and revert logic.
