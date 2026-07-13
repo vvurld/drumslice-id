@@ -11,12 +11,53 @@ var settingsValues = {
     kick: 0.22, snare: 0.24, tom: 0.32, hihat: 0.22, cymbal: 0.30
 };
 var ownerPatcher = this.patcher;
+var numericSpecs = {
+    preToleranceMs: {min: 0, max: 500}, postToleranceMs: {min: 0, max: 500}, clusterMs: {min: 0, max: 100},
+    fallbackNormalizedFloor: {min: 0.01, max: 5}, maxThreads: {min: 1, max: 8, integer: true},
+    kick: {min: 0.001, max: 1}, snare: {min: 0.001, max: 1}, tom: {min: 0.001, max: 1}, hihat: {min: 0.001, max: 1}, cymbal: {min: 0.001, max: 1}
+};
+var uiNames = {
+    multiLabel: "multi_label", preToleranceMs: "pre_tolerance_ms", postToleranceMs: "post_tolerance_ms", clusterMs: "cluster_ms",
+    fallbackEnabled: "fallback_enabled", fallbackNormalizedFloor: "fallback_floor", numbering: "numbering", longNames: "long_names",
+    preserveUnknown: "preserve_unknown", maxThreads: "max_threads", kick: "kick_threshold", snare: "snare_threshold", tom: "tom_threshold",
+    hihat: "hihat_threshold", cymbal: "cymbal_threshold"
+};
 function setUiValue(varname, value) {
     var object;
     try {
         object = ownerPatcher && ownerPatcher.getnamed(varname);
         if (object) { object.message("set", value); }
     } catch (exception) {}
+}
+function getUiValue(varname, fallback) {
+    var object, value;
+    try {
+        object = ownerPatcher && ownerPatcher.getnamed(varname);
+        if (!object) { return fallback; }
+        value = object.getvalueof();
+        if (value instanceof Array) { value = value.length ? value[0] : fallback; }
+        return value == null ? fallback : value;
+    } catch (exception) { return fallback; }
+}
+function validNumber(value, current, spec) {
+    value = Number(value);
+    if (!isFinite(value) || value < spec.min || value > spec.max) { return current; }
+    return spec.integer ? Math.round(value) : value;
+}
+function pullUi() {
+    var key, modes = ["off", "duplicates", "always"], value;
+    settingsValues.multiLabel = Number(getUiValue(uiNames.multiLabel, settingsValues.multiLabel ? 1 : 0)) === 1;
+    settingsValues.fallbackEnabled = Number(getUiValue(uiNames.fallbackEnabled, settingsValues.fallbackEnabled ? 1 : 0)) === 1;
+    settingsValues.longNames = Number(getUiValue(uiNames.longNames, settingsValues.longNames ? 1 : 0)) === 1;
+    settingsValues.preserveUnknown = Number(getUiValue(uiNames.preserveUnknown, settingsValues.preserveUnknown ? 1 : 0)) === 1;
+    value = Number(getUiValue(uiNames.numbering, 1)); settingsValues.numbering = modes[value] || settingsValues.numbering;
+    for (key in numericSpecs) {
+        if (numericSpecs.hasOwnProperty(key)) { settingsValues[key] = validNumber(getUiValue(uiNames[key], settingsValues[key]), settingsValues[key], numericSpecs[key]); }
+    }
+}
+function syncThresholdSummary() {
+    var object, text = "Thresholds: Kick " + Number(settingsValues.kick).toFixed(3) + " · Snare " + Number(settingsValues.snare).toFixed(3) + " · Tom " + Number(settingsValues.tom).toFixed(3) + " · Hi-hat " + Number(settingsValues.hihat).toFixed(3) + " · Cymbal " + Number(settingsValues.cymbal).toFixed(3);
+    try { object = ownerPatcher && ownerPatcher.getnamed("threshold_summary"); if (object) { object.message("set", text); } } catch (exception) {}
 }
 function syncUi() {
     setUiValue("multi_label", settingsValues.multiLabel ? 1 : 0);
@@ -34,6 +75,7 @@ function syncUi() {
     setUiValue("tom_threshold", settingsValues.tom);
     setUiValue("hihat_threshold", settingsValues.hihat);
     setUiValue("cymbal_threshold", settingsValues.cymbal);
+    syncThresholdSummary();
 }
 function publish() {
     outlet(0, "settings_json", JSON.stringify({
@@ -43,14 +85,16 @@ function publish() {
         namingOptions: {numbering: settingsValues.numbering, longNames: !!settingsValues.longNames, preserveUnknown: !!settingsValues.preserveUnknown}
     }));
 }
-function bang() { syncUi(); publish(); }
+function bang() { pullUi(); syncUi(); publish(); }
 function anything() {
     var args = arrayfromargs(arguments), value = args.length > 1 ? args.join(" ") : args[0], modes = ["off", "duplicates", "always"];
-    if (messagename === "pythonPath") { outlet(0, "pythonpath", value); return; }
+    if (messagename === "pythonPath") { if (args[0] === "text") { args.shift(); } outlet(0, "pythonpath", args.join(" ")); return; }
     if (messagename === "checkBackend") { outlet(0, "checkbackend"); return; }
     if (!settingsValues.hasOwnProperty(messagename)) { return; }
     if (messagename === "numbering") { value = modes[Math.max(0, Math.min(2, Number(value)))] || "duplicates"; }
     else if (messagename === "multiLabel" || messagename === "fallbackEnabled" || messagename === "longNames" || messagename === "preserveUnknown") { value = Number(value) === 1; }
+    else if (numericSpecs[messagename]) { value = validNumber(value, settingsValues[messagename], numericSpecs[messagename]); }
     else { value = Number(value); }
     settingsValues[messagename] = value; publish();
+    syncThresholdSummary();
 }

@@ -12,7 +12,7 @@
     "rect": [
       120,
       120,
-      1060,
+      1240,
       620
     ],
     "default_fontname": "Arial",
@@ -21,19 +21,19 @@
         "box": {
           "id": "title",
           "maxclass": "comment",
-          "text": "Slice Labeler Results — Pad | Current | Proposed | Classes | Scores | Decision | Status",
+          "text": "Slice Labeler Results — Pad | Current | Proposed | Classes | All raw scores | Decision | Status | Warnings",
           "fontsize": 16,
           "patching_rect": [
             20,
             15,
-            800,
+            1160,
             24
           ],
           "presentation": 1,
           "presentation_rect": [
             20,
             15,
-            800,
+            1160,
             24
           ]
         }
@@ -54,21 +54,21 @@
         "box": {
           "id": "table",
           "maxclass": "jit.cellblock",
-          "cols": 7,
+          "cols": 8,
           "rows": 129,
           "colhead": 1,
           "rowhead": 0,
           "patching_rect": [
             20,
             105,
-            1015,
+            1200,
             385
           ],
           "presentation": 1,
           "presentation_rect": [
             20,
             105,
-            1015,
+            1200,
             385
           ]
         }
@@ -77,6 +77,7 @@
         "box": {
           "id": "name",
           "maxclass": "textedit",
+          "varname": "proposed_name_editor",
           "patching_rect": [
             20,
             520,
@@ -97,6 +98,7 @@
         "box": {
           "id": "keep",
           "maxclass": "toggle",
+          "varname": "keep_original_toggle",
           "patching_rect": [
             290,
             520,
@@ -274,7 +276,7 @@
         "box": {
           "id": "controller",
           "maxclass": "newobj",
-          "text": "js slice_labeler_results_bundle.js",
+          "text": "js slice_labeler_results_bundle_v2.js",
           "numinlets": 2,
           "numoutlets": 2,
           "patching_rect": [
@@ -287,11 +289,24 @@
       },
       {
         "box": {
+          "id": "name-route-text",
+          "maxclass": "newobj",
+          "text": "route text",
+          "patching_rect": [
+            20,
+            555,
+            75,
+            22
+          ]
+        }
+      },
+      {
+        "box": {
           "id": "edit-prepend",
           "maxclass": "newobj",
           "text": "prepend edit",
           "patching_rect": [
-            20,
+            110,
             555,
             85,
             22
@@ -375,6 +390,58 @@
             22
           ]
         }
+      },
+      {
+        "box": {
+          "id": "overwrite",
+          "maxclass": "toggle",
+          "patching_rect": [
+            20,
+            590,
+            24,
+            24
+          ],
+          "presentation": 1,
+          "presentation_rect": [
+            20,
+            590,
+            24,
+            24
+          ]
+        }
+      },
+      {
+        "box": {
+          "id": "overwrite-label",
+          "maxclass": "comment",
+          "text": "Overwrite manual name conflicts on Apply",
+          "patching_rect": [
+            50,
+            592,
+            260,
+            20
+          ],
+          "presentation": 1,
+          "presentation_rect": [
+            50,
+            592,
+            260,
+            20
+          ]
+        }
+      },
+      {
+        "box": {
+          "id": "overwrite-prepend",
+          "maxclass": "newobj",
+          "text": "prepend overwrite",
+          "patching_rect": [
+            320,
+            590,
+            115,
+            22
+          ]
+        }
       }
     ],
     "lines": [
@@ -430,6 +497,18 @@
         "patchline": {
           "source": [
             "name",
+            0
+          ],
+          "destination": [
+            "name-route-text",
+            0
+          ]
+        }
+      },
+      {
+        "patchline": {
+          "source": [
+            "name-route-text",
             0
           ],
           "destination": [
@@ -586,6 +665,30 @@
         "patchline": {
           "source": [
             "cancel-msg",
+            0
+          ],
+          "destination": [
+            "controller",
+            0
+          ]
+        }
+      },
+      {
+        "patchline": {
+          "source": [
+            "overwrite",
+            0
+          ],
+          "destination": [
+            "overwrite-prepend",
+            0
+          ]
+        }
+      },
+      {
+        "patchline": {
+          "source": [
+            "overwrite-prepend",
             0
           ],
           "destination": [

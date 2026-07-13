@@ -1,8 +1,9 @@
 /* Defensive helpers for Max's legacy js runtime. */
 (function (root) {
     "use strict";
+    function isArray(value) { return Object.prototype.toString.call(value) === "[object Array]"; }
     function scalar(value) {
-        if (value instanceof Array) {
+        if (isArray(value)) {
             if (value.length === 2 && value[0] === "id") { return Number(value[1]); }
             return value.length === 1 ? value[0] : value;
         }
@@ -11,11 +12,11 @@
     function number(value, fallback) { var n = Number(scalar(value)); return isFinite(n) ? n : fallback; }
     function string(value) {
         value = scalar(value);
-        if (value instanceof Array) { return value.join(" "); }
+        if (isArray(value)) { return value.join(" "); }
         return value == null ? "" : String(value);
     }
     function idList(value) {
-        var a = value instanceof Array ? value : [value], out = [], i;
+        var a = isArray(value) ? value : [value], out = [], i;
         for (i = 0; i < a.length; i += 1) { if (a[i] === "id" && i + 1 < a.length) { out.push(Number(a[i + 1])); i += 1; } }
         return out;
     }

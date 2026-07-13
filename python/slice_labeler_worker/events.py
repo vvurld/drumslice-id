@@ -29,25 +29,53 @@ def extract_events(
     if fps <= 0 or not activations:
         return []
     events: list[Event] = []
+    pre_average_frames = max(0, int(round(0.100 * fps)))
+    post_average_frames = max(0, int(round(0.010 * fps)))
+    pre_maximum_frames = max(0, int(round(0.020 * fps)))
+    post_maximum_frames = max(0, int(round(0.010 * fps)))
+    combine_frames = max(1, int(round(0.020 * fps)))
     for class_index, class_name in enumerate(class_names):
         threshold = float(thresholds[class_name])
+        raw = [float(frame[class_index]) for frame in activations]
+        processed = _subtract_moving_average(raw, pre_average_frames, post_average_frames)
         candidates: list[int] = []
-        for index, frame in enumerate(activations):
-            score = float(frame[class_index])
-            left = max(0, index - int(round(0.02 * fps)))
-            right = min(len(activations), index + int(round(0.01 * fps)) + 1)
-            if score >= threshold and score >= max(float(activations[j][class_index]) for j in range(left, right)):
+        for index, score in enumerate(processed):
+            left = max(0, index - pre_maximum_frames)
+            right = min(len(processed), index + post_maximum_frames + 1)
+            if score >= threshold and score >= max(processed[left:right]):
                 candidates.append(index)
-        combined: list[int] = []
-        combine_frames = max(1, int(round(0.02 * fps)))
-        for candidate in candidates:
-            if combined and candidate - combined[-1] <= combine_frames:
-                if activations[candidate][class_index] > activations[combined[-1]][class_index]:
-                    combined[-1] = candidate
-            else:
-                combined.append(candidate)
-        events.extend(Event(i / fps, class_name, float(activations[i][class_index])) for i in combined)
+        for group in _combine_candidates(candidates, combine_frames):
+            chosen = max(group, key=lambda index: processed[index])
+            events.append(Event(chosen / fps, class_name, raw[chosen]))
     return sorted(events, key=lambda event: (event.time_seconds, event.class_name))
+
+
+def _subtract_moving_average(values: list[float], left: int, right: int) -> list[float]:
+    """Match the pinned ADTOF PeakPicker's edge-padded moving average."""
+
+    if left <= 0 and right <= 0:
+        return list(values)
+    width = left + 1 + right
+    result: list[float] = []
+    for index, value in enumerate(values):
+        total = 0.0
+        for offset in range(-left, right + 1):
+            source_index = min(len(values) - 1, max(0, index + offset))
+            total += values[source_index]
+        result.append(max(0.0, value - total / width))
+    return result
+
+
+def _combine_candidates(candidates: list[int], maximum_gap: int) -> list[list[int]]:
+    if not candidates:
+        return []
+    groups: list[list[int]] = [[candidates[0]]]
+    for candidate in candidates[1:]:
+        if candidate - groups[-1][-1] <= maximum_gap:
+            groups[-1].append(candidate)
+        else:
+            groups.append([candidate])
+    return groups
 
 
 def cluster_events(events: list[Event], cluster_ms: float = 18.0) -> list[EventCluster]:

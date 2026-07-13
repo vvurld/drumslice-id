@@ -10,7 +10,7 @@
 		}
 ,
 		"classnamespace" : "box",
-		"rect" : [ 134.0, 167.0, 920.0, 600.0 ],
+		"rect" : [ 134.0, 167.0, 920.0, 980.0 ],
 		"openinpresentation" : 1,
 		"gridsize" : [ 15.0, 15.0 ],
 		"boxes" : [ 			{
@@ -159,8 +159,9 @@
 
 			}
 , 			{
-				"box" : 				{
-					"id" : "scan",
+					"box" : 				{
+						"active" : 0,
+						"id" : "scan",
 					"maxclass" : "textbutton",
 					"numinlets" : 1,
 					"numoutlets" : 3,
@@ -186,8 +187,9 @@
 
 			}
 , 			{
-				"box" : 				{
-					"id" : "analyze",
+					"box" : 				{
+						"active" : 0,
+						"id" : "analyze",
 					"maxclass" : "textbutton",
 					"numinlets" : 1,
 					"numoutlets" : 3,
@@ -213,8 +215,9 @@
 
 			}
 , 			{
-				"box" : 				{
-					"id" : "cancel",
+					"box" : 				{
+						"active" : 0,
+						"id" : "cancel",
 					"maxclass" : "textbutton",
 					"numinlets" : 1,
 					"numoutlets" : 3,
@@ -240,8 +243,9 @@
 
 			}
 , 			{
-				"box" : 				{
-					"id" : "apply",
+					"box" : 				{
+						"active" : 0,
+						"id" : "apply",
 					"maxclass" : "textbutton",
 					"numinlets" : 1,
 					"numoutlets" : 3,
@@ -267,8 +271,9 @@
 
 			}
 , 			{
-				"box" : 				{
-					"id" : "revert",
+					"box" : 				{
+						"active" : 0,
+						"id" : "revert",
 					"maxclass" : "textbutton",
 					"numinlets" : 1,
 					"numoutlets" : 3,
@@ -294,8 +299,9 @@
 
 			}
 , 			{
-				"box" : 				{
-					"id" : "results",
+					"box" : 				{
+						"active" : 0,
+						"id" : "results",
 					"maxclass" : "textbutton",
 					"numinlets" : 1,
 					"numoutlets" : 3,
@@ -400,11 +406,11 @@
 				"box" : 				{
 					"id" : "status-route",
 					"maxclass" : "newobj",
-					"numinlets" : 6,
-					"numoutlets" : 6,
-					"outlettype" : [ "", "", "", "", "", "" ],
-					"patching_rect" : [ 340.0, 375.0, 355.0, 22.0 ],
-					"text" : "route status state progress rack_menu_clear rack_menu_append"
+					"numinlets" : 7,
+					"numoutlets" : 7,
+					"outlettype" : [ "", "", "", "", "", "", "" ],
+					"patching_rect" : [ 340.0, 375.0, 445.0, 22.0 ],
+					"text" : "route status state progress rack_menu_clear rack_menu_append revert_available"
 				}
 
 			}
@@ -439,10 +445,21 @@
 					"maxclass" : "live.slider",
 					"numinlets" : 1,
 					"numoutlets" : 2,
-					"orientation" : 1,
-					"outlettype" : [ "", "float" ],
-					"parameter_enable" : 0,
-					"patching_rect" : [ 340.0, 445.0, 300.0, 41.0 ],
+						"orientation" : 1,
+						"outlettype" : [ "", "float" ],
+						"parameter_enable" : 0,
+						"saved_attribute_attributes" : 					{
+							"valueof" : 						{
+								"parameter_initial" : [ 0.0 ],
+								"parameter_initial_enable" : 1,
+								"parameter_mmax" : 1.0,
+								"parameter_mmin" : 0.0,
+								"parameter_type" : 0
+							}
+
+						}
+,
+						"patching_rect" : [ 340.0, 445.0, 300.0, 41.0 ],
 					"presentation" : 1,
 					"presentation_rect" : [ 8.0, 57.0, 794.0, 41.0 ],
 					"varname" : "live.slider"
@@ -451,21 +468,163 @@
 			}
 , 			{
 				"box" : 				{
-					"id" : "pattr",
+					"id" : "progress-unpack",
 					"maxclass" : "newobj",
-					"numinlets" : 1,
-					"numoutlets" : 1,
-					"outlettype" : [ "" ],
-					"patching_rect" : [ 35.0, 535.0, 271.0, 22.0 ],
-					"saved_object_attributes" : 					{
-						"client_rect" : [ 100, 100, 500, 600 ],
-						"parameter_enable" : 0,
-						"parameter_mappable" : 0,
-						"storage_rect" : [ 200, 200, 800, 500 ]
-					}
-,
-					"text" : "pattrstorage slice_labeler_settings @savemode 3",
-					"varname" : "slice_labeler_settings"
+					"patching_rect" : [ 340.0, 505.0, 100.0, 22.0 ],
+					"text" : "unpack 0. 1. s"
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"id" : "progress-divide",
+					"maxclass" : "newobj",
+					"patching_rect" : [ 455.0, 505.0, 45.0, 22.0 ],
+					"text" : "/ 1."
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"id" : "progress-reset",
+					"maxclass" : "message",
+					"patching_rect" : [ 515.0, 505.0, 35.0, 22.0 ],
+					"text" : "0."
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"id" : "state-ui-route",
+					"maxclass" : "newobj",
+					"patching_rect" : [ 340.0, 575.0, 760.0, 22.0 ],
+					"text" : "route INITIALIZING NO_RACK READY_TO_SCAN SCANNING SCAN_READY ANALYZING REVIEW_READY APPLYING APPLIED CANCELLING ERROR"
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"id" : "state-disabled",
+					"maxclass" : "message",
+					"patching_rect" : [ 340.0, 610.0, 95.0, 22.0 ],
+					"text" : "0 0 0 0 0 0"
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"id" : "state-ready-scan",
+					"maxclass" : "message",
+					"patching_rect" : [ 445.0, 610.0, 95.0, 22.0 ],
+					"text" : "1 0 0 0 0 0"
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"id" : "state-scan-ready",
+					"maxclass" : "message",
+					"patching_rect" : [ 550.0, 610.0, 95.0, 22.0 ],
+					"text" : "1 1 0 0 0 0"
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"id" : "state-analyzing",
+					"maxclass" : "message",
+					"patching_rect" : [ 655.0, 610.0, 95.0, 22.0 ],
+					"text" : "0 0 1 0 0 0"
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"id" : "state-review",
+					"maxclass" : "message",
+					"patching_rect" : [ 760.0, 610.0, 95.0, 22.0 ],
+					"text" : "1 0 0 1 0 1"
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"id" : "state-applied",
+					"maxclass" : "message",
+					"patching_rect" : [ 865.0, 610.0, 95.0, 22.0 ],
+					"text" : "1 0 0 0 1 1"
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"id" : "state-error",
+					"maxclass" : "message",
+					"patching_rect" : [ 970.0, 610.0, 95.0, 22.0 ],
+					"text" : "1 0 0 0 0 1"
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"id" : "state-unpack",
+					"maxclass" : "newobj",
+					"patching_rect" : [ 340.0, 650.0, 160.0, 22.0 ],
+					"text" : "unpack 0 0 0 0 0 0"
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"id" : "scan-active",
+					"maxclass" : "newobj",
+					"patching_rect" : [ 340.0, 690.0, 95.0, 22.0 ],
+					"text" : "prepend active"
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"id" : "analyze-active",
+					"maxclass" : "newobj",
+					"patching_rect" : [ 445.0, 690.0, 95.0, 22.0 ],
+					"text" : "prepend active"
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"id" : "cancel-active",
+					"maxclass" : "newobj",
+					"patching_rect" : [ 550.0, 690.0, 95.0, 22.0 ],
+					"text" : "prepend active"
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"id" : "apply-active",
+					"maxclass" : "newobj",
+					"patching_rect" : [ 655.0, 690.0, 95.0, 22.0 ],
+					"text" : "prepend active"
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"id" : "revert-active",
+					"maxclass" : "newobj",
+					"patching_rect" : [ 760.0, 690.0, 95.0, 22.0 ],
+					"text" : "prepend active"
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"id" : "results-active",
+					"maxclass" : "newobj",
+					"patching_rect" : [ 865.0, 690.0, 95.0, 22.0 ],
+					"text" : "prepend active"
 				}
 
 			}
@@ -727,6 +886,272 @@
 			}
 , 			{
 				"patchline" : 				{
+					"destination" : [ "progress-unpack", 0 ],
+					"source" : [ "status-route", 2 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "progress-divide", 1 ],
+					"source" : [ "progress-unpack", 1 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "progress-divide", 0 ],
+					"source" : [ "progress-unpack", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "progress", 0 ],
+					"source" : [ "progress-divide", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "state-ui-route", 0 ],
+					"source" : [ "status-route", 1 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "revert-active", 0 ],
+					"source" : [ "status-route", 5 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "progress-reset", 0 ],
+					"source" : [ "state-ui-route", 5 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "progress", 0 ],
+					"source" : [ "progress-reset", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "state-disabled", 0 ],
+					"source" : [ "state-ui-route", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "state-ready-scan", 0 ],
+					"source" : [ "state-ui-route", 1 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "state-ready-scan", 0 ],
+					"source" : [ "state-ui-route", 2 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "state-disabled", 0 ],
+					"source" : [ "state-ui-route", 3 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "state-scan-ready", 0 ],
+					"source" : [ "state-ui-route", 4 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "state-analyzing", 0 ],
+					"source" : [ "state-ui-route", 5 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "state-review", 0 ],
+					"source" : [ "state-ui-route", 6 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "state-disabled", 0 ],
+					"source" : [ "state-ui-route", 7 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "state-applied", 0 ],
+					"source" : [ "state-ui-route", 8 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "state-disabled", 0 ],
+					"source" : [ "state-ui-route", 9 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "state-error", 0 ],
+					"source" : [ "state-ui-route", 10 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "state-unpack", 0 ],
+					"source" : [ "state-disabled", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "state-unpack", 0 ],
+					"source" : [ "state-ready-scan", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "state-unpack", 0 ],
+					"source" : [ "state-scan-ready", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "state-unpack", 0 ],
+					"source" : [ "state-analyzing", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "state-unpack", 0 ],
+					"source" : [ "state-review", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "state-unpack", 0 ],
+					"source" : [ "state-applied", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "state-unpack", 0 ],
+					"source" : [ "state-error", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "scan-active", 0 ],
+					"source" : [ "state-unpack", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "analyze-active", 0 ],
+					"source" : [ "state-unpack", 1 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "cancel-active", 0 ],
+					"source" : [ "state-unpack", 2 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "apply-active", 0 ],
+					"source" : [ "state-unpack", 3 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "revert-active", 0 ],
+					"source" : [ "state-unpack", 4 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "results-active", 0 ],
+					"source" : [ "state-unpack", 5 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "scan", 0 ],
+					"source" : [ "scan-active", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "analyze", 0 ],
+					"source" : [ "analyze-active", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "cancel", 0 ],
+					"source" : [ "cancel-active", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "apply", 0 ],
+					"source" : [ "apply-active", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "revert", 0 ],
+					"source" : [ "revert-active", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "results", 0 ],
+					"source" : [ "results-active", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
 					"destination" : [ "defer", 0 ],
 					"source" : [ "thisdevice", 0 ]
 				}
@@ -736,13 +1161,19 @@
 		"originid" : "pat-4",
 		"parameters" : 		{
 			"settings-abs::cluster" : [ "cluster_ms", "cluster_ms", 0 ],
+			"settings-abs::cymbal" : [ "cymbal_threshold", "cymbal_threshold", 0 ],
 			"settings-abs::fallback" : [ "fallback_enabled", "fallback_enabled", 0 ],
 			"settings-abs::floor" : [ "fallback_floor", "fallback_floor", 0 ],
+			"settings-abs::hihat" : [ "hihat_threshold", "hihat_threshold", 0 ],
+			"settings-abs::kick" : [ "kick_threshold", "kick_threshold", 0 ],
 			"settings-abs::long" : [ "long_names", "long_names", 0 ],
 			"settings-abs::multi-label" : [ "multi_label", "multi_label", 0 ],
+			"settings-abs::numbering" : [ "numbering", "numbering", 0 ],
 			"settings-abs::post" : [ "post_tolerance_ms", "post_tolerance_ms", 0 ],
 			"settings-abs::pre" : [ "pre_tolerance_ms", "pre_tolerance_ms", 0 ],
+			"settings-abs::snare" : [ "snare_threshold", "snare_threshold", 0 ],
 			"settings-abs::threads" : [ "max_threads", "max_threads", 0 ],
+			"settings-abs::tom" : [ "tom_threshold", "tom_threshold", 0 ],
 			"settings-abs::unknown" : [ "preserve_unknown", "preserve_unknown", 0 ],
 			"parameterbanks" : 			{
 				"0" : 				{
@@ -759,6 +1190,11 @@
 					"parameter_shortname" : "cluster_ms"
 				}
 ,
+				"settings-abs::cymbal" : 				{
+					"parameter_longname" : "cymbal_threshold",
+					"parameter_shortname" : "cymbal_threshold"
+				}
+,
 				"settings-abs::fallback" : 				{
 					"parameter_longname" : "fallback_enabled",
 					"parameter_shortname" : "fallback_enabled"
@@ -767,6 +1203,16 @@
 				"settings-abs::floor" : 				{
 					"parameter_longname" : "fallback_floor",
 					"parameter_shortname" : "fallback_floor"
+				}
+,
+				"settings-abs::hihat" : 				{
+					"parameter_longname" : "hihat_threshold",
+					"parameter_shortname" : "hihat_threshold"
+				}
+,
+				"settings-abs::kick" : 				{
+					"parameter_longname" : "kick_threshold",
+					"parameter_shortname" : "kick_threshold"
 				}
 ,
 				"settings-abs::long" : 				{
@@ -779,6 +1225,11 @@
 					"parameter_shortname" : "multi_label"
 				}
 ,
+				"settings-abs::numbering" : 				{
+					"parameter_longname" : "numbering",
+					"parameter_shortname" : "numbering"
+				}
+,
 				"settings-abs::post" : 				{
 					"parameter_longname" : "post_tolerance_ms",
 					"parameter_shortname" : "post_tolerance_ms"
@@ -789,9 +1240,19 @@
 					"parameter_shortname" : "pre_tolerance_ms"
 				}
 ,
+				"settings-abs::snare" : 				{
+					"parameter_longname" : "snare_threshold",
+					"parameter_shortname" : "snare_threshold"
+				}
+,
 				"settings-abs::threads" : 				{
 					"parameter_longname" : "max_threads",
 					"parameter_shortname" : "max_threads"
+				}
+,
+				"settings-abs::tom" : 				{
+					"parameter_longname" : "tom_threshold",
+					"parameter_shortname" : "tom_threshold"
 				}
 ,
 				"settings-abs::unknown" : 				{

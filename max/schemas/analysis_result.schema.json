@@ -8,21 +8,79 @@
     "schemaVersion": {"const": 1},
     "type": {"const": "result"},
     "requestId": {"type": "string", "minLength": 1},
-    "backend": {"type": "object"},
+    "backend": {"$ref": "#/$defs/backend"},
     "predictions": {"type": "array", "items": {"$ref": "#/$defs/prediction"}},
-    "sourceErrors": {"type": "array"}
+    "sourceErrors": {"type": "array", "items": {"$ref": "#/$defs/sourceError"}}
   },
   "$defs": {
+    "backend": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ok", "backendId", "modelVersion", "classNames", "modelWeightsFingerprint", "preprocessingVersion"],
+      "properties": {
+        "ok": {"const": true},
+        "backendId": {"type": "string", "minLength": 1},
+        "modelVersion": {"type": "string", "minLength": 1},
+        "classNames": {
+          "type": "array",
+          "prefixItems": [
+            {"const": "kick"},
+            {"const": "snare"},
+            {"const": "tom"},
+            {"const": "hihat"},
+            {"const": "cymbal"}
+          ],
+          "minItems": 5,
+          "maxItems": 5
+        },
+        "modelWeightsFingerprint": {"type": "string", "minLength": 1},
+        "preprocessingVersion": {"type": "string", "minLength": 1},
+        "message": {"type": "string"}
+      }
+    },
+    "sourceError": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sourceId", "code", "message"],
+      "properties": {
+        "sourceId": {"type": "string", "minLength": 1},
+        "code": {"type": "string", "minLength": 1},
+        "message": {"type": "string", "minLength": 1},
+        "details": {"type": "object"}
+      }
+    },
     "prediction": {
       "type": "object",
+      "additionalProperties": false,
       "required": ["regionId", "classes", "scores", "matchedEvents", "decision", "topScore", "warnings"],
       "properties": {
-        "regionId": {"type": "string"},
-        "classes": {"type": "array", "items": {"enum": ["kick", "snare", "tom", "hihat", "cymbal", "unknown"]}},
-        "scores": {"type": "object"},
-        "matchedEvents": {"type": "array"},
+        "regionId": {"type": "string", "minLength": 1},
+        "classes": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"enum": ["kick", "snare", "tom", "hihat", "cymbal", "unknown"]}},
+        "scores": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "kick": {"type": "number", "minimum": 0, "maximum": 1},
+            "snare": {"type": "number", "minimum": 0, "maximum": 1},
+            "tom": {"type": "number", "minimum": 0, "maximum": 1},
+            "hihat": {"type": "number", "minimum": 0, "maximum": 1},
+            "cymbal": {"type": "number", "minimum": 0, "maximum": 1}
+          }
+        },
+        "matchedEvents": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["timeSeconds", "classes"],
+            "properties": {
+              "timeSeconds": {"type": "number", "minimum": 0},
+              "classes": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"enum": ["kick", "snare", "tom", "hihat", "cymbal"]}}
+            }
+          }
+        },
         "decision": {"enum": ["matched_event", "activation_fallback", "unknown", "analysis_error"]},
-        "topScore": {"type": "number"},
+        "topScore": {"type": "number", "minimum": 0, "maximum": 1},
         "warnings": {"type": "array", "items": {"type": "string"}}
       }
     }
