@@ -2,9 +2,23 @@
 
 ## Setup
 
-Run `scripts/setup_backend.sh` (macOS) or `scripts/setup_backend.ps1` (Windows) yourself with CPython 3.10, 3.11, or 3.12. This creates a dedicated environment under your user profile, installs the exact dependency set in `python/requirements.lock`, runs an installed-package health check with strict model-weight loading, and writes only the Python executable and backend revision to `~/.slice-labeler/backend-config.json`. Loading the device never installs or downloads anything.
+From a complete repository clone, run [`install.sh`](../install.sh) on macOS or [`install.ps1`](../install.ps1) on Windows. The one-step installer requires CPython 3.10, 3.11, or 3.12 plus Git/network access. It creates a dedicated environment under your user profile, installs the exact dependency set in `python/requirements.lock`, runs an installed-package health check with strict model-weight loading, copies the complete Max package and AMXD, and verifies that the installed runtime matches the checkout. Loading the device itself never installs or downloads anything.
 
-For repository development, run `scripts/install_local.sh` to install the committed development device and symlink its required `SliceLabeler` Max package. Copying `dist/Slice Labeler.amxd` alone is insufficient. To rebuild the editable source, follow `scripts/build_max_device.md`. Place the resulting MIDI Effect immediately before the sliced Drum Rack on the same MIDI track.
+The default commands are:
+
+```sh
+./install.sh
+```
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\install.ps1
+```
+
+Restart Live or rescan its User Library, then load **User Library → Presets → MIDI Effects → Max MIDI Effect → Slice Labeler**. Both installers accept custom Max package, Ableton User Library, backend, configuration, and Python paths. Use `--help` on macOS or `Get-Help .\install.ps1 -Detailed` on Windows for the complete interface.
+
+The copied installation does not depend on the clone remaining in place. A self-locating uninstaller is copied to `~/.slice-labeler`; by default it removes only the AMXD and Max package. Use `--all`/`-All` only when you also want to remove the private backend and cache.
+
+For repository development, [`scripts/install_local.sh`](../scripts/install_local.sh) remains the opt-in symlink workflow. To rebuild the editable source, follow [`scripts/build_max_device.md`](../scripts/build_max_device.md). Copying `dist/Slice Labeler.amxd` alone is insufficient in either workflow; the package and backend are required. Place the resulting MIDI Effect immediately before the sliced Drum Rack on the same MIDI track.
 
 ## Workflow
 

@@ -1,5 +1,9 @@
 # Troubleshooting
 
+- Installer prerequisites or paths: run `./install.sh --help` on macOS or `Get-Help .\install.ps1 -Detailed` on Windows. The normal installer requires Python 3.10–3.12 and Git; custom User Library and Max Packages paths must be absolute.
+- Device missing from Live's browser: run `./install.sh --verify-only` (or `install.ps1 -VerifyOnly`), then restart Live or rescan the User Library. Confirm you selected the same User Library path configured in Live's Preferences.
+- Existing package refused: the installer found a `SliceLabeler` directory without the expected package metadata. Inspect it before using `--force`/`-Force`; the refusal prevents unrelated files from being replaced.
+- Repository moved after installation: the normal root installer copies the runtime and remains valid. Only the development-only `scripts/install_local.sh` symlink breaks when its checkout moves.
 - `NO_DOWNSTREAM_DRUM_RACK`: move Slice Labeler before a top-level Drum Rack on the same MIDI track, then rescan.
 - `BACKEND_NOT_INSTALLED`: run the explicit setup script or correct `~/.slice-labeler/backend-config.json`.
 - `MODEL_WEIGHTS_MISSING`: reinstall the pinned ADTOF environment; the device will not download weights automatically.
