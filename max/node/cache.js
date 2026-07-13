@@ -13,9 +13,17 @@ function cacheRoot() {
   return path.join(process.env.XDG_CACHE_HOME || path.join(os.homedir(), ".cache"), "slice-labeler");
 }
 
+function workerCacheRoot() {
+  const root = cacheRoot();
+  /* The Python worker uses a child directory by default, but treats an
+     explicit override as the exact cache directory. Mirror that convention
+     so Clear Cache removes activations without deleting the sibling log. */
+  return process.env.SLICE_LABELER_CACHE_DIR ? root : path.join(root, "worker");
+}
+
 class DiskCache {
   constructor(options = {}) { this.directory = options.directory || cacheRoot(); this.maxBytes = options.maxBytes || 512 * 1024 * 1024; }
-  file(key) { return path.join(this.directory, `${key}.json`); }
+  file(key) { return path.join(this.directory, `${safeKey(key)}.json`); }
   async get(key) {
     const file = this.file(key);
     try { const data = JSON.parse(await fsp.readFile(file, "utf8")); await fsp.utimes(file, new Date(), new Date()); return data; }
@@ -26,7 +34,25 @@ class DiskCache {
     const target = this.file(key); const temp = `${target}.${process.pid}.${crypto.randomBytes(4).toString("hex")}.tmp`;
     await fsp.writeFile(temp, JSON.stringify(data), {encoding: "utf8", mode: 0o600}); await fsp.rename(temp, target); await this.cleanup();
   }
-  async clear() { await fsp.rm(this.directory, {recursive: true, force: true}); }
+  async clear() {
+    /* An explicit SLICE_LABELER_CACHE_DIR can be a shared directory that also
+       contains the diagnostic log (or files owned by the user).  Remove only
+       cache entries whose names we create, plus Numba's dedicated subtree;
+       never recursively delete the configured root itself. */
+    let entries;
+    try { entries = await fsp.readdir(this.directory, {withFileTypes: true}); }
+    catch (error) { if (error.code === "ENOENT") return; throw error; }
+    const cacheFile = /^[0-9a-f]{64}(?:\.json(?:\.gz)?|\..*\.tmp)$/;
+    await Promise.all(entries.map(async (entry) => {
+      if (entry.name === "numba") {
+        await fsp.rm(path.join(this.directory, entry.name), {recursive: true, force: true});
+      } else if (cacheFile.test(entry.name)) {
+        await fsp.rm(path.join(this.directory, entry.name), {force: true});
+      }
+    }));
+    try { await fsp.rmdir(this.directory); }
+    catch (error) { if (!["ENOENT", "ENOTEMPTY", "EEXIST"].includes(error.code)) throw error; }
+  }
   async cleanup() {
     let names; try { names = await fsp.readdir(this.directory); } catch { return; }
     const files = (await Promise.all(names.filter((n) => n.endsWith(".json")).map(async (name) => { const file = path.join(this.directory, name); const stat = await fsp.stat(file); return {file, size: stat.size, atime: stat.atimeMs}; }))).sort((a, b) => a.atime - b.atime);
@@ -35,4 +61,9 @@ class DiskCache {
   }
 }
 
-module.exports = {DiskCache, cacheRoot};
+function safeKey(key) {
+  if (typeof key !== "string" || !key) throw new TypeError("Cache keys must be non-empty strings.");
+  return /^[0-9a-f]{64}$/.test(key) ? key : crypto.createHash("sha256").update(key).digest("hex");
+}
+
+module.exports = {DiskCache, cacheRoot, workerCacheRoot, safeKey};

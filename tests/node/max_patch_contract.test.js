@@ -1,0 +1,67 @@
+"use strict";
+
+const test = require("node:test");
+const assert = require("node:assert/strict");
+const fs = require("node:fs");
+const path = require("node:path");
+
+const ROOT = path.resolve(__dirname, "../..");
+
+function patcher(name) {
+  return JSON.parse(fs.readFileSync(path.join(ROOT, "max/patchers", name), "utf8")).patcher;
+}
+
+function boxesById(patch) {
+  return new Map(patch.boxes.map(({box}) => [box.id, box]));
+}
+
+function hasLine(patch, sourceId, sourceOutlet, destinationId, destinationInlet) {
+  return patch.lines.some(({patchline}) =>
+    patchline.source[0] === sourceId && patchline.source[1] === sourceOutlet &&
+    patchline.destination[0] === destinationId && patchline.destination[1] === destinationInlet);
+}
+
+test("main Max patch preserves MIDI and wires state/progress/runtime paths", () => {
+  const patch = patcher("SliceLabeler.maxpat");
+  const boxes = boxesById(patch);
+  assert.equal(hasLine(patch, "midi-in", 0, "midi-out", 0), true);
+  assert.equal(hasLine(patch, "controller", 1, "node", 0), true);
+  assert.equal(hasLine(patch, "node", 0, "controller", 1), true);
+  assert.equal(hasLine(patch, "status-route", 2, "progress-unpack", 0), true);
+  assert.equal(hasLine(patch, "status-route", 1, "state-ui-route", 0), true);
+  assert.equal(hasLine(patch, "status-route", 5, "revert-active", 0), true);
+  assert.equal(hasLine(patch, "state-ui-route", 1, "state-ready-scan", 0), true, "NO_RACK must leave Scan available for rediscovery");
+  for (const id of ["scan-active", "analyze-active", "cancel-active", "apply-active", "revert-active", "results-active"]) {
+    assert.ok(boxes.has(id), `missing state gate ${id}`);
+  }
+  assert.equal(Array.from(boxes.values()).some((box) => String(box.text || "").startsWith("pattrstorage ")), false);
+});
+
+test("Settings exposes every required classifier control with persisted safe ranges", () => {
+  const patch = patcher("SliceLabelerSettings.maxpat");
+  const boxes = boxesById(patch);
+  assert.equal(boxes.get("controller").text, "js slice_labeler_settings_bundle_v2.js");
+  for (const id of ["kick", "snare", "tom", "hihat", "cymbal"]) {
+    const box = boxes.get(id);
+    assert.equal(box.presentation, 1, `${id} threshold is hidden`);
+    assert.equal(box.parameter_enable, 1, `${id} threshold is not persisted`);
+    const attributes = box.saved_attribute_attributes.valueof;
+    assert.ok(attributes.parameter_initial[0] > 0 && attributes.parameter_initial[0] <= 1);
+    assert.ok(attributes.parameter_mmin > 0 && attributes.parameter_mmax === 1);
+  }
+  assert.equal(hasLine(patch, "backend", 0, "backend-route-text", 0), true);
+  assert.equal(hasLine(patch, "backend-route-text", 0, "p-python", 0), true);
+  assert.equal(hasLine(patch, "loadbang", 0, "init-delay", 0), true);
+  assert.equal(hasLine(patch, "init-delay", 0, "controller", 0), true);
+  assert.equal(Array.from(boxes.values()).some((box) => box.id === "init-ui" || box.id === "settings-thispatcher"), false);
+});
+
+test("Results text editing strips Max's text selector and has synchronized controls", () => {
+  const patch = patcher("SliceLabelerResults.maxpat");
+  const boxes = boxesById(patch);
+  assert.equal(boxes.get("controller").text, "js slice_labeler_results_bundle_v2.js");
+  assert.equal(boxes.get("name").varname, "proposed_name_editor");
+  assert.equal(boxes.get("keep").varname, "keep_original_toggle");
+  assert.equal(hasLine(patch, "name", 0, "name-route-text", 0), true);
+  assert.equal(hasLine(patch, "name-route-text", 0, "edit-prepend", 0), true);
+});

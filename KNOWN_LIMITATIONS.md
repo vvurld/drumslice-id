@@ -1,10 +1,18 @@
 # Known limitations
 
-- The committed development `.amxd` in `dist/` depends on the locally installed `SliceLabeler` Max package. A self-contained redistribution freeze is still a separate release step.
-- Rack discovery, scanning, production ADTOF analysis, REX2 companion resolution, and expanded Results rendering are host-verified in Live 12.4.2 (15 analyzed pads, 0 skipped, 0 unknown on the supplied break). Apply/Revert and expanded Results editing still require a production-backend acceptance pass.
-- The expanded Results table uses `jit.cellblock`; its row editing behavior remains host-version-sensitive.
+- The committed development `.amxd` in `dist/` depends on the locally installed `SliceLabeler` Max package. Copying the `.amxd` alone does not install the patchers, JavaScript, Node runtime files, or schemas it resolves. A clean self-contained freeze of project-owned dependencies is still a separate release step.
+- The acceptance build's rack discovery, scanning, production ADTOF analysis, REX2 companion resolution, and expanded Results rendering are host-verified in Live 12.4.2 on the supplied 15-slice break. The final audited binary was rebuilt, structurally verified, and installed byte-identically afterward; its final UI reload and the full production Apply/Revert/staleness/conflict checklist still require a recorded host pass.
+- The expanded Results table uses `jit.cellblock`; its newly expanded all-score/warning columns and overwrite-conflicts toggle remain host-version-sensitive and need a final recorded host pass.
 - Live Object Model traversal and writes cannot be validated by automated tests outside Live. Mock-graph tests cover ordering, recursive Simpler discovery, staleness, conflict handling, apply, and revert logic.
-- Only the ADTOF CPU path is enabled. Inference cannot be interrupted inside a single source; cancellation is honored before the next source and before publishing the result.
+- Only the ADTOF CPU path is enabled. Inference is serialized inside the worker. Cancel marks the job stale immediately and recycles the dedicated Python child, so a cancelled cold load or model call cannot publish or repopulate the cache; the next Analyze must reload the model.
 - Direct Simpler Slicing Mode, Sampler, multisample Simpler, multiple chains per pad, multiple reachable Simplers, nested Drum Rack pads, and samples without readable files are deliberately skipped.
 - The pinned ADTOF-pytorch revision does not declare a license. No source or weights may be redistributed until rights are established.
 - ADTOF’s activations are ranking scores, not calibrated probabilities, and the initial mapping tolerances require validation on representative sliced breaks.
+- REX/RX2 support relies on a same-stem decodable companion and duration-ratio alignment. The resolver checks the REX directory and adjacent format directories before using a macOS Spotlight fallback; it cannot prove that two same-stem files contain identical audio, and multiple matches are chosen by path proximity rather than audio content.
+- Structured Max↔Node runtime payloads use validated serialized JSON messages. A named Max `Dict` is used for diagnostics export, but the original specification's named-Dict transport was not adopted; the current message path is host-verified with 15 regions, while a 128-region host payload still needs acceptance testing.
+- Label and index separators remain the documented fixed defaults (`+` and one space), and generated indexes remain two digits. They are supported by the naming engine but are not exposed as persisted UI settings yet.
+- Cache clearing is coordinated with the cancelled worker owned by the current device instance. Separate simultaneous Slice Labeler device instances do not share a cross-process lock, so clearing from one while another is actively finishing inference is not a supported workflow.
+- The compact backend state is reported through the shared status line rather than a separate dedicated indicator.
+- The supported production interpreter range is CPython 3.10–3.12. The pinned audio/ML stack is not claimed to work on newer CPython releases.
+- No cold-inference or cache-hit performance claim has been benchmarked on the target machine.
+- The current repository is not commercially release-ready: classifier/weights rights, dependency-license review, clean-machine packaging, platform QA, and signing/notarization or installer work remain release gates.

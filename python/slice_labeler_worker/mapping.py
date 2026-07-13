@@ -80,6 +80,22 @@ def _select_classes(
     return classes
 
 
+def _scores_at_cluster(output: ModelOutput, cluster: EventCluster) -> dict[str, float]:
+    """Expose every class at the chosen event time without changing selection."""
+
+    frame_index = min(len(output.activations) - 1, max(0, int(round(cluster.time_seconds * output.fps))))
+    scores = {
+        name: float(output.activations[frame_index][index])
+        for index, name in enumerate(output.class_names)
+    }
+    # A cross-class cluster can combine peaks from adjacent frames. Preserve the
+    # exact raw score at every extracted peak while filling the other classes
+    # from the representative cluster frame.
+    for name, score in cluster.scores.items():
+        scores[name] = max(scores.get(name, 0.0), float(score))
+    return scores
+
+
 def map_regions(
     regions: list[Region],
     output: ModelOutput,
@@ -95,8 +111,8 @@ def map_regions(
         warnings: list[str] = []
         if matches:
             chosen = matches[0]
-            scores = dict(chosen.scores)
-            classes = _select_classes(scores, thresholds, 0.70, multi_label)
+            classes = _select_classes(dict(chosen.scores), thresholds, 0.70, multi_label)
+            scores = _scores_at_cluster(output, chosen)
             decision = "matched_event"
             if len(matches) > 1:
                 warnings.append("Additional event clusters occurred later in this region.")

@@ -17,10 +17,11 @@
   "$defs": {
     "liveRef": {
       "type": "object",
+      "additionalProperties": false,
       "required": ["displayName", "sessionPath"],
       "properties": {
         "displayName": {"type": "string"},
-        "sessionId": {"type": "integer"},
+        "sessionId": {"type": "integer", "minimum": 1},
         "sessionPath": {"type": "string"}
       }
     },
@@ -45,7 +46,7 @@
         "padIndex": {"type": "integer", "minimum": 0, "maximum": 127},
         "padNote": {"type": "integer", "minimum": 0, "maximum": 127},
         "padDisplayName": {"type": "string"},
-        "chainSessionId": {"type": "integer"},
+        "chainSessionId": {"type": "integer", "minimum": 1},
         "chainSessionPath": {"type": "string"},
         "originalChainName": {"type": "string"},
         "simplerSessionPath": {"type": "string"},

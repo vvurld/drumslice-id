@@ -2,21 +2,32 @@
 
 Record Live/Max versions, machine, Set name, and date. For each item record Pass, Fail, or Not Run plus evidence.
 
-1. Place the device before a standard sliced Drum Rack and confirm MIDI passes unchanged.
-2. Scan 16 pads; compare count, file paths, and exact Simpler marker frames.
-3. Analyze; verify every chain name and every MIDI note/velocity/duration/number remains unchanged.
-4. Review labels, score display, unknowns, editing, Keep Original, and reset actions.
-5. Apply; verify only supported chain names change and read-back succeeds.
-6. Verify sample markers, macros, effects, sends, choke groups, routing, and clips did not change.
-7. Revert; verify original names return.
-8. Manually edit one applied name; Revert must preserve the manual edit.
-9. Move a marker after Analyze; Apply must return `PLAN_STALE` and write nothing.
-10. Rename a chain after Analyze; Apply must report a row conflict.
-11. Delete the rack during analysis and ensure no late writes occur.
-12. Start a second analysis and ensure the first result is discarded.
-13. Select each of two downstream racks.
-14. Test missing file, nested Instrument Rack + Simpler, two Simplers, and multiple chains.
-15. Test spaces and non-ASCII characters in source paths.
-16. Test during transport and watch for UI/audio disruption.
-17. Repeat one source for a cache hit; clear cache and verify inference resumes.
-18. Save/reopen the Set and verify no stale Live IDs are used.
+1. Install the exact candidate `.amxd` and its intended dependencies from a clean user account; confirm it does not resolve a developer checkout or absolute user path.
+2. Place the device before a standard sliced Drum Rack and confirm MIDI passes through unchanged.
+3. Scan a 16-pad rack; compare the count, source paths, sample rates, full source lengths, and exact Simpler marker frames with Live.
+4. Analyze; verify every chain name and every MIDI note number, timing, velocity, and duration remains unchanged.
+5. Review labels, all five raw-score columns, decisions, warnings, unknowns, editing, row selection, Keep Original, and reset actions.
+6. Apply; verify only supported `Chain.name` values change and every reported success reads back exactly.
+7. Verify sample markers, macros, effects, sends, choke groups, routing, and clips did not change.
+8. Revert; verify original names return.
+9. Manually edit one applied name; Revert must preserve the manual edit while restoring untouched applied rows.
+10. Rescan after Apply, then Revert; the previous successful Apply record must remain usable.
+11. Run an Apply that performs zero writes; verify it does not erase the preceding usable Revert record.
+12. Move a marker after Analyze; Apply must return `PLAN_STALE` and write nothing.
+13. Move the remembered chain to another pad after Analyze; Apply must return `PLAN_STALE` and write nothing.
+14. Rename a chain after Analyze; Apply must report a row conflict without blocking unrelated valid rows.
+15. Delete or replace the rack while Apply is being deferred; confirm rack/pad/chain revalidation prevents writes.
+16. Delete the rack during analysis and ensure no late writes occur.
+17. Cancel analysis, start another analysis, and start a new Scan; in each case ensure stale progress/results from the earlier job are discarded.
+18. Select each of two downstream racks and verify selection invalidates the previous snapshot/plan.
+19. Test a missing file alongside one valid source; the valid source must still produce predictions and the failed source must report `analysis_error` rows.
+20. Test nested Instrument Rack + Simpler, two reachable Simplers, multiple top-level pad chains, multisample Simpler, and direct Simpler Slicing Mode.
+21. Test spaces and non-ASCII characters in source paths and proposed chain names; confirm the 31-code-point name limit.
+22. Test during transport and watch for UI/audio disruption.
+23. Repeat one source for a cache hit; change only thresholds and confirm inference is still reused.
+24. Clear Cache and verify the next run performs inference.
+25. Test an RX2/REX source with a same-stem companion; verify the warning, full-source-length time scaling, and a cache hit. Change the companion and verify cache invalidation.
+26. Open Settings, modify every control, save/reopen the Set, and verify values persist without being reset when Settings opens.
+27. Configure a valid Python executable path containing spaces; then try a missing/invalid replacement and verify the prior working backend configuration remains active.
+28. Save/reopen the Set and verify no stale Live IDs are used or persisted.
+29. Record cold backend/model load time, cold source inference time, cache-hit time, Live/Max/Python versions, OS/architecture, and exact artifact hash. Do not make a performance claim from an unrecorded run.

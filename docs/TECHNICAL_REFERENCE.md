@@ -28,7 +28,7 @@ flowchart LR
 
 There are four runtime boundaries:
 
-1. The Max patchers own presentation, control routing, dictionaries, and unconditional MIDI pass-through.
+1. The Max patchers own presentation, control routing, validated serialized-JSON message transport, diagnostic export through a named `Dict`, and unconditional MIDI pass-through.
 2. [`live_controller.js`](../max/javascript/live_controller.js) is the only component that traverses the Live Object Model or mutates a Live Set. Its only write operation is `Chain.name`.
 3. [`orchestrator.js`](../max/node/orchestrator.js) validates and reduces the Live snapshot, fingerprints source files, supervises Python, and correlates requests and responses.
 4. The Python package in [`python/slice_labeler_worker`](../python/slice_labeler_worker) performs audio inference, activation caching, event extraction, onset clustering, and slice classification.
@@ -41,9 +41,9 @@ This separation is a safety boundary as well as an implementation choice. The Py
 | --- | --- | --- |
 | Host | Ableton Live 12, Max for Live, Max 9 package format | Device hosting, Live Set state, MIDI device chain |
 | Device UI | Max patchers (`.maxpat`) packaged behind an `.amxd` | Controls, settings and results windows, progress/status display, MIDI pass-through |
-| Live integration | Max `js`, ES5-compatible JavaScript, `LiveAPI`, `Task`, `Dict` | Drum Rack discovery, snapshot construction, dry-run plan, guarded Apply/Revert |
+| Live integration | Max `js`, ES5-compatible JavaScript, `LiveAPI`, `Task`, JSON messages, diagnostic `Dict` | Drum Rack discovery, snapshot construction, dry-run plan, guarded Apply/Revert |
 | Orchestration | Node for Max, CommonJS, Node 18+, `max-api` | Validation, grouping, SHA-256 source identity, process supervision, logging |
-| Analysis service | Python 3.10+ standard library | JSON-Lines protocol, backend lifetime, cancellation, caching, mapping |
+| Analysis service | Python 3.10–3.12 standard library | JSON-Lines protocol, backend lifetime, cancellation, caching, mapping |
 | ML inference | `adtof-pytorch` 0.1.0 at Git commit `85c192e78f716ea0b111cc8a5ee4a8f6a3a4f8a9` | Audio preprocessing and five-class Frame_RNN inference |
 | ML dependencies | PyTorch, librosa, NumPy; SoundFile/audioread through librosa; PrettyMIDI in the ADTOF package | Tensor inference, decoding/resampling, STFT and numeric operations; Slice Labeler itself does not export MIDI |
 | Test stack | Node's built-in test runner and pytest | Pure graph/naming/protocol tests and Python inference/mapping regressions |
@@ -64,18 +64,20 @@ stateDiagram-v2
     NO_RACK --> READY_TO_SCAN: refresh / rack added
     READY_TO_SCAN --> SCANNING: Scan
     SCANNING --> SCAN_READY: snapshot complete
+    SCANNING --> READY_TO_SCAN: no analyzable pads
     SCAN_READY --> ANALYZING: Analyze
     ANALYZING --> CANCELLING: Cancel
     ANALYZING --> REVIEW_READY: result received
     REVIEW_READY --> APPLYING: Apply
-    APPLYING --> APPLIED: at least one verified write
+    APPLYING --> APPLIED: verified write or prior Revert record retained
+    APPLYING --> REVIEW_READY: no-op with no prior Revert record
     APPLIED --> REVIEW_READY: successful full Revert
     ERROR --> READY_TO_SCAN: reinitialize / refresh
 ```
 
-Any operation can transition to `ERROR` when its required invariant fails. A new scan cancels an active analysis. Apply is only accepted from `REVIEW_READY`; Analyze is only accepted from `SCAN_READY`. This prevents a stale button press from bypassing the intended Scan → Analyze → Review → Apply sequence.
+An operation whose required invariant fails enters `ERROR` unless a verified earlier Apply record still exists; in that case the controller keeps the `APPLIED` state so Revert remains reachable. An Apply that finds every effective name already present records each row as unchanged. With no earlier Revert record it returns to `REVIEW_READY`; with an earlier record it retains that record and returns to `APPLIED`. A new scan cancels an active analysis. Apply is only accepted from `REVIEW_READY`; Analyze is only accepted from `SCAN_READY`. This prevents a stale button press from bypassing the intended Scan → Analyze → Review → Apply sequence.
 
-Cancellation is cooperative. The worker checks cancellation before each unique source and before returning the final result. A PyTorch inference already executing for one source is not interrupted in the middle.
+Cancel marks the Node job stale immediately, sends the protocol cancellation, and recycles the dedicated Python child. Node waits for definitive child exit before Clear Cache or another request reuses that worker. Python also checks cancellation around source and mapping stages; the process recycle is the hard boundary for a cold load or PyTorch call that cannot cooperate mid-operation. A later result can never return to Apply, and the next Analyze reloads the model.
 
 ## 4. Discovering the target Drum Rack
 
@@ -93,7 +95,7 @@ The target is a top-level downstream Drum Rack. Nested instrument/effect racks i
 
 ## 5. Scan: converting Live state into authoritative regions
 
-Scan reads the selected rack's top-level `drum_pads`. Empty pads are ignored. A populated pad is analyzable only if it has exactly one top-level chain and that chain contains exactly one reachable `SimplerDevice` within eight nested rack levels.
+Scan reads the selected rack's top-level `drum_pads`. Empty pads are ignored. A populated pad is analyzable only if it has exactly one top-level chain and traversal proves that chain contains exactly one reachable `SimplerDevice` within eight nested rack levels. A depth limit or repeated-object traversal is incomplete and therefore skipped rather than accepted with a warning.
 
 For each candidate, the controller rejects:
 
@@ -148,7 +150,7 @@ The complete rack snapshot contains session-only Live IDs and source paths. It s
 }
 ```
 
-Python receives groups containing only the source ID, source path, Live-reported sample rate, reduced regions, model settings, and mapping settings. It receives no chain ID, rack ID, Live path, or original/proposed name. The JSON schemas in [`max/schemas`](../max/schemas) define the version-1 snapshot, request, and result envelopes.
+Python receives groups containing only the source ID, source path, Live-reported sample rate and full source length, reduced regions, model settings, and mapping settings. The full length is required to align REX/RX2 marker frames with companion audio; it is not a Live object ID. Python receives no chain ID, rack ID, Live path, or original/proposed name. The JSON schemas in [`max/schemas`](../max/schemas) define the version-1 snapshot, request, and result envelopes.
 
 All messages between Node and Python are newline-delimited compact JSON on stdin/stdout. Human-readable logs and tracebacks go to stderr. The ADTOF weight loader prints to stdout, so the adapter captures that output during initialization to prevent third-party text from corrupting the protocol stream.
 
@@ -161,7 +163,7 @@ flowchart TD
     A["Decode and resample entire source"] --> B["84-bin log-frequency spectrogram\n100 frames/s"]
     B --> C["ADTOF Frame_RNN inference"]
     C --> D["T × 5 sigmoid activations"]
-    D --> E["Per-class thresholded local peaks"]
+    D --> E["Pinned ADTOF PeakPicker behavior\nper class"]
     E --> F["Cross-class onset clusters"]
     F --> G["Assign each cluster to at most one Live region"]
     G --> H["Choose closest cluster or bounded activation fallback"]
@@ -197,6 +199,8 @@ The pinned ADTOF PyTorch port performs its own librosa-based front end. Slice La
 8. The projected magnitude is compressed as `log10(1 + magnitude)` and converted to `float32`.
 
 The model input tensor is shaped `[1, T, 84, 1]`: batch, time, frequency, channel. `T` is determined by the decoded source duration and centered-STFT padding.
+
+On macOS, NumPy's Accelerate-backed filterbank multiplication can emit three floating-point `RuntimeWarning` messages even when the returned tensor is entirely finite. The backend suppresses only those exact `matmul` warnings around the third-party preprocessing call, then explicitly requires every model-input feature to be finite. A genuine NaN or infinity therefore becomes a structured `INFERENCE_FAILED` source error instead of either polluting the Max log or entering the network silently.
 
 This front end is log-frequency, but it is not librosa's standard mel-spectrogram helper. It is a dedicated reconstruction of the filterbank behavior expected by the converted ADTOF weights. That distinction matters when reproducing results in another tool.
 
@@ -255,7 +259,7 @@ The channels are independent, not a softmax distribution:
 - a high value is confidence-like model evidence, not a calibrated probability that the entire slice belongs to that class;
 - the raw magnitudes are only comparable after accounting for the class-specific thresholds used during model development.
 
-Slice Labeler caches this activation matrix. It does **not** call ADTOF's convenience function that writes a MIDI file, and it does **not** use the third-party `PeakPicker` in the runtime mapping path. The repository's [`events.py`](../python/slice_labeler_worker/events.py) and [`mapping.py`](../python/slice_labeler_worker/mapping.py) define the actual classification behavior.
+Slice Labeler caches this activation matrix. It does **not** call ADTOF's convenience function that writes a MIDI file. The repository's [`events.py`](../python/slice_labeler_worker/events.py) reproduces the pinned ADTOF `PeakPicker` behavior directly so the worker can retain raw activations and attach the raw value at each selected frame. [`mapping.py`](../python/slice_labeler_worker/mapping.py) then defines Slice Labeler's cluster-to-region and class-selection behavior.
 
 ## 10. From frame activations to slice labels
 
@@ -263,17 +267,17 @@ This stage is where Slice Labeler adapts a whole-song drum transcription model t
 
 ### 10.1 Per-class event extraction
 
-For class `c`, frame `i` is an event candidate when:
+For each class, Slice Labeler applies the standard settings of the pinned ADTOF peak picker at the model's 100 FPS:
 
 ```text
-A[i,c] >= threshold[c]
-and
-A[i,c] >= max(A[j,c]) for j in [i - 20 ms, i + 10 ms]
+moving-average window: 100 ms before through 10 ms after
+local-maximum window:  20 ms before through 10 ms after
+combine window:        20 ms
 ```
 
-At 100 FPS, the local-maximum window is two frames before through one frame after, clipped at source boundaries. Candidate events for the same class that are no more than 20 ms apart are combined; only the stronger candidate survives. Event time is `frame_index / 100`, and its score is the unnormalized activation at that frame.
+First, an edge-padded moving average is subtracted from the raw class activation and negative residuals are clamped to zero. A residual frame must meet the class threshold and equal the maximum residual in the asymmetric local window. Candidate frames no more than 20 ms apart are grouped, and the frame with the strongest processed residual survives. Event time is `frame_index / 100`; the event's diagnostic score is the original unprocessed activation at that frame.
 
-Unlike the third-party ADTOF MIDI peak picker, this extractor does not subtract a moving activation average. The checked-in event code is the source of truth.
+This matches the pinned backend's event-time behavior without transcribing to MIDI and parsing MIDI back. The checked-in implementation and regression tests remain the source of truth if the external backend changes.
 
 ### 10.2 Cross-class onset clustering
 
@@ -358,19 +362,19 @@ Live can use REX/RX2 files directly, but the pinned librosa pipeline cannot deco
 .wav .wave .aif .aiff .flac .mp3 .m4a
 ```
 
-It first checks the REX file's directory. On macOS only, if no local companion exists and `mdfind` is available, it searches the user's home directory and chooses the path with the closest common ancestry, then lexical order as a deterministic tie-break.
+It first checks the REX file's directory. It then checks sibling directories under the same parent, which covers common sample-pack layouts such as `01_WAV/Break.wav` beside `02_RX2/Break.rx2`. On macOS only, if neither deterministic local search finds a companion and `mdfind` is available, it searches the user's home directory. Multiple matches are ranked by closest common ancestry, then lexical order as a deterministic tie-break.
 
-Live's marker frames still refer to the REX source. When a companion is used, the worker calculates:
+Live's marker frames still refer to the REX source. Node passes the full `Sample.length` reported by Live as `lengthFramesFromLive`; the worker calculates:
 
 ```text
-live_duration = maximum region end frame / Live sample rate
+live_duration = lengthFramesFromLive / Live sample rate
 scale = decoded companion activation duration / live_duration
 scaled marker frame = round(original marker frame × scale)
 ```
 
-Ratios outside 0.1–10 are rejected as incompatible. A successful prediction receives a warning that companion audio was analyzed. This mechanism aligns time; it does not prove that two same-stem files contain identical audio. Users should keep the matching rendered WAV/AIFF beside the REX file whenever possible.
+Ratios outside 0.1–10 are rejected as incompatible. A successful prediction receives a warning that companion audio was analyzed. This mechanism aligns time; it does not prove that two same-stem files contain identical audio. Users should keep the matching rendered WAV/AIFF either beside the REX file or in an adjacent format directory whenever possible.
 
-REX/RX2 activation caching is disabled because the normal source fingerprint describes the REX file, not whichever companion was discovered. Re-running inference is safer than reusing activations from a companion that may have moved or changed.
+REX/RX2 activation caching is enabled with an extended key. In addition to the normal REX source/model identity, the key incorporates the resolved companion's absolute path, file size, and nanosecond mtime. Moving or changing the companion therefore causes a cache miss rather than reusing its old activations.
 
 ## 12. Naming engine and review plan
 
@@ -390,14 +394,17 @@ Numbering modes are:
 - `duplicates` (default): append a two-digit index only when the same token occurs more than once;
 - `always`: append a two-digit index to every generated name.
 
-Names are whitespace-normalized and limited to 31 characters. Long tokens are shortened before hard truncation. **Preserve names for unknown** causes an unknown row to retain the original chain name.
+Generated and user-edited names are whitespace-normalized and limited to 31 Unicode code points. Long tokens are shortened before hard truncation. **Preserve names for unknown** marks the row Keep Original and retains the original chain name exactly rather than passing it through generated-name normalization.
 
-The Results window shows pad note, current name, effective proposed name, classes, raw scores, decision, and row status. A user can edit a proposed name, keep the original for one row, or reset edits. These actions alter the in-memory plan only. `exportdiagnostics` is the explicit path that writes snapshot/plan/diagnostic JSON to a user-selected file.
+The Results window shows pad note, current name, effective proposed name, classes, all five raw class scores, decision, row status, and warnings. Selection is retained by region ID when an edit refreshes the same job. A user can edit a proposed name, keep the original for one row, reset edits, or explicitly enable overwrite of manual name conflicts. These actions alter the in-memory plan only. `exportdiagnostics` is the explicit path that writes snapshot/plan/diagnostic JSON to a user-selected file.
 
 ## 13. Apply and Revert safety
 
 Apply is a guarded write phase, not a continuation of inference. Before scheduling any writes, the controller re-resolves every chain and requires:
 
+- the remembered rack still resolves at the same canonical path and still has the scanned ID;
+- the remembered pad still has the same pad ID and MIDI note under that rack;
+- the remembered chain is still the only top-level chain owned by that pad;
 - the remembered chain still exists;
 - recursive traversal still finds exactly one Simpler;
 - that Simpler still exposes exactly one Sample;
@@ -405,11 +412,11 @@ Apply is a guarded write phase, not a continuation of inference. Before scheduli
 - start and end markers still match the scan;
 - the current chain name still equals the analyzed original name, unless overwrite conflicts was explicitly enabled.
 
-Any structural or source/marker mismatch makes the entire plan stale and stops Apply before the first write. A name conflict is row-local: by default that row is marked `conflict` while non-conflicting rows can proceed.
+Any structural or source/marker mismatch makes the entire plan stale and stops Apply before the first write. The entire structural validation is repeated after deferring the write task, and each row is revalidated immediately before its write, closing the gap between the button press and LiveAPI mutation. A name conflict is row-local: by default that row is marked `conflict` while non-conflicting rows can proceed.
 
 Writes run in a deferred Max `Task`, set only the chain `name`, and immediately read it back. A row is considered applied only when readback exactly matches the requested value. Apply can therefore finish partially; it does not perform an automatic transactional rollback after a later row fails.
 
-The last successful Apply records each old and applied name in memory. **Revert Last Apply** is compare-and-swap-like: it restores a row only if the chain and sample identity are still valid and the current chain name still equals the name Slice Labeler wrote. If the user renamed that chain afterward, Revert leaves it alone. Revert is best-effort and can also be partial.
+The last successful Apply records each old/applied name plus the region and Live-reference identity required to validate that exact chain. It is independent of the current scan, so a later rescan does not erase the ability to revert the previous successful Apply. The controller publishes Revert availability separately from the analysis state: a retained record keeps the button available after a rescan, while scanning, analysis, cancellation, and Apply temporarily disable it. **Revert Last Apply** is compare-and-swap-like: it restores a row only if the rack/pad/chain and sample identity are still valid and the current chain name still equals the name Slice Labeler wrote. If the user renamed that chain afterward, Revert leaves it alone. Revert is best-effort and can also be partial. An Apply that performs zero writes does not replace an earlier usable revert record.
 
 No other Live property is written anywhere in the codebase.
 
@@ -424,13 +431,15 @@ The project has two separately installable pieces.
 1. symlinks the repository's `max` directory to `~/Documents/Max 9/Packages/SliceLabeler`; and
 2. copies the `.amxd` to the Ableton User Library.
 
-The `.amxd` is not a fully frozen archive containing Python, PyTorch, ADTOF, and weights. It resolves the installed `SliceLabeler` Max package at runtime. This makes source edits and local reinstallation straightforward and keeps large third-party artifacts out of Git.
+The `.amxd` is not a fully self-contained Max release and does not contain Python, PyTorch, ADTOF, or weights. The development device resolves the installed `SliceLabeler` Max package at runtime. This makes source edits and local reinstallation straightforward and keeps large third-party artifacts out of Git, but it also means the `.amxd` cannot be copied by itself to a clean machine.
 
-The source patchers use small loader scripts plus generated bundles in [`max/patchers`](../max/patchers). [`build_max_js_bundle.js`](../scripts/build_max_js_bundle.js) rebuilds those Max-compatible bundles from the source JavaScript modules when required.
+The source patchers use small loader scripts plus generated bundles in [`max/patchers`](../max/patchers). [`build_max_js_bundle.js`](../scripts/build_max_js_bundle.js) rebuilds those Max-compatible bundles from the source JavaScript modules; its `--check` mode fails if committed bundles are stale. [`verify_max_device.js`](../scripts/verify_max_device.js) compares the generated device's semantic patch graph with the source and rejects exposed development/user dependency paths. Both checks are required before the generated binary is treated as current.
+
+A public release needs a separate clean freeze containing every project-owned Max patcher, JavaScript bundle, Node file, and schema required at runtime, tested without a repository checkout or package symlink. The Python/model environment remains a separate install unless redistribution rights are cleared. Freezing project-owned assets does not itself grant permission to redistribute third-party model code or weights.
 
 ### Python backend
 
-The backend installer creates `~/.slice-labeler/venv`, installs the local worker with its pinned `adtof` optional dependency, performs a health check, and writes `~/.slice-labeler/backend-config.json` containing the selected Python executable. The Node layer resolves Python in this order:
+The backend installer accepts only CPython 3.10–3.12, creates `~/.slice-labeler/venv`, installs the exact production dependency set from `python/requirements.lock`, installs the local worker without dependency re-resolution, performs a health check against the installed package, and writes `~/.slice-labeler/backend-config.json` containing the selected Python executable. Setuptools package discovery excludes namespace/bytecode caches, and a small `build_py` hook clears stale incremental `build/lib` content before every wheel so ignored `__pycache__` files cannot leak into distribution artifacts. The Node layer resolves Python in this order:
 
 1. `SLICE_LABELER_BACKEND_CONFIG`;
 2. `~/.slice-labeler/backend-config.json`;
@@ -442,7 +451,9 @@ Loading the device never downloads or installs backend software. Backend setup i
 
 ## 15. Process supervision, timeouts, and recovery
 
-Node starts one long-lived Python child with `python -m slice_labeler_worker`. Keeping the process alive avoids re-importing PyTorch and reloading weights for every Analyze operation. Backend instances are reused by backend ID and inference-relevant model options; threshold-only changes do not reload the model.
+Node starts one long-lived Python child with `python -m slice_labeler_worker`. Keeping the process alive avoids re-importing PyTorch and reloading weights for every Analyze operation except after explicit cancellation, which recycles that child. Backend instances are reused by backend ID and true model-identity options; threshold and `maxThreads` changes do not retain duplicate models.
+
+Model loading, health inspection, runtime thread configuration, and inference are protected by one worker-wide lock. Only one request enters these PyTorch paths at a time. The requested `maxThreads` value is reapplied immediately before every inference because Torch stores it process-globally.
 
 The protocol supports `health`, `request/analyze`, `progress`, `cancel`, and `shutdown` envelopes, all at schema version 1. Node validates envelopes, correlates them by request ID, and ignores messages for unknown requests.
 
@@ -463,9 +474,9 @@ Production activations are cached by Python as gzip-compressed JSON under the pl
 - Windows: `%LOCALAPPDATA%/Slice Labeler/Cache/worker`;
 - Linux: `$XDG_CACHE_HOME/slice-labeler/worker` or `~/.cache/slice-labeler/worker`.
 
-Each entry contains FPS, class names, the activation matrix, source duration, and backend metadata. It contains no audio samples and no Live object IDs. Writes use a temporary file followed by atomic replacement. Corrupt entries are deleted on read. Least-recently-accessed files are removed when compressed entries exceed 512 MiB.
+Each entry contains FPS, class names, the activation matrix, source duration, and backend metadata. It contains no audio samples and no Live object IDs. Writes use a temporary file followed by atomic replacement. Malformed, non-finite, corrupt, or class-incompatible entries are deleted and recomputed. Least-recently-accessed files are removed when compressed entries exceed 512 MiB by default; `SLICE_LABELER_CACHE_MAX_MIB` can set a whole-MiB ceiling from 1 through 102,400. REX/RX2 companion identity is included in its derived cache key as described in section 11.
 
-Node's cache root also contains `slice-labeler.log`. Logs rotate at 1 MiB with three backups, use owner-only file mode where supported, and redact common absolute home-path forms from structured detail payloads. The **Clear Cache** action removes the cache root recursively, including the Python `worker` subdirectory; subsequent logging recreates its directory.
+Node's cache root also contains `slice-labeler.log`. Logs rotate at 1 MiB with three backups, use owner-only file mode where supported, and redact common absolute home-path forms from structured detail payloads. Numba's compiled runtime cache lives in a `numba` child of the worker cache so imports also work when installed packages are read-only. The **Clear Cache** action removes only hashed activation entries, their temporary files, and that `numba` subtree. It preserves the diagnostic log and any unrelated files even when an explicit cache directory is shared.
 
 Source file paths necessarily cross the Node/Python boundary so the local decoder can open them. Nothing in the device sends audio, paths, activations, or labels over a network. Network access is needed only during the explicit backend installation step that fetches dependencies.
 
@@ -498,6 +509,8 @@ The automated suites are split at the process boundary:
 - Node tests cover Live graph/value helpers, naming, protocol framing/validation, cache/log behavior, source grouping/fingerprinting, orchestration, cancellation, and worker error handling.
 - Python tests cover event extraction, clustering, one-owner region assignment, fallback behavior, cache reuse/invalidation, protocol behavior, backend health/error paths, RX2 companion scaling, and partial source failures.
 
+The current audited baseline is 76 passing Node tests and 48 passing Python tests.
+
 Run them from the repository root:
 
 ```sh
@@ -512,7 +525,9 @@ The pure automated tests do not prove that a particular Ableton/Max version expo
 - Classification is restricted to five broad ADTOF families. Adding a class requires a new backend class contract, thresholds, naming token, schema enum, UI control, and tests.
 - CPU inference at 100 FPS is the only supported production model configuration.
 - The entire unique source file is decoded and inferred even if the rack uses only a small subset of it.
-- REX/RX2 depends on a same-stem decodable companion and duration-ratio alignment; it does not decode REX directly or compare waveforms.
+- REX/RX2 depends on a same-stem decodable companion in the same or an adjacent format directory (with a macOS Spotlight fallback) plus duration-ratio alignment; it does not decode REX directly or compare waveforms.
+- The committed development `.amxd` requires the separately installed Max package and is not a standalone commercial artifact.
+- The pinned classifier/weights cannot be redistributed until their rights are explicitly established; the separate upstream ADTOF license is non-commercial.
 - Very short regions can have an empty anti-bleed fallback window and become unknown.
 - Bidirectional inference is offline and cannot drive real-time labeling while audio plays.
 - Apply is guarded and verified but not fully transactional across rows.

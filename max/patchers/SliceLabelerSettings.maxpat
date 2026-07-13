@@ -13,7 +13,7 @@
       180,
       180,
       620,
-      590
+      660
     ],
     "default_fontname": "Arial",
     "boxes": [
@@ -56,6 +56,19 @@
           "maxclass": "live.toggle",
           "varname": "multi_label",
           "parameter_enable": 1,
+          "saved_attribute_attributes": {
+            "valueof": {
+              "parameter_enum": ["off", "on"],
+              "parameter_initial": [1.0],
+              "parameter_initial_enable": 1,
+              "parameter_linknames": 1,
+              "parameter_longname": "multi_label",
+              "parameter_mmax": 1.0,
+              "parameter_mmin": 0.0,
+              "parameter_shortname": "multi_label",
+              "parameter_type": 2
+            }
+          },
           "patching_rect": [
             210,
             55,
@@ -97,6 +110,19 @@
           "maxclass": "live.numbox",
           "varname": "pre_tolerance_ms",
           "parameter_enable": 1,
+          "saved_attribute_attributes": {
+            "valueof": {
+              "parameter_initial": [35.0],
+              "parameter_initial_enable": 1,
+              "parameter_linknames": 1,
+              "parameter_longname": "pre_tolerance_ms",
+              "parameter_mmax": 500.0,
+              "parameter_mmin": 0.0,
+              "parameter_shortname": "pre_tolerance_ms",
+              "parameter_type": 0,
+              "parameter_unitstyle": 2
+            }
+          },
           "patching_rect": [
             210,
             95,
@@ -138,6 +164,19 @@
           "maxclass": "live.numbox",
           "varname": "post_tolerance_ms",
           "parameter_enable": 1,
+          "saved_attribute_attributes": {
+            "valueof": {
+              "parameter_initial": [90.0],
+              "parameter_initial_enable": 1,
+              "parameter_linknames": 1,
+              "parameter_longname": "post_tolerance_ms",
+              "parameter_mmax": 500.0,
+              "parameter_mmin": 0.0,
+              "parameter_shortname": "post_tolerance_ms",
+              "parameter_type": 0,
+              "parameter_unitstyle": 2
+            }
+          },
           "patching_rect": [
             210,
             130,
@@ -179,6 +218,19 @@
           "maxclass": "live.numbox",
           "varname": "cluster_ms",
           "parameter_enable": 1,
+          "saved_attribute_attributes": {
+            "valueof": {
+              "parameter_initial": [18.0],
+              "parameter_initial_enable": 1,
+              "parameter_linknames": 1,
+              "parameter_longname": "cluster_ms",
+              "parameter_mmax": 100.0,
+              "parameter_mmin": 0.0,
+              "parameter_shortname": "cluster_ms",
+              "parameter_type": 0,
+              "parameter_unitstyle": 2
+            }
+          },
           "patching_rect": [
             210,
             165,
@@ -220,6 +272,19 @@
           "maxclass": "live.toggle",
           "varname": "fallback_enabled",
           "parameter_enable": 1,
+          "saved_attribute_attributes": {
+            "valueof": {
+              "parameter_enum": ["off", "on"],
+              "parameter_initial": [1.0],
+              "parameter_initial_enable": 1,
+              "parameter_linknames": 1,
+              "parameter_longname": "fallback_enabled",
+              "parameter_mmax": 1.0,
+              "parameter_mmin": 0.0,
+              "parameter_shortname": "fallback_enabled",
+              "parameter_type": 2
+            }
+          },
           "patching_rect": [
             210,
             200,
@@ -258,8 +323,21 @@
       {
         "box": {
           "id": "floor",
-          "maxclass": "flonum",
+          "maxclass": "live.numbox",
           "varname": "fallback_floor",
+          "parameter_enable": 1,
+          "saved_attribute_attributes": {
+            "valueof": {
+              "parameter_initial": [0.7],
+              "parameter_initial_enable": 1,
+              "parameter_linknames": 1,
+              "parameter_longname": "fallback_floor",
+              "parameter_mmax": 5.0,
+              "parameter_mmin": 0.01,
+              "parameter_shortname": "fallback_floor",
+              "parameter_type": 0
+            }
+          },
           "patching_rect": [
             210,
             235,
@@ -298,15 +376,22 @@
       {
         "box": {
           "id": "numbering",
-          "maxclass": "umenu",
+          "maxclass": "live.menu",
           "varname": "numbering",
-          "items": [
-            "Off",
-            ",",
-            "Duplicates Only",
-            ",",
-            "Always"
-          ],
+          "parameter_enable": 1,
+          "saved_attribute_attributes": {
+            "valueof": {
+              "parameter_enum": ["Off", "Duplicates Only", "Always"],
+              "parameter_initial": [1.0],
+              "parameter_initial_enable": 1,
+              "parameter_linknames": 1,
+              "parameter_longname": "numbering",
+              "parameter_mmax": 2.0,
+              "parameter_mmin": 0.0,
+              "parameter_shortname": "numbering",
+              "parameter_type": 2
+            }
+          },
           "patching_rect": [
             210,
             275,
@@ -348,6 +433,19 @@
           "maxclass": "live.toggle",
           "varname": "long_names",
           "parameter_enable": 1,
+          "saved_attribute_attributes": {
+            "valueof": {
+              "parameter_enum": ["off", "on"],
+              "parameter_initial": [0.0],
+              "parameter_initial_enable": 1,
+              "parameter_linknames": 1,
+              "parameter_longname": "long_names",
+              "parameter_mmax": 1.0,
+              "parameter_mmin": 0.0,
+              "parameter_shortname": "long_names",
+              "parameter_type": 2
+            }
+          },
           "patching_rect": [
             210,
             310,
@@ -389,6 +487,19 @@
           "maxclass": "live.toggle",
           "varname": "preserve_unknown",
           "parameter_enable": 1,
+          "saved_attribute_attributes": {
+            "valueof": {
+              "parameter_enum": ["off", "on"],
+              "parameter_initial": [0.0],
+              "parameter_initial_enable": 1,
+              "parameter_linknames": 1,
+              "parameter_longname": "preserve_unknown",
+              "parameter_mmax": 1.0,
+              "parameter_mmin": 0.0,
+              "parameter_shortname": "preserve_unknown",
+              "parameter_type": 2
+            }
+          },
           "patching_rect": [
             210,
             345,
@@ -430,6 +541,18 @@
           "maxclass": "live.numbox",
           "varname": "max_threads",
           "parameter_enable": 1,
+          "saved_attribute_attributes": {
+            "valueof": {
+              "parameter_initial": [2.0],
+              "parameter_initial_enable": 1,
+              "parameter_linknames": 1,
+              "parameter_longname": "max_threads",
+              "parameter_mmax": 8.0,
+              "parameter_mmin": 1.0,
+              "parameter_shortname": "max_threads",
+              "parameter_type": 1
+            }
+          },
           "patching_rect": [
             210,
             380,
@@ -470,6 +593,8 @@
           "id": "backend",
           "maxclass": "textedit",
           "varname": "python_path",
+          "keymode": 1,
+          "wordwrap": 0,
           "patching_rect": [
             210,
             420,
@@ -529,6 +654,7 @@
         "box": {
           "id": "thresholds",
           "maxclass": "comment",
+          "varname": "threshold_summary",
           "text": "Thresholds: Kick 0.22 · Snare 0.24 · Tom 0.32 · Hi-hat 0.22 · Cymbal 0.30",
           "patching_rect": [
             20,
@@ -561,7 +687,7 @@
         "box": {
           "id": "controller",
           "maxclass": "newobj",
-          "text": "js slice_labeler_settings_bundle.js",
+          "text": "js slice_labeler_settings_bundle_v2.js",
           "patching_rect": [
             365,
             465,
@@ -715,11 +841,24 @@
       },
       {
         "box": {
+          "id": "backend-route-text",
+          "maxclass": "newobj",
+          "text": "route text",
+          "patching_rect": [
+            210,
+            450,
+            75,
+            22
+          ]
+        }
+      },
+      {
+        "box": {
           "id": "p-python",
           "maxclass": "newobj",
           "text": "prepend pythonPath",
           "patching_rect": [
-            210,
+            300,
             450,
             125,
             22
@@ -741,67 +880,192 @@
       },
       {
         "box": {
+          "id": "kick-threshold-label",
+          "maxclass": "comment",
+          "text": "Kick",
+          "patching_rect": [20, 625, 55, 20],
+          "presentation": 1,
+          "presentation_rect": [20, 547, 55, 20]
+        }
+      },
+      {
+        "box": {
+          "id": "snare-threshold-label",
+          "maxclass": "comment",
+          "text": "Snare",
+          "patching_rect": [80, 625, 55, 20],
+          "presentation": 1,
+          "presentation_rect": [170, 547, 55, 20]
+        }
+      },
+      {
+        "box": {
+          "id": "tom-threshold-label",
+          "maxclass": "comment",
+          "text": "Tom",
+          "patching_rect": [140, 625, 45, 20],
+          "presentation": 1,
+          "presentation_rect": [315, 547, 40, 20]
+        }
+      },
+      {
+        "box": {
+          "id": "hihat-threshold-label",
+          "maxclass": "comment",
+          "text": "Hi-hat",
+          "patching_rect": [200, 625, 55, 20],
+          "presentation": 1,
+          "presentation_rect": [20, 582, 55, 20]
+        }
+      },
+      {
+        "box": {
+          "id": "cymbal-threshold-label",
+          "maxclass": "comment",
+          "text": "Cymbal",
+          "patching_rect": [260, 625, 60, 20],
+          "presentation": 1,
+          "presentation_rect": [170, 582, 60, 20]
+        }
+      },
+      {
+        "box": {
           "id": "kick",
-          "maxclass": "flonum",
+          "maxclass": "live.numbox",
           "varname": "kick_threshold",
+          "parameter_enable": 1,
+          "saved_attribute_attributes": {
+            "valueof": {
+              "parameter_initial": [0.22],
+              "parameter_initial_enable": 1,
+              "parameter_linknames": 1,
+              "parameter_longname": "kick_threshold",
+              "parameter_mmax": 1.0,
+              "parameter_mmin": 0.001,
+              "parameter_shortname": "kick_threshold",
+              "parameter_type": 0
+            }
+          },
           "patching_rect": [
             20,
             545,
             55,
             22
-          ]
+          ],
+          "presentation": 1,
+          "presentation_rect": [85, 545, 60, 22]
         }
       },
       {
         "box": {
           "id": "snare",
-          "maxclass": "flonum",
+          "maxclass": "live.numbox",
           "varname": "snare_threshold",
+          "parameter_enable": 1,
+          "saved_attribute_attributes": {
+            "valueof": {
+              "parameter_initial": [0.24],
+              "parameter_initial_enable": 1,
+              "parameter_linknames": 1,
+              "parameter_longname": "snare_threshold",
+              "parameter_mmax": 1.0,
+              "parameter_mmin": 0.001,
+              "parameter_shortname": "snare_threshold",
+              "parameter_type": 0
+            }
+          },
           "patching_rect": [
             80,
             545,
             55,
             22
-          ]
+          ],
+          "presentation": 1,
+          "presentation_rect": [230, 545, 60, 22]
         }
       },
       {
         "box": {
           "id": "tom",
-          "maxclass": "flonum",
+          "maxclass": "live.numbox",
           "varname": "tom_threshold",
+          "parameter_enable": 1,
+          "saved_attribute_attributes": {
+            "valueof": {
+              "parameter_initial": [0.32],
+              "parameter_initial_enable": 1,
+              "parameter_linknames": 1,
+              "parameter_longname": "tom_threshold",
+              "parameter_mmax": 1.0,
+              "parameter_mmin": 0.001,
+              "parameter_shortname": "tom_threshold",
+              "parameter_type": 0
+            }
+          },
           "patching_rect": [
             140,
             545,
             55,
             22
-          ]
+          ],
+          "presentation": 1,
+          "presentation_rect": [360, 545, 60, 22]
         }
       },
       {
         "box": {
           "id": "hihat",
-          "maxclass": "flonum",
+          "maxclass": "live.numbox",
           "varname": "hihat_threshold",
+          "parameter_enable": 1,
+          "saved_attribute_attributes": {
+            "valueof": {
+              "parameter_initial": [0.22],
+              "parameter_initial_enable": 1,
+              "parameter_linknames": 1,
+              "parameter_longname": "hihat_threshold",
+              "parameter_mmax": 1.0,
+              "parameter_mmin": 0.001,
+              "parameter_shortname": "hihat_threshold",
+              "parameter_type": 0
+            }
+          },
           "patching_rect": [
             200,
             545,
             55,
             22
-          ]
+          ],
+          "presentation": 1,
+          "presentation_rect": [85, 580, 60, 22]
         }
       },
       {
         "box": {
           "id": "cymbal",
-          "maxclass": "flonum",
+          "maxclass": "live.numbox",
           "varname": "cymbal_threshold",
+          "parameter_enable": 1,
+          "saved_attribute_attributes": {
+            "valueof": {
+              "parameter_initial": [0.3],
+              "parameter_initial_enable": 1,
+              "parameter_linknames": 1,
+              "parameter_longname": "cymbal_threshold",
+              "parameter_mmax": 1.0,
+              "parameter_mmin": 0.001,
+              "parameter_shortname": "cymbal_threshold",
+              "parameter_type": 0
+            }
+          },
           "patching_rect": [
             260,
             545,
             55,
             22
-          ]
+          ],
+          "presentation": 1,
+          "presentation_rect": [235, 580, 60, 22]
         }
       },
       {
@@ -871,39 +1135,13 @@
       },
       {
         "box": {
-          "id": "init-ui",
-          "maxclass": "message",
-          "text": "script sendbox multi_label 1, script sendbox pre_tolerance_ms 35, script sendbox post_tolerance_ms 90, script sendbox cluster_ms 18, script sendbox fallback_enabled 1, script sendbox fallback_floor 0.7, script sendbox numbering 1, script sendbox long_names 0, script sendbox preserve_unknown 0, script sendbox max_threads 2, script sendbox kick_threshold 0.22, script sendbox snare_threshold 0.24, script sendbox tom_threshold 0.32, script sendbox hihat_threshold 0.22, script sendbox cymbal_threshold 0.3",
-          "patching_rect": [
-            620,
-            500,
-            260,
-            22
-          ]
-        }
-      },
-      {
-        "box": {
           "id": "init-delay",
           "maxclass": "newobj",
-          "text": "delay 100",
+          "text": "delay 150",
           "patching_rect": [
             620,
             465,
             65,
-            22
-          ]
-        }
-      },
-      {
-        "box": {
-          "id": "settings-thispatcher",
-          "maxclass": "newobj",
-          "text": "thispatcher",
-          "patching_rect": [
-            620,
-            535,
-            70,
             22
           ]
         }
@@ -926,30 +1164,6 @@
         "patchline": {
           "source": [
             "init-delay",
-            0
-          ],
-          "destination": [
-            "init-ui",
-            0
-          ]
-        }
-      },
-      {
-        "patchline": {
-          "source": [
-            "init-ui",
-            0
-          ],
-          "destination": [
-            "settings-thispatcher",
-            0
-          ]
-        }
-      },
-      {
-        "patchline": {
-          "source": [
-            "loadbang",
             0
           ],
           "destination": [
@@ -1214,6 +1428,18 @@
         "patchline": {
           "source": [
             "backend",
+            0
+          ],
+          "destination": [
+            "backend-route-text",
+            0
+          ]
+        }
+      },
+      {
+        "patchline": {
+          "source": [
+            "backend-route-text",
             0
           ],
           "destination": [
