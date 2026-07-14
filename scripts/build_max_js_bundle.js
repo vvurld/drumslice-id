@@ -31,7 +31,9 @@ function checkOutputs(outputs, projectRoot = root) {
   for (const [target, expected] of outputs) {
     let actual = "";
     try { actual = fs.readFileSync(target, "utf8"); } catch {}
-    if (actual !== expected) stale.push(path.relative(projectRoot, target));
+    if (actual !== expected) {
+      stale.push(path.relative(projectRoot, target).split(path.sep).join("/"));
+    }
   }
   return stale;
 }
