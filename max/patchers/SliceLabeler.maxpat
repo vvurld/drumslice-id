@@ -15,6 +15,7 @@
 		"default_fontname" : "Ableton Sans",
 		"default_fontsize" : 11.0,
 		"openinpresentation" : 1,
+		"openrect" : [ 0.0, 0.0, 0.0, 169.0 ],
 		"gridsize" : [ 15.0, 15.0 ],
 		"boxes" : [ 			{
 				"box" : 				{
@@ -27,9 +28,9 @@
 					"mode" : 0,
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 20.0, 770.0, 560.0, 124.0 ],
+					"patching_rect" : [ 20.0, 770.0, 560.0, 169.0 ],
 					"presentation" : 1,
-					"presentation_rect" : [ 0.0, 0.0, 560.0, 124.0 ],
+					"presentation_rect" : [ 0.0, 0.0, 560.0, 169.0 ],
 					"proportion" : 0.5,
 					"rounded" : 0
 				}
@@ -48,7 +49,7 @@
 					"numoutlets" : 0,
 					"patching_rect" : [ 20.0, 950.0, 532.0, 26.0 ],
 					"presentation" : 1,
-					"presentation_rect" : [ 14.0, 88.0, 532.0, 26.0 ],
+					"presentation_rect" : [ 14.0, 102.0, 532.0, 50.0 ],
 					"proportion" : 0.5,
 					"rounded" : 6
 				}
@@ -66,7 +67,7 @@
 					"numoutlets" : 0,
 					"patching_rect" : [ 20.0, 990.0, 2.0, 8.0 ],
 					"presentation" : 1,
-					"presentation_rect" : [ 28.0, 97.0, 2.0, 8.0 ],
+					"presentation_rect" : [ 28.0, 123.0, 2.0, 8.0 ],
 					"proportion" : 0.5,
 					"rounded" : 1
 				}
@@ -84,7 +85,7 @@
 					"numoutlets" : 0,
 					"patching_rect" : [ 25.0, 987.0, 2.0, 14.0 ],
 					"presentation" : 1,
-					"presentation_rect" : [ 33.0, 94.0, 2.0, 14.0 ],
+					"presentation_rect" : [ 33.0, 120.0, 2.0, 14.0 ],
 					"proportion" : 0.5,
 					"rounded" : 1
 				}
@@ -102,7 +103,7 @@
 					"numoutlets" : 0,
 					"patching_rect" : [ 30.0, 984.0, 2.0, 20.0 ],
 					"presentation" : 1,
-					"presentation_rect" : [ 38.0, 91.0, 2.0, 20.0 ],
+					"presentation_rect" : [ 38.0, 117.0, 2.0, 20.0 ],
 					"proportion" : 0.5,
 					"rounded" : 1
 				}
@@ -120,7 +121,7 @@
 					"numoutlets" : 0,
 					"patching_rect" : [ 35.0, 988.0, 2.0, 12.0 ],
 					"presentation" : 1,
-					"presentation_rect" : [ 43.0, 95.0, 2.0, 12.0 ],
+					"presentation_rect" : [ 43.0, 121.0, 2.0, 12.0 ],
 					"proportion" : 0.5,
 					"rounded" : 1
 				}
@@ -138,7 +139,7 @@
 					"numoutlets" : 0,
 					"patching_rect" : [ 42.0, 986.0, 2.0, 16.0 ],
 					"presentation" : 1,
-					"presentation_rect" : [ 50.0, 93.0, 2.0, 16.0 ],
+					"presentation_rect" : [ 50.0, 119.0, 2.0, 16.0 ],
 					"proportion" : 0.5,
 					"rounded" : 1
 				}
@@ -156,7 +157,7 @@
 					"numoutlets" : 0,
 					"patching_rect" : [ 47.0, 989.0, 2.0, 10.0 ],
 					"presentation" : 1,
-					"presentation_rect" : [ 55.0, 96.0, 2.0, 10.0 ],
+					"presentation_rect" : [ 55.0, 122.0, 2.0, 10.0 ],
 					"proportion" : 0.5,
 					"rounded" : 1
 				}
@@ -174,7 +175,7 @@
 					"numoutlets" : 0,
 					"patching_rect" : [ 52.0, 991.0, 2.0, 6.0 ],
 					"presentation" : 1,
-					"presentation_rect" : [ 60.0, 98.0, 2.0, 6.0 ],
+					"presentation_rect" : [ 60.0, 124.0, 2.0, 6.0 ],
 					"proportion" : 0.5,
 					"rounded" : 1
 				}
@@ -191,7 +192,7 @@
 					"numoutlets" : 0,
 					"patching_rect" : [ 20.0, 1035.0, 70.0, 18.0 ],
 					"presentation" : 1,
-					"presentation_rect" : [ 16.0, 4.0, 80.0, 16.0 ],
+					"presentation_rect" : [ 16.0, 10.0, 80.0, 16.0 ],
 					"text" : "TARGET RACK",
 					"textcolor" : [ 0.6509803922, 0.6705882353, 0.7254901961, 1.0 ]
 				}
@@ -340,7 +341,7 @@
 					"parameter_enable" : 0,
 					"patching_rect" : [ 120.0, 90.0, 190.0, 22.0 ],
 					"presentation" : 1,
-					"presentation_rect" : [ 16.0, 21.0, 360.0, 26.0 ],
+					"presentation_rect" : [ 16.0, 28.0, 360.0, 26.0 ],
 					"annotation" : "Choose the downstream Drum Rack whose slices will be analyzed and labeled.",
 					"varname" : "target_rack"
 				}
@@ -374,7 +375,7 @@
 					"parameter_enable" : 0,
 					"patching_rect" : [ 35.0, 175.0, 55.0, 22.0 ],
 					"presentation" : 1,
-					"presentation_rect" : [ 384.0, 21.0, 72.0, 26.0 ],
+					"presentation_rect" : [ 384.0, 28.0, 72.0, 26.0 ],
 					"rounded" : 6,
 					"text" : "Refresh",
 					"textcolor" : [ 0.8862745098, 0.8980392157, 0.9254901961, 1.0 ],
@@ -411,7 +412,7 @@
 					"parameter_enable" : 0,
 					"patching_rect" : [ 105.0, 175.0, 65.0, 22.0 ],
 					"presentation" : 1,
-					"presentation_rect" : [ 16.0, 54.0, 120.0, 26.0 ],
+					"presentation_rect" : [ 16.0, 64.0, 120.0, 26.0 ],
 					"rounded" : 6,
 					"text" : "Analyze",
 					"textcolor" : [ 0.0549019608, 0.1019607843, 0.1333333333, 1.0 ],
@@ -446,7 +447,7 @@
 					"parameter_enable" : 0,
 					"patching_rect" : [ 180.0, 175.0, 55.0, 22.0 ],
 					"presentation" : 1,
-					"presentation_rect" : [ 144.0, 54.0, 72.0, 26.0 ],
+					"presentation_rect" : [ 144.0, 64.0, 72.0, 26.0 ],
 					"rounded" : 6,
 					"text" : "Cancel",
 					"textcolor" : [ 0.8862745098, 0.8980392157, 0.9254901961, 1.0 ]
@@ -481,7 +482,7 @@
 					"parameter_enable" : 0,
 					"patching_rect" : [ 250.0, 175.0, 55.0, 22.0 ],
 					"presentation" : 1,
-					"presentation_rect" : [ 416.0, 54.0, 128.0, 26.0 ],
+					"presentation_rect" : [ 416.0, 64.0, 128.0, 26.0 ],
 					"rounded" : 6,
 					"text" : "Apply Names",
 					"textcolor" : [ 0.0549019608, 0.1019607843, 0.1333333333, 1.0 ]
@@ -515,7 +516,7 @@
 					"parameter_enable" : 0,
 					"patching_rect" : [ 320.0, 175.0, 110.0, 22.0 ],
 					"presentation" : 1,
-					"presentation_rect" : [ 336.0, 54.0, 72.0, 26.0 ],
+					"presentation_rect" : [ 336.0, 64.0, 72.0, 26.0 ],
 					"rounded" : 6,
 					"text" : "Undo",
 					"textcolor" : [ 0.8862745098, 0.8980392157, 0.9254901961, 1.0 ]
@@ -549,7 +550,7 @@
 					"parameter_enable" : 0,
 					"patching_rect" : [ 455.0, 175.0, 87.0, 22.0 ],
 					"presentation" : 1,
-					"presentation_rect" : [ 224.0, 54.0, 104.0, 26.0 ],
+					"presentation_rect" : [ 224.0, 64.0, 104.0, 26.0 ],
 					"rounded" : 6,
 					"text" : "Review",
 					"textcolor" : [ 0.8862745098, 0.8980392157, 0.9254901961, 1.0 ]
@@ -606,7 +607,7 @@
 					"parameter_enable" : 0,
 					"patching_rect" : [ 555.0, 175.0, 67.0, 22.0 ],
 					"presentation" : 1,
-					"presentation_rect" : [ 464.0, 21.0, 80.0, 26.0 ],
+					"presentation_rect" : [ 464.0, 28.0, 80.0, 26.0 ],
 					"rounded" : 6,
 					"text" : "Settings",
 					"textcolor" : [ 0.8862745098, 0.8980392157, 0.9254901961, 1.0 ]
@@ -684,7 +685,7 @@
 					"numoutlets" : 0,
 					"patching_rect" : [ 340.0, 415.0, 500.0, 20.0 ],
 					"presentation" : 1,
-					"presentation_rect" : [ 74.0, 91.0, 458.0, 20.0 ],
+					"presentation_rect" : [ 74.0, 117.0, 458.0, 20.0 ],
 					"text" : "Waiting for Live to initialize…",
 					"textcolor" : [ 0.9176470588, 0.9254901961, 0.9450980392, 1.0 ]
 				}

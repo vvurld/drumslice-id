@@ -71,7 +71,7 @@ test("collective patch parser extracts only the first JSON document", () => {
   assert.deepEqual(embeddedFilenames(collective), ["helper.js"]);
 });
 
-test("development device builder preserves host fields and replaces functional source graph", () => {
+test("development device builder applies source geometry and replaces the functional graph", () => {
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), "slice-labeler-device-"));
   const templatePath = path.join(directory, "template.amxd");
   const sourcePath = path.join(directory, "source.maxpat");
@@ -82,12 +82,15 @@ test("development device builder preserves host fields and replaces functional s
   });
   template.patcher.openrect = [0, 0, 0, 169];
   const source = documentWith({box: {text: "new", active: 0, presentation_rect: [1, 2, 3, 4]}});
+  source.patcher.openrect = [0, 0, 0, 124];
+  source.patcher.devicewidth = 560;
   fs.writeFileSync(templatePath, deviceBuffer(template));
   writeJson(sourcePath, source);
 
   fs.writeFileSync(outputPath, buildBuffer({templatePath, sourcePath}));
   const parsed = decodePatcherChunk(readContainer(fs.readFileSync(outputPath)).chunks[1].data).document;
-  assert.deepEqual(parsed.patcher.openrect, [0, 0, 0, 169]);
+  assert.deepEqual(parsed.patcher.openrect, source.patcher.openrect);
+  assert.equal(parsed.patcher.devicewidth, 560);
   assert.deepEqual(parsed.patcher.boxes, source.patcher.boxes);
   assert.deepEqual(parsed.patcher.parameters, source.patcher.parameters);
   assert.deepEqual(parsed.patcher.dependency_cache, []);
