@@ -6,7 +6,7 @@
   "authors": [],
   "description": "Max for Live drum-slice identification support files for DrumSLICE ID.",
   "tags": ["Max for Live", "MIDI", "drums"],
-  "website": "https://github.com/sjfbo/drumslice-id",
+  "website": "https://github.com/vvurld/drumslice-id",
   "extends": "Max for Live",
   "extensible": 0,
   "max_version_min": "9.0",
@@ -23,6 +23,6 @@
   },
   "homepatcher": "",
   "package_extra": {
-    "reverse_domain": "io.github.sjfbo.drumslice-id"
+    "reverse_domain": "io.github.vvurld.drumslice-id"
   }
 }

@@ -1,8 +1,8 @@
 blank_issues_enabled: false
 contact_links:
   - name: Support and setup questions
-    url: https://github.com/sjfbo/drumslice-id/discussions
+    url: https://github.com/vvurld/drumslice-id/discussions
     about: Read SUPPORT.md before opening a usage discussion.
   - name: Private security report
-    url: https://github.com/sjfbo/drumslice-id/security/advisories/new
+    url: https://github.com/vvurld/drumslice-id/security/advisories/new
     about: Never disclose a vulnerability in a public issue.

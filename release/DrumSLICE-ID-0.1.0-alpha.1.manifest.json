@@ -1,8 +1,8 @@
 {
   "archive": {
-    "bytes": 175086,
+    "bytes": 175087,
     "name": "DrumSLICE-ID-0.1.0-alpha.1.zip",
-    "sha256": "b7dd22d433db1c01749170409461819cb95dfde0c8741627e8571fa6e5d7b4ce"
+    "sha256": "2d5df3d812ed5093054d62c5702b2dcf1306c3f7adacb67b9a16da8c2f42ac2a"
   },
   "channel": "alpha",
   "containsAdtofCodeOrWeights": false,
@@ -178,9 +178,9 @@
       "sha256": "4bc47b7e0014aa8db72bef7eb5e49f3dd0ad4c6d2544e0341dba2769440904d8"
     },
     {
-      "bytes": 729,
+      "bytes": 731,
       "path": "max/package-info.json",
-      "sha256": "6debcacffc9ebf880475a4fd42da26da94c16d5d6a748c435358fabd8977f116"
+      "sha256": "3b79c232853e66ba96a502f3c61a2d290f352dd49af7344359893c7320964d72"
     },
     {
       "bytes": 35274,
