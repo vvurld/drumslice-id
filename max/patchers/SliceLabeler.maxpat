@@ -276,8 +276,8 @@
 					"box" : 				{
 					"active" : 0,
 					"annotation" : "Scan the selected rack and analyze every supported slice.",
-					"bgcolor" : [ 0.9058823529, 0.3215686275, 0.5960784314, 1.0 ],
-					"bgoncolor" : [ 0.9529411765, 0.4156862745, 0.6705882353, 1.0 ],
+					"bgcolor" : [ 0.3098039216, 0.6117647059, 0.7960784314, 1.0 ],
+					"bgoncolor" : [ 0.4078431373, 0.6901960784, 0.8588235294, 1.0 ],
 					"fontface" : 1,
 					"fontname" : "Ableton Sans",
 					"fontsize" : 11.0,
@@ -292,8 +292,8 @@
 					"presentation_rect" : [ 448.0, 26.0, 116.0, 26.0 ],
 					"rounded" : 6,
 					"text" : "Analyze Rack",
-					"textcolor" : [ 0.1254901961, 0.1019607843, 0.1215686275, 1.0 ],
-					"textoncolor" : [ 0.1254901961, 0.1019607843, 0.1215686275, 1.0 ]
+					"textcolor" : [ 0.0549019608, 0.1019607843, 0.1333333333, 1.0 ],
+					"textoncolor" : [ 0.0549019608, 0.1019607843, 0.1333333333, 1.0 ]
 				}
 
 			}
@@ -347,7 +347,7 @@
 					"box" : 				{
 					"active" : 0,
 					"annotation" : "Apply the reviewed names to the Drum Rack chains.",
-					"bgcolor" : [ 0.9058823529, 0.3215686275, 0.5960784314, 1.0 ],
+					"bgcolor" : [ 0.3098039216, 0.6117647059, 0.7960784314, 1.0 ],
 					"fontface" : 1,
 					"fontname" : "Ableton Sans",
 					"fontsize" : 11.0,
@@ -362,7 +362,7 @@
 					"presentation_rect" : [ 662.0, 58.0, 126.0, 26.0 ],
 					"rounded" : 6,
 					"text" : "Apply Names",
-					"textcolor" : [ 0.1254901961, 0.1019607843, 0.1215686275, 1.0 ]
+					"textcolor" : [ 0.0549019608, 0.1019607843, 0.1333333333, 1.0 ]
 				}
 
 			}
@@ -596,7 +596,7 @@
 					"setminmax" : [ 0.0, 1.0 ],
 					"setstyle" : 1,
 					"size" : 1,
-					"slidercolor" : [ 0.9058823529, 0.3215686275, 0.5960784314, 1.0 ],
+					"slidercolor" : [ 0.3098039216, 0.6117647059, 0.7960784314, 1.0 ],
 					"thickness" : 8,
 					"varname" : "analysis_progress"
 				}
