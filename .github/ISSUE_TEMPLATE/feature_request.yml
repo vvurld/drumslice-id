@@ -1,0 +1,22 @@
+name: Feature request
+description: Propose a focused improvement for drum-slice identification.
+title: "[Feature]: "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Production problem
+      description: Describe the workflow problem rather than only the proposed control.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior
+    validations:
+      required: true
+  - type: textarea
+    id: tradeoffs
+    attributes:
+      label: Relevant examples or tradeoffs

@@ -1,0 +1,404 @@
+{
+  "archive": {
+    "bytes": 175086,
+    "name": "DrumSLICE-ID-0.1.0-alpha.1.zip",
+    "sha256": "b7dd22d433db1c01749170409461819cb95dfde0c8741627e8571fa6e5d7b4ce"
+  },
+  "channel": "alpha",
+  "containsAdtofCodeOrWeights": false,
+  "files": [
+    {
+      "bytes": 1631,
+      "path": "CHANGELOG.md",
+      "sha256": "c3cdb831ad9c0d4cc44f2f62b69b3dd8821d4ad8c0845b76d359a66cbdae1fb0"
+    },
+    {
+      "bytes": 657,
+      "path": "CODE_OF_CONDUCT.md",
+      "sha256": "d4515e3659bac70ad9b24c9e2bf2cf3ef2fbf938d966576b3c7e3cd11a5fa00c"
+    },
+    {
+      "bytes": 1380,
+      "path": "CONTRIBUTING.md",
+      "sha256": "c1e61a700e4d6732c72463c892c52ac4697c50ea8c4e1cf96f300459c1982524"
+    },
+    {
+      "bytes": 2657,
+      "path": "KNOWN_LIMITATIONS.md",
+      "sha256": "849e35c53163efe0e38b646a123bb986dfe45d053e78c8298250ddd4d36babff"
+    },
+    {
+      "bytes": 1082,
+      "path": "LICENSE",
+      "sha256": "b1e4c5428bc43fd2a2d9d136e7d2e313cc834c9898bdd2cd3f5a855e91f9e9e6"
+    },
+    {
+      "bytes": 5214,
+      "path": "README.md",
+      "sha256": "6ebb25c5e604c292336123636b089c844bcaf0880eec97c2318dc988cf77fb1a"
+    },
+    {
+      "bytes": 1095,
+      "path": "SECURITY.md",
+      "sha256": "011718ce9c59c56224c4d80c9d42a55894700edde62be6968449992dbd5ac291"
+    },
+    {
+      "bytes": 674,
+      "path": "SUPPORT.md",
+      "sha256": "02964dcf422a48ab47660f0822a13f69bed896eb4c3cf721c89201727d97c81a"
+    },
+    {
+      "bytes": 3202,
+      "path": "THIRD_PARTY_NOTICES.md",
+      "sha256": "b8485a107e8fa46ced37edf13bc2a3ddc675d6eebc642acc07271f2d27e19379"
+    },
+    {
+      "bytes": 14,
+      "path": "VERSION",
+      "sha256": "ed41d33f787456abe92ea03b820e4c832b1e2b9e6867242eaea03258bae8d119"
+    },
+    {
+      "bytes": 40171,
+      "path": "dist/DrumSLICE ID.amxd",
+      "sha256": "8f3ae84d3605e1721c4179d1934f103aa711ea82d951c980bdb999b834088263"
+    },
+    {
+      "bytes": 1590,
+      "path": "docs/ALPHA_RELEASE_NOTES.md",
+      "sha256": "68d28a39cdc624d6165eb16a9d17a1084a2cbdf030f31b47ece1fcdc6efa5093"
+    },
+    {
+      "bytes": 2721,
+      "path": "docs/ARCHITECTURE.md",
+      "sha256": "166fd522d86b6ffd6419a108e024473d97fddb934371de7e233ce2d65e37d3c4"
+    },
+    {
+      "bytes": 1942,
+      "path": "docs/MIGRATION.md",
+      "sha256": "fab844391369a336430acee368f57407d20eb595aabc1c3d63053af08990b69f"
+    },
+    {
+      "bytes": 2734,
+      "path": "docs/RELEASE_CHECKLIST.md",
+      "sha256": "8753f1b61805cf1cffdc84e4927f05443070e07a9f9b1ee9bf351ae4898dbc6c"
+    },
+    {
+      "bytes": 42915,
+      "path": "docs/TECHNICAL_REFERENCE.md",
+      "sha256": "01f11b84c4bb5123929a4c986d6400196bc0bac44b3151e0770556f59891918a"
+    },
+    {
+      "bytes": 2823,
+      "path": "docs/TROUBLESHOOTING.md",
+      "sha256": "3e5555dfad58603c5eac83bf867d701f05f6829f0d3bae3e77dfdf58a8ab0bb2"
+    },
+    {
+      "bytes": 4434,
+      "path": "docs/USER_GUIDE.md",
+      "sha256": "24e4b57b80c6da81ec8e417d2327ead7a2e1ecb58a5bfba878f83dec5baae25f"
+    },
+    {
+      "bytes": 13357,
+      "path": "install.ps1",
+      "sha256": "3207cd09e07e8901a15f233c872425b983edf0ce800284b28d3ba2f2af404426"
+    },
+    {
+      "bytes": 12193,
+      "path": "install.sh",
+      "sha256": "0f8ce52a6e0412bdcad59be13a15de52f90d58ed8819d5c6b94273422c752eec"
+    },
+    {
+      "bytes": 1587,
+      "path": "max/DrumSliceID.maxproj",
+      "sha256": "62b2d7b0cf68a73fb6e378df12b10024f0a1e5d86e05e91444e4ad2a3874c7d5"
+    },
+    {
+      "bytes": 33122,
+      "path": "max/javascript/live_controller.js",
+      "sha256": "abea987bdc5005a7feae638bf2e84e040ca45ee633d1f4a938c15b8528e5ba79"
+    },
+    {
+      "bytes": 3285,
+      "path": "max/javascript/live_graph_core.js",
+      "sha256": "928bd8b6f373911f18878d2f888bbf7d27fa9079992355b82ea945e86efce5ca"
+    },
+    {
+      "bytes": 3380,
+      "path": "max/javascript/live_value_helpers.js",
+      "sha256": "f277db53fd95d5b01d989bee7faee67b0dc7d07ce33dba9a05b07d92d4c30fa9"
+    },
+    {
+      "bytes": 6552,
+      "path": "max/javascript/naming_engine.js",
+      "sha256": "0d1b56baa8ce0e5bbdc1a24c8a33b8e24ba2f9f6a4a8eca25e5df7b8d686047e"
+    },
+    {
+      "bytes": 4680,
+      "path": "max/javascript/results_controller.js",
+      "sha256": "38eb75f26e689f6f9743025cb3151d83479c37e809b0e6fd4b563bf1d4a63988"
+    },
+    {
+      "bytes": 6491,
+      "path": "max/javascript/settings_controller.js",
+      "sha256": "39c9960221479fe03fa0f1c67a5c6d181f125c5d33069a2d915e3dcbefcc7a98"
+    },
+    {
+      "bytes": 3855,
+      "path": "max/node/cache.js",
+      "sha256": "4fdee681e621df8a41bac28329c83d0905ebeb087ab737ac7a57e943700ad5e0"
+    },
+    {
+      "bytes": 1257,
+      "path": "max/node/logger.js",
+      "sha256": "38f08f6443334f716ae6816f4ed63ff4cc9ebf6d9b46a435c3d2018b4fe9d649"
+    },
+    {
+      "bytes": 26397,
+      "path": "max/node/orchestrator.js",
+      "sha256": "24d83cab966df766ae767af4325391d61c96894975fd3cd41434c53166bf6807"
+    },
+    {
+      "bytes": 242,
+      "path": "max/node/package.json",
+      "sha256": "0ddb3a6e096f82ff9bd00beeb02189741530051f5284fc6491d70961856e4d52"
+    },
+    {
+      "bytes": 1643,
+      "path": "max/node/protocol.js",
+      "sha256": "810fa65229882a169a40f0c19f94e6df781ad9de6a1ef0f94146af5a1e182937"
+    },
+    {
+      "bytes": 10903,
+      "path": "max/node/python_worker.js",
+      "sha256": "84da91ca11c6e4c893b4c7cc08020301c09512458a878d6c94a5a8511c817eb6"
+    },
+    {
+      "bytes": 11081,
+      "path": "max/node/validators.js",
+      "sha256": "4bc47b7e0014aa8db72bef7eb5e49f3dd0ad4c6d2544e0341dba2769440904d8"
+    },
+    {
+      "bytes": 729,
+      "path": "max/package-info.json",
+      "sha256": "6debcacffc9ebf880475a4fd42da26da94c16d5d6a748c435358fabd8977f116"
+    },
+    {
+      "bytes": 35274,
+      "path": "max/patchers/DrumSliceID.maxpat",
+      "sha256": "22763b18f6b9e8b6a490b8b1cf9a6f9fe3d644bf0f0a71ec8726521312f05c32"
+    },
+    {
+      "bytes": 23077,
+      "path": "max/patchers/DrumSliceIDResults.maxpat",
+      "sha256": "f55d520941fc3d2413a93fa2f4cb72091b95149c4f2dbc7781b71c4d9ebdbfc7"
+    },
+    {
+      "bytes": 43662,
+      "path": "max/patchers/DrumSliceIDSettings.maxpat",
+      "sha256": "17e52223c6000256c1d8145f82b316fddcee4cf98afeb7c7c935a0f80649124f"
+    },
+    {
+      "bytes": 43426,
+      "path": "max/patchers/drumslice_id_bundle.js",
+      "sha256": "9a78850b2eb5d4a1931c1ae6a1d55fca4a1e42f80d1275eeed60123542c2aa50"
+    },
+    {
+      "bytes": 43426,
+      "path": "max/patchers/drumslice_id_bundle_v2.js",
+      "sha256": "9a78850b2eb5d4a1931c1ae6a1d55fca4a1e42f80d1275eeed60123542c2aa50"
+    },
+    {
+      "bytes": 4773,
+      "path": "max/patchers/drumslice_id_results_bundle.js",
+      "sha256": "51c3373073d859c9494534c86c0ead0d1d24e7a81f0dc455228d6c36f1cef545"
+    },
+    {
+      "bytes": 4773,
+      "path": "max/patchers/drumslice_id_results_bundle_v2.js",
+      "sha256": "51c3373073d859c9494534c86c0ead0d1d24e7a81f0dc455228d6c36f1cef545"
+    },
+    {
+      "bytes": 6585,
+      "path": "max/patchers/drumslice_id_settings_bundle.js",
+      "sha256": "348e29b7fcdda7a6c3bd9d733804037d68655235be906edacd350765cfb90035"
+    },
+    {
+      "bytes": 6585,
+      "path": "max/patchers/drumslice_id_settings_bundle_v2.js",
+      "sha256": "348e29b7fcdda7a6c3bd9d733804037d68655235be906edacd350765cfb90035"
+    },
+    {
+      "bytes": 360,
+      "path": "max/patchers/live_controller_loader.js",
+      "sha256": "fa21475323c6f12544b96fbf46a780d830acf5a2b46ac3626c1b0440cb7d8e16"
+    },
+    {
+      "bytes": 746,
+      "path": "max/patchers/orchestrator_loader.js",
+      "sha256": "5ee9a23f72301caf361603b5c766297b72b1b1ca1a5fa0056a8c676500247190"
+    },
+    {
+      "bytes": 3319,
+      "path": "max/schemas/analysis_request.schema.json",
+      "sha256": "be32211765d0a51c91bc6bbcf4155e739db25d0ae1bd37a7ef18693a0aa098da"
+    },
+    {
+      "bytes": 3507,
+      "path": "max/schemas/analysis_result.schema.json",
+      "sha256": "db7b6527f2bbb4f7b47ca157215160d25fa3c36696b45caa645058e17ce8b548"
+    },
+    {
+      "bytes": 2821,
+      "path": "max/schemas/rack_snapshot.schema.json",
+      "sha256": "bffcd4d8237870d1b840fadf84eb8eefbcbfe785a2c7f91f0a5358a69201a153"
+    },
+    {
+      "bytes": 60,
+      "path": "python/drumslice_id_worker/__init__.py",
+      "sha256": "a524660cc953e5cd0cac6fea5a6fab0d844bda5c24452806ad0ee6cacdd42744"
+    },
+    {
+      "bytes": 93,
+      "path": "python/drumslice_id_worker/__main__.py",
+      "sha256": "e4ac4c895e6de84aca80cd0c4d65357c0eb09028d6b51ddf979a6beb1421b704"
+    },
+    {
+      "bytes": 570,
+      "path": "python/drumslice_id_worker/backends/__init__.py",
+      "sha256": "02672ed449aed9e68a3882ea2dbf6356bb7e0494ae16b79947c29c08a9c7f776"
+    },
+    {
+      "bytes": 12144,
+      "path": "python/drumslice_id_worker/backends/adtof.py",
+      "sha256": "615a5c1db23acad3fb6bb41ec5e428b0346a2dc8c625435e7eee12cedb68aa13"
+    },
+    {
+      "bytes": 3663,
+      "path": "python/drumslice_id_worker/backends/base.py",
+      "sha256": "bed0cbf0d45bcba4cadb54a458ccbc820eb6010e3c7044532bd62ef1430716d2"
+    },
+    {
+      "bytes": 2690,
+      "path": "python/drumslice_id_worker/backends/mock.py",
+      "sha256": "e2656d7c17fea296e72f47d3e3a4c2bf242f1c8e6860b6a7503b72e5750cd6fc"
+    },
+    {
+      "bytes": 3923,
+      "path": "python/drumslice_id_worker/cache.py",
+      "sha256": "ac350ac6123021f7193f5c16354e4a80227c73e3fc54abe6b9bc7e57a8e68a6c"
+    },
+    {
+      "bytes": 480,
+      "path": "python/drumslice_id_worker/errors.py",
+      "sha256": "4b3a2a81187857766fa05ed585349a606d8c2f218db1c6b8f47f143ad2d01aed"
+    },
+    {
+      "bytes": 3871,
+      "path": "python/drumslice_id_worker/events.py",
+      "sha256": "2889b51f3a8d9732484b15d1bb20321652b16e60b5d13126520bd18f373fef06"
+    },
+    {
+      "bytes": 5589,
+      "path": "python/drumslice_id_worker/mapping.py",
+      "sha256": "63f51408311eed44b3161c45002e4ef4b683caed1d6b523462660c8a29037a55"
+    },
+    {
+      "bytes": 6551,
+      "path": "python/drumslice_id_worker/protocol.py",
+      "sha256": "ea7e1ca35bf978c8ccef9c28e3de7ab8ed1f9f17af4f60030c525e61c8f535e6"
+    },
+    {
+      "bytes": 16691,
+      "path": "python/drumslice_id_worker/service.py",
+      "sha256": "afb70b8c8eb44be3f4e494358202a0388ca061d4ca77863baac06694f2576f4f"
+    },
+    {
+      "bytes": 851,
+      "path": "python/pyproject.toml",
+      "sha256": "054a5f7b7fbf070f92aa15615ae24525154c3b68e622cd8b0151533eaa4f7bb1"
+    },
+    {
+      "bytes": 862,
+      "path": "python/requirements.lock",
+      "sha256": "7e1a808cd1b23f73c6de8423362c935cb4c2c1c5dbd19287a1dddc5e847c4e3f"
+    },
+    {
+      "bytes": 549,
+      "path": "python/setup.py",
+      "sha256": "e102217b1bb491a92a40f859f4d0637535b392d10e5da890d87e3073c6720ae5"
+    },
+    {
+      "bytes": 4424,
+      "path": "scripts/build_max_device.js",
+      "sha256": "3ab32b5a0ff4838eed801cb5c14a0a5c6188eb63ef94baa3d16ed4805a070d9b"
+    },
+    {
+      "bytes": 2578,
+      "path": "scripts/build_max_device.md",
+      "sha256": "15ad1b61b1c98d83915134d1a451f533f94e00298d2042b16103da320baf70fc"
+    },
+    {
+      "bytes": 2837,
+      "path": "scripts/build_max_js_bundle.js",
+      "sha256": "cce8496d1cd8629fac3191bcd9ab6d22a1f5161aa5db716b2066654bda1053ea"
+    },
+    {
+      "bytes": 4885,
+      "path": "scripts/build_release.py",
+      "sha256": "ffe790beb30f721e3c857e231e721e4a40cb199d06243366d6c81ddc22a5532d"
+    },
+    {
+      "bytes": 2548,
+      "path": "scripts/check_backend.py",
+      "sha256": "bd25342ca0f3340275c82ebf427096d4a6211684bc8dda87b19cb3309dc782af"
+    },
+    {
+      "bytes": 1231,
+      "path": "scripts/check_versions.js",
+      "sha256": "6390a8487a2cff077425c8f63c5341ab38812b564da8400c1383c5e9babc8d9a"
+    },
+    {
+      "bytes": 2611,
+      "path": "scripts/create_test_fixtures.py",
+      "sha256": "5287061afe40379d63c9bcddb0b52cb7787586ce217fb881535d267e10bd6d68"
+    },
+    {
+      "bytes": 963,
+      "path": "scripts/install_local.sh",
+      "sha256": "2e3a1515429891c22a6ef5638891b147f47a4152d46baf257bc011d5115f3832"
+    },
+    {
+      "bytes": 5009,
+      "path": "scripts/max_device_format.js",
+      "sha256": "597d664ed5e866c3ac7b9f6734cd1130937de25322c12622ddb65d63861b84f7"
+    },
+    {
+      "bytes": 2858,
+      "path": "scripts/setup_backend.ps1",
+      "sha256": "dde4a5dc5ec7154e74cca6af07916fab0c3d308226f117e9cf1f183da2eb143e"
+    },
+    {
+      "bytes": 2303,
+      "path": "scripts/setup_backend.sh",
+      "sha256": "a8edbc07a83e3907803e19db869742c83c12e37c5034d15146608ee9c01984d0"
+    },
+    {
+      "bytes": 4093,
+      "path": "scripts/verify_max_device.js",
+      "sha256": "6ed85ce306e970541d2231fdda3d28b5c42312780d5c3a78a556f21dc8cd2240"
+    },
+    {
+      "bytes": 8040,
+      "path": "uninstall.ps1",
+      "sha256": "7ae6319213a614631cb9bb8ac9a05b725bc33e88f3d2f0c1c32c4bf77fdb0fd2"
+    },
+    {
+      "bytes": 7479,
+      "path": "uninstall.sh",
+      "sha256": "7f494f44bf7159c0f3590ab6e109d5f225935e812d3fc501944776b741a6c792"
+    }
+  ],
+  "product": "DrumSLICE ID",
+  "schemaVersion": 1,
+  "version": "0.1.0-alpha.1"
+}

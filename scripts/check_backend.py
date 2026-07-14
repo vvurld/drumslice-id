@@ -26,7 +26,7 @@ def main() -> int:
     request = {"schemaVersion": 1, "type": "health", "requestId": "backend-check", "backend": args.backend, "options": {"device": "cpu", "fps": 100, "maxThreads": 2}}
     try:
         process = subprocess.run(
-            [args.python, "-m", "slice_labeler_worker"],
+            [args.python, "-m", "drumslice_id_worker"],
             input=json.dumps(request) + "\n",
             text=True,
             capture_output=True,

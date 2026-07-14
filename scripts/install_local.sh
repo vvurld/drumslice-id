@@ -3,7 +3,7 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 MAX_VERSION="${MAX_VERSION:-9}"
-PACKAGE_DIR="$HOME/Documents/Max $MAX_VERSION/Packages/SliceLabeler"
+PACKAGE_DIR="$HOME/Documents/Max $MAX_VERSION/Packages/DrumSliceID"
 DEVICE_DIR="$HOME/Music/Ableton/User Library/Presets/MIDI Effects/Max MIDI Effect"
 
 if [[ -e "$PACKAGE_DIR" && ! -L "$PACKAGE_DIR" ]]; then

@@ -6,7 +6,7 @@ const {JsonLineParser, validateEnvelope, encode, coded} = require("./protocol");
 class PythonWorker {
   constructor(options) {
     this.python = options.python;
-    this.args = options.args || ["-m", "slice_labeler_worker"];
+    this.args = options.args || ["-m", "drumslice_id_worker"];
     this.cwd = options.cwd;
     this.env = Object.assign({}, process.env, options.env || {});
     this.logger = options.logger || {error() {}};

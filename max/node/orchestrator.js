@@ -137,7 +137,11 @@ function defaultSettings() {
   };
 }
 
-function mergeSettings(input, allowMockBackend = process.env.SLICE_LABELER_DEBUG === "1") {
+function debugEnabled() {
+  return process.env.DRUMSLICE_ID_DEBUG === "1" || process.env.SLICE_LABELER_DEBUG === "1";
+}
+
+function mergeSettings(input, allowMockBackend = debugEnabled()) {
   const defaults = defaultSettings();
   const settings = input && typeof input === "object" && !Array.isArray(input) ? input : {};
   const suppliedModel = settings.modelOptions && typeof settings.modelOptions === "object" && !Array.isArray(settings.modelOptions) ? settings.modelOptions : {};
@@ -189,10 +193,11 @@ function mergeSettings(input, allowMockBackend = process.env.SLICE_LABELER_DEBUG
 }
 
 function workerRuntimeOptions(config, logger, sourceRoot = path.resolve(__dirname, "../../python")) {
-  const sourcePackage = path.join(sourceRoot, "slice_labeler_worker");
+  const sourcePackage = path.join(sourceRoot, "drumslice_id_worker");
   const hasSourcePackage = fs.existsSync(sourcePackage);
   const options = {
     python: config.python,
+    args: ["-m", config.workerModule || "drumslice_id_worker"],
     cwd: hasSourcePackage ? sourceRoot : os.homedir(),
     logger,
   };
@@ -233,7 +238,7 @@ class Orchestrator {
     this.active = null;
     this.config = options.config || loadBackendConfig();
     this.configFile = options.configFile || backendConfigPath();
-    this.logger = options.logger || new RotatingLogger(path.join(cacheRoot(), "slice-labeler.log"));
+    this.logger = options.logger || new RotatingLogger(path.join(cacheRoot(), "drumslice-id.log"));
     this.workerFactory = options.workerFactory || ((config) => new PythonWorker(workerRuntimeOptions(config, this.logger)));
     this.worker = null;
     this.candidateWorker = null;
@@ -241,7 +246,7 @@ class Orchestrator {
     this.stopping = false;
     this.shutdownPromise = null;
     this.workerDrain = null;
-    this.allowMockBackend = options.allowMockBackend === true || process.env.SLICE_LABELER_DEBUG === "1";
+    this.allowMockBackend = options.allowMockBackend === true || debugEnabled();
   }
 
   assertAvailable() {
@@ -401,7 +406,7 @@ class Orchestrator {
     try {
       await this.waitForWorkerDrain();
       const python = await normalizePythonExecutable(input);
-      const candidateConfig = Object.assign({}, this.config, {python});
+      const candidateConfig = Object.assign({}, this.config, {python, workerModule: "drumslice_id_worker"});
       const candidate = this.workerFactory(candidateConfig);
       this.candidateWorker = candidate;
       let health;
@@ -488,26 +493,43 @@ async function normalizePythonExecutable(input) {
 
 function loadBackendConfig() {
   const candidates = [
-    process.env.SLICE_LABELER_BACKEND_CONFIG,
-    path.join(os.homedir(), ".slice-labeler", "backend-config.json"),
-  ].filter(Boolean);
+    {file: process.env.DRUMSLICE_ID_BACKEND_CONFIG, legacy: false},
+    {file: process.env.SLICE_LABELER_BACKEND_CONFIG, legacy: true},
+    {file: path.join(os.homedir(), ".drumslice-id", "backend-config.json"), legacy: false},
+    {file: path.join(os.homedir(), ".slice-labeler", "backend-config.json"), legacy: true},
+  ].filter((candidate, index, all) => candidate.file && all.findIndex((item) => item.file === candidate.file) === index);
   for (const candidate of candidates) {
     try {
-      const config = parseBackendConfig(fs.readFileSync(candidate, "utf8"));
-      if (typeof config.python === "string" && config.python) return Object.assign({}, config, {python: expandHomePath(config.python)});
+      const config = parseBackendConfig(fs.readFileSync(candidate.file, "utf8"));
+      if (typeof config.python === "string" && config.python) {
+        return Object.assign({}, config, {
+          python: expandHomePath(config.python),
+          workerModule: candidate.legacy ? "slice_labeler_worker" : "drumslice_id_worker",
+        });
+      }
     } catch {}
   }
-  return {python: process.env.SLICE_LABELER_PYTHON ? expandHomePath(process.env.SLICE_LABELER_PYTHON) : null};
+  const python = process.env.DRUMSLICE_ID_PYTHON || process.env.SLICE_LABELER_PYTHON;
+  return {python: python ? expandHomePath(python) : null, workerModule: "drumslice_id_worker"};
 }
+
+function backendConfigPath() {
+  return process.env.DRUMSLICE_ID_BACKEND_CONFIG
+    || process.env.SLICE_LABELER_BACKEND_CONFIG
+    || path.join(os.homedir(), ".drumslice-id", "backend-config.json");
+}
+
+/*
+ * Legacy environment names and ~/.slice-labeler are read-only migration
+ * aliases. New configuration is always written with the DrumSLICE ID schema
+ * and module name; installers rebuild virtual environments instead of moving
+ * them because venv launchers contain absolute paths.
+ */
 
 function expandHomePath(value) {
   if (value === "~") return os.homedir();
   if (value.startsWith(`~${path.sep}`) || value.startsWith("~/") || value.startsWith("~\\")) return path.join(os.homedir(), value.slice(2));
   return value;
-}
-
-function backendConfigPath() {
-  return process.env.SLICE_LABELER_BACKEND_CONFIG || path.join(os.homedir(), ".slice-labeler", "backend-config.json");
 }
 
 function parseBackendConfig(text) {
@@ -607,6 +629,7 @@ module.exports = {
   stripLiveData,
   defaultSettings,
   mergeSettings,
+  debugEnabled,
   workerRuntimeOptions,
   backendConfigPath,
   parseBackendConfig,

@@ -1,9 +1,21 @@
 param(
-  [string]$InstallRoot = "$HOME\.slice-labeler",
+  [string]$InstallRoot = "$HOME\.drumslice-id",
   [string]$Python = "python",
-  [string]$ConfigPath = "$HOME\.slice-labeler\backend-config.json"
+  [string]$ConfigPath = "$HOME\.drumslice-id\backend-config.json",
+  [switch]$AcceptAdtofLicense
 )
 $ErrorActionPreference = "Stop"
+if (-not $PSBoundParameters.ContainsKey("InstallRoot")) {
+  if (-not [string]::IsNullOrWhiteSpace($env:DRUMSLICE_ID_HOME)) { $InstallRoot = $env:DRUMSLICE_ID_HOME }
+  elseif (-not [string]::IsNullOrWhiteSpace($env:SLICE_LABELER_HOME)) { $InstallRoot = $env:SLICE_LABELER_HOME }
+}
+if (-not $PSBoundParameters.ContainsKey("ConfigPath")) {
+  if (-not [string]::IsNullOrWhiteSpace($env:DRUMSLICE_ID_BACKEND_CONFIG)) { $ConfigPath = $env:DRUMSLICE_ID_BACKEND_CONFIG }
+  elseif (-not [string]::IsNullOrWhiteSpace($env:SLICE_LABELER_BACKEND_CONFIG)) { $ConfigPath = $env:SLICE_LABELER_BACKEND_CONFIG }
+}
+if (-not $AcceptAdtofLicense -and $env:DRUMSLICE_ID_ACCEPT_ADTOF_LICENSE -ne "1") {
+  throw "Refusing to download the external ADTOF backend without explicit acknowledgement. Run install.ps1 with -AcceptAdtofLicense; see THIRD_PARTY_NOTICES.md."
+}
 function Invoke-Native {
   param([string]$Command, [string[]]$Arguments)
   & $Command @Arguments

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://slice-labeler.local/schemas/rack_snapshot.schema.json",
+  "$id": "https://drumslice-id.local/schemas/rack_snapshot.schema.json",
   "title": "DrumSLICE ID rack snapshot",
   "type": "object",
   "additionalProperties": false,

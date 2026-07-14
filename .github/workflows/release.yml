@@ -1,0 +1,46 @@
+name: Publish alpha release
+
+on:
+  push:
+    tags:
+      - "v*-alpha.*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: Validate tag and source
+        shell: bash
+        run: |
+          test "v$(tr -d '\r\n' < VERSION)" = "$GITHUB_REF_NAME"
+          python -m pip install --disable-pip-version-check pytest
+          node scripts/check_versions.js
+          node scripts/build_max_js_bundle.js --check
+          node scripts/build_max_device.js --check
+          node scripts/verify_max_device.js
+          node --test tests/node/*.test.js
+          PYTHONPATH=python python -m pytest -q tests/python
+          python scripts/build_release.py --check
+      - name: Create GitHub prerelease
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          VERSION=$(tr -d '\r\n' < VERSION)
+          gh release create "$GITHUB_REF_NAME" \
+            "release/DrumSLICE-ID-$VERSION.zip" \
+            "release/DrumSLICE-ID-$VERSION.manifest.json" \
+            "release/SHA256SUMS" \
+            --prerelease \
+            --title "DrumSLICE ID $VERSION" \
+            --notes-file docs/ALPHA_RELEASE_NOTES.md

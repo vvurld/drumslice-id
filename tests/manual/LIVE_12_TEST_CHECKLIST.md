@@ -2,6 +2,20 @@
 
 Record Live/Max versions, machine, Set name, and date. For each item record Pass, Fail, or Not Run plus evidence.
 
+## Alpha candidate record — 2026-07-14
+
+- Candidate: DrumSLICE ID `0.1.0-alpha.1`; AMXD SHA-256 `8f3ae84d3605e1721c4179d1934f103aa711ea82d951c980bdb999b834088263`.
+- Host: Ableton Live 12.4.2 with Max 9 on Apple silicon; macOS 26.5; Set `SLICES.als`; CPython 3.10.19 backend.
+- Pass — copied installation: canonical Max package, AMXD, backend, and config installed at their default paths; installed package is not a symlink; strict backend health passes.
+- Pass — fresh device load: a new candidate instance opens before the prepared Drum Rack, resolves project-owned dependencies, discovers `stranj_brk_guillotine_high_bright`, and displays `Ready` without a blank UI.
+- Pass — recorded production analysis: the supplied rack returns 15 predictions, zero skipped/unknown rows, and zero source errors; Results displays all five raw score columns; slice 6 resolves to snare. This result was also reproduced through the clean installed worker protocol.
+- Pass — cancellation/restart protocol: cancellation during real backend preflight terminates the device-owned child before cache maintenance, and the next run starts cleanly without stale results.
+- Not Run — final candidate Apply/Revert/conflict/staleness click-through. The desktop control API can select Live/Max devices but does not activate their embedded presentation controls; no result is inferred from an unregistered synthetic click.
+- Not Run — native Windows Live/Max host acceptance, 128-pad rack, path/non-ASCII matrix, transport stress, multi-rack selection, and performance timing.
+- Set safety: the acceptance Set was not saved after inserting the fresh candidate instance. No deletion or manual Chain-name mutation was performed by automation.
+
+The numbered checklist remains the release gate. Automated unit/contract coverage is supporting evidence, not a replacement for the host items marked Not Run.
+
 ## Installation acceptance
 
 - From a clean macOS account, run `./install.sh`; verify it installs without Max editing, the copied package is not a symlink, `--verify-only` passes, and the installed uninstaller removes only the selected components.

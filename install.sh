@@ -3,11 +3,12 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 MAX_VERSION="${MAX_VERSION:-9}"
-MAX_PACKAGES_DIR="${SLICE_LABELER_MAX_PACKAGES_DIR:-}"
-USER_LIBRARY="${SLICE_LABELER_USER_LIBRARY:-}"
-INSTALL_ROOT="${SLICE_LABELER_HOME:-$HOME/.slice-labeler}"
-CONFIG_PATH="${SLICE_LABELER_BACKEND_CONFIG:-$HOME/.slice-labeler/backend-config.json}"
+MAX_PACKAGES_DIR="${DRUMSLICE_ID_MAX_PACKAGES_DIR:-${SLICE_LABELER_MAX_PACKAGES_DIR:-}}"
+USER_LIBRARY="${DRUMSLICE_ID_USER_LIBRARY:-${SLICE_LABELER_USER_LIBRARY:-}}"
+INSTALL_ROOT="${DRUMSLICE_ID_HOME:-${SLICE_LABELER_HOME:-$HOME/.drumslice-id}}"
+CONFIG_PATH="${DRUMSLICE_ID_BACKEND_CONFIG:-${SLICE_LABELER_BACKEND_CONFIG:-$HOME/.drumslice-id/backend-config.json}}"
 PYTHON_COMMAND="${PYTHON:-}"
+ACCEPT_ADTOF_LICENSE="${DRUMSLICE_ID_ACCEPT_ADTOF_LICENSE:-0}"
 SKIP_BACKEND=0
 VERIFY_ONLY=0
 FORCE=0
@@ -24,13 +25,15 @@ Usage: ./install.sh [options]
 Options:
   --python COMMAND          Python 3.10, 3.11, or 3.12 executable
   --max-version VERSION     Max major version used for the default package path (default: 9)
-  --max-packages-dir DIR    Max Packages directory; SliceLabeler is copied below it
+  --max-packages-dir DIR    Max Packages directory; DrumSliceID is copied below it
   --user-library DIR        Ableton User Library root
-  --install-root DIR        Backend environment root (default: ~/.slice-labeler)
+  --install-root DIR        Backend environment root (default: ~/.drumslice-id)
   --config PATH             Backend configuration file
   --skip-backend            Install and verify only the Max package and AMXD
+  --accept-adtof-license    Acknowledge the external backend's noncommercial
+                            license/status; required for backend installation
   --verify-only             Verify an existing installation without changing it
-  --force                   Replace an unrecognized existing SliceLabeler package directory
+  --force                   Replace an unrecognized existing DrumSliceID package directory
   -h, --help                Show this help
 
 The normal installation copies the Max runtime, so the repository may be moved
@@ -60,8 +63,30 @@ require_absolute() {
   esac
 }
 
-is_slice_labeler_package() {
-  [[ -f "$1/package-info.json" ]] && grep -Eq '"name"[[:space:]]*:[[:space:]]*"SliceLabeler"' "$1/package-info.json"
+is_drumslice_id_package() {
+  [[ -f "$1/package-info.json" ]] && grep -Eq '"name"[[:space:]]*:[[:space:]]*"DrumSliceID"' "$1/package-info.json"
+}
+
+is_legacy_package() {
+  [[ -f "$1/package-info.json" ]] && grep -Eq '"name"[[:space:]]*:[[:space:]]*"(SliceLabeler|DrumSliceID)"' "$1/package-info.json"
+}
+
+acknowledge_adtof() {
+  [[ "$ACCEPT_ADTOF_LICENSE" == "1" ]] && return
+  printf '%s\n' \
+    'The optional ADTOF backend is downloaded from a third-party repository.' \
+    'Upstream ADTOF is CC BY-NC-SA 4.0; the pinned PyTorch port does not declare' \
+    'a separate license for its code/converted weights. DrumSLICE ID alpha is' \
+    'therefore offered for free, noncommercial, experimental use only.' \
+    'See THIRD_PARTY_NOTICES.md before continuing.'
+  if [[ -t 0 ]]; then
+    printf 'Type I-ACCEPT to download the external backend: '
+    IFS= read -r answer
+    [[ "$answer" == "I-ACCEPT" ]] || die "ADTOF terms were not acknowledged; rerun with --skip-backend if you only want the device files"
+  else
+    die "backend installation requires --accept-adtof-license (or DRUMSLICE_ID_ACCEPT_ADTOF_LICENSE=1)"
+  fi
+  ACCEPT_ADTOF_LICENSE=1
 }
 
 cleanup() {
@@ -88,6 +113,7 @@ while [[ $# -gt 0 ]]; do
     --install-root) [[ $# -ge 2 ]] || die "--install-root requires a value"; INSTALL_ROOT="$2"; shift 2 ;;
     --config) [[ $# -ge 2 ]] || die "--config requires a value"; CONFIG_PATH="$2"; shift 2 ;;
     --skip-backend) SKIP_BACKEND=1; shift ;;
+    --accept-adtof-license) ACCEPT_ADTOF_LICENSE=1; shift ;;
     --verify-only) VERIFY_ONLY=1; shift ;;
     --force) FORCE=1; shift ;;
     -h|--help) usage; exit 0 ;;
@@ -101,7 +127,8 @@ MAX_PACKAGES_DIR="$(expand_home "${MAX_PACKAGES_DIR:-$HOME/Documents/Max $MAX_VE
 USER_LIBRARY="$(expand_home "${USER_LIBRARY:-$HOME/Music/Ableton/User Library}")"
 INSTALL_ROOT="$(expand_home "$INSTALL_ROOT")"
 CONFIG_PATH="$(expand_home "$CONFIG_PATH")"
-PACKAGE_DIR="$MAX_PACKAGES_DIR/SliceLabeler"
+PACKAGE_DIR="$MAX_PACKAGES_DIR/DrumSliceID"
+LEGACY_PACKAGE_DIR="$MAX_PACKAGES_DIR/SliceLabeler"
 DEVICE_DIR="$USER_LIBRARY/Presets/MIDI Effects/Max MIDI Effect"
 DEVICE_PATH="$DEVICE_DIR/DrumSLICE ID.amxd"
 LEGACY_DEVICE_PATH="$DEVICE_DIR/Slice Labeler.amxd"
@@ -121,8 +148,8 @@ verify_source() {
     scripts/check_backend.py \
     python/requirements.lock \
     max/package-info.json \
-    max/patchers/SliceLabeler.maxpat \
-    max/patchers/slice_labeler_bundle_v2.js \
+    max/patchers/DrumSliceID.maxpat \
+    max/patchers/drumslice_id_bundle_v2.js \
     max/patchers/orchestrator_loader.js \
     max/node/orchestrator.js \
     max/schemas/analysis_request.schema.json; do
@@ -139,9 +166,9 @@ verify_source() {
 install_backend() {
   step "Installing the private Python analysis backend"
   if [[ -n "$PYTHON_COMMAND" ]]; then
-    PYTHON="$PYTHON_COMMAND" SLICE_LABELER_HOME="$INSTALL_ROOT" SLICE_LABELER_BACKEND_CONFIG="$CONFIG_PATH" "$ROOT/scripts/setup_backend.sh"
+    PYTHON="$PYTHON_COMMAND" DRUMSLICE_ID_HOME="$INSTALL_ROOT" DRUMSLICE_ID_BACKEND_CONFIG="$CONFIG_PATH" DRUMSLICE_ID_ACCEPT_ADTOF_LICENSE=1 "$ROOT/scripts/setup_backend.sh"
   else
-    SLICE_LABELER_HOME="$INSTALL_ROOT" SLICE_LABELER_BACKEND_CONFIG="$CONFIG_PATH" "$ROOT/scripts/setup_backend.sh"
+    DRUMSLICE_ID_HOME="$INSTALL_ROOT" DRUMSLICE_ID_BACKEND_CONFIG="$CONFIG_PATH" DRUMSLICE_ID_ACCEPT_ADTOF_LICENSE=1 "$ROOT/scripts/setup_backend.sh"
   fi
 }
 
@@ -149,12 +176,12 @@ install_max_package() {
   step "Copying the Max package"
   mkdir -p "$MAX_PACKAGES_DIR"
   if [[ -e "$PACKAGE_DIR" || -L "$PACKAGE_DIR" ]]; then
-    if ! is_slice_labeler_package "$PACKAGE_DIR" && [[ "$FORCE" -ne 1 ]]; then
-      die "$PACKAGE_DIR exists but is not a recognized SliceLabeler package; inspect it or rerun with --force"
+    if ! is_drumslice_id_package "$PACKAGE_DIR" && [[ "$FORCE" -ne 1 ]]; then
+      die "$PACKAGE_DIR exists but is not a recognized DrumSliceID package; inspect it or rerun with --force"
     fi
   fi
-  STAGING_PACKAGE="$MAX_PACKAGES_DIR/.SliceLabeler.installing-$$"
-  BACKUP_PACKAGE="$MAX_PACKAGES_DIR/.SliceLabeler.backup-$$"
+  STAGING_PACKAGE="$MAX_PACKAGES_DIR/.DrumSliceID.installing-$$"
+  BACKUP_PACKAGE="$MAX_PACKAGES_DIR/.DrumSliceID.backup-$$"
   rm -rf -- "$STAGING_PACKAGE" "$BACKUP_PACKAGE"
   mkdir -p "$STAGING_PACKAGE"
   cp -R "$ROOT/max/." "$STAGING_PACKAGE/"
@@ -173,8 +200,23 @@ install_device() {
   chmod 0644 "$STAGING_DEVICE"
   mv -f "$STAGING_DEVICE" "$DEVICE_PATH"
   STAGING_DEVICE=""
-  if [[ -f "$LEGACY_DEVICE_PATH" && -f "$MANIFEST_PATH" ]] && grep -Fqx "devicePath=$LEGACY_DEVICE_PATH" "$MANIFEST_PATH"; then
+}
+
+migrate_legacy_installation() {
+  if [[ -e "$LEGACY_PACKAGE_DIR" || -L "$LEGACY_PACKAGE_DIR" ]]; then
+    if is_legacy_package "$LEGACY_PACKAGE_DIR"; then
+      rm -rf -- "$LEGACY_PACKAGE_DIR"
+      printf '    Removed recognized legacy Max package: %s\n' "$LEGACY_PACKAGE_DIR"
+    else
+      printf '    Preserved unrecognized legacy package path: %s\n' "$LEGACY_PACKAGE_DIR"
+    fi
+  fi
+  if [[ -f "$LEGACY_DEVICE_PATH" ]]; then
     rm -f -- "$LEGACY_DEVICE_PATH"
+    printf '    Removed legacy device copy: %s\n' "$LEGACY_DEVICE_PATH"
+  fi
+  if [[ "$INSTALL_ROOT" != "$HOME/.slice-labeler" && -d "$HOME/.slice-labeler" ]]; then
+    printf '    Preserved legacy backend at %s; remove it manually after validating this install.\n' "$HOME/.slice-labeler"
   fi
 }
 
@@ -182,7 +224,8 @@ write_manifest() {
   local temporary="$MANIFEST_PATH.tmp-$$"
   mkdir -p "$INSTALL_ROOT"
   {
-    printf 'schemaVersion=1\n'
+    printf 'schemaVersion=2\n'
+    printf 'product=DrumSLICE ID\n'
     printf 'packageDir=%s\n' "$PACKAGE_DIR"
     printf 'devicePath=%s\n' "$DEVICE_PATH"
     printf 'configPath=%s\n' "$CONFIG_PATH"
@@ -198,7 +241,7 @@ verify_installation() {
   local backend_python="$INSTALL_ROOT/venv/bin/python"
   step "Verifying the installed files"
   [[ -d "$PACKAGE_DIR" && ! -L "$PACKAGE_DIR" ]] || die "the installed Max package is missing or still a development symlink: $PACKAGE_DIR"
-  is_slice_labeler_package "$PACKAGE_DIR" || die "installed Max package metadata is invalid"
+  is_drumslice_id_package "$PACKAGE_DIR" || die "installed Max package metadata is invalid"
   diff -qr "$ROOT/max" "$PACKAGE_DIR" >/dev/null || die "installed Max package differs from the repository runtime"
   [[ -f "$DEVICE_PATH" ]] || die "installed AMXD is missing: $DEVICE_PATH"
   cmp -s "$ROOT/dist/DrumSLICE ID.amxd" "$DEVICE_PATH" || die "installed AMXD differs from the repository artifact"
@@ -213,10 +256,11 @@ verify_installation() {
 
 step "Checking the repository and prerequisites"
 verify_source
-if [[ "$VERIFY_ONLY" -eq 0 && ( -e "$PACKAGE_DIR" || -L "$PACKAGE_DIR" ) ]] && ! is_slice_labeler_package "$PACKAGE_DIR" && [[ "$FORCE" -ne 1 ]]; then
-  die "$PACKAGE_DIR exists but is not a recognized SliceLabeler package; inspect it or rerun with --force"
+if [[ "$VERIFY_ONLY" -eq 0 && ( -e "$PACKAGE_DIR" || -L "$PACKAGE_DIR" ) ]] && ! is_drumslice_id_package "$PACKAGE_DIR" && [[ "$FORCE" -ne 1 ]]; then
+  die "$PACKAGE_DIR exists but is not a recognized DrumSliceID package; inspect it or rerun with --force"
 fi
 if [[ "$VERIFY_ONLY" -eq 0 && "$SKIP_BACKEND" -eq 0 ]]; then
+  acknowledge_adtof
   command -v git >/dev/null 2>&1 || die "Git is required to install the pinned ADTOF dependency"
 fi
 
@@ -226,6 +270,7 @@ if [[ "$VERIFY_ONLY" -eq 0 ]]; then
   fi
   install_max_package
   install_device
+  migrate_legacy_installation
   write_manifest
 fi
 

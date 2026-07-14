@@ -1,0 +1,68 @@
+name: CI
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: Install test-only Python dependencies
+        run: python -m pip install --disable-pip-version-check pytest
+      - name: Check versions and generated assets
+        run: |
+          node scripts/check_versions.js
+          node scripts/build_max_js_bundle.js --check
+          node scripts/build_max_device.js --check
+          node scripts/verify_max_device.js
+      - name: Node tests
+        run: node --test tests/node/*.test.js
+        shell: bash
+      - name: Python tests
+        run: python -m pytest -q tests/python
+        env:
+          PYTHONPATH: python
+      - name: Shell syntax
+        if: runner.os != 'Windows'
+        run: bash -n install.sh uninstall.sh scripts/setup_backend.sh scripts/install_local.sh
+      - name: Windows clean file-install smoke test
+        if: runner.os == 'Windows'
+        shell: powershell
+        run: |
+          $Root = Join-Path $env:RUNNER_TEMP "drumslice-id-clean"
+          $Max = Join-Path $Root "Max Packages"
+          $Library = Join-Path $Root "User Library"
+          $State = Join-Path $Root "state"
+          $Config = Join-Path $Root "config\backend.json"
+          .\install.ps1 -SkipBackend -MaxPackagesDir $Max -UserLibrary $Library -InstallRoot $State -ConfigPath $Config
+          .\install.ps1 -SkipBackend -VerifyOnly -MaxPackagesDir $Max -UserLibrary $Library -InstallRoot $State -ConfigPath $Config
+          & (Join-Path $State "uninstall.ps1") -MaxPackagesDir $Max -UserLibrary $Library -InstallRoot $State -ConfigPath $Config
+          & (Join-Path $State "uninstall.ps1") -RemoveBackend -MaxPackagesDir $Max -UserLibrary $Library -InstallRoot $State -ConfigPath $Config
+
+  release-integrity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: Verify deterministic release artifacts
+        run: python scripts/build_release.py --check

@@ -70,7 +70,7 @@ test("shutdown force-kills a child that ignores the graceful message", async () 
 });
 
 test("spawn failure clears the dead child reference so a later check can retry", async () => {
-  const worker = new PythonWorker({python: path.join(os.tmpdir(), "definitely-missing-slice-labeler-python"), logger, healthTimeoutMs: 200});
+  const worker = new PythonWorker({python: path.join(os.tmpdir(), "definitely-missing-drumslice-id-python"), logger, healthTimeoutMs: 200});
   await assert.rejects(worker.health("health-1", "adtof", {}), {code: "WORKER_START_FAILED"});
   await waitFor(() => worker.child === null);
   await assert.rejects(worker.health("health-2", "adtof", {}), {code: "WORKER_START_FAILED"});
@@ -132,11 +132,11 @@ test("duplicate request IDs and response-type mismatches are rejected", async ()
 });
 
 test("an unexpected crash retries one analysis request once", async () => {
-  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "slice-labeler-worker-retry-"));
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "drumslice-id-worker-retry-"));
   const counter = path.join(directory, "count");
   const childCode = String.raw`
     const fs = require("fs");
-    const counter = process.env.SLICE_LABELER_TEST_COUNTER;
+    const counter = process.env.DRUMSLICE_ID_TEST_COUNTER;
     const launch = fs.existsSync(counter) ? Number(fs.readFileSync(counter, "utf8")) + 1 : 1;
     fs.writeFileSync(counter, String(launch));
     let buffer = "";
@@ -160,7 +160,7 @@ test("an unexpected crash retries one analysis request once", async () => {
     python: process.execPath,
     args: ["-e", childCode],
     logger,
-    env: {SLICE_LABELER_TEST_COUNTER: counter},
+    env: {DRUMSLICE_ID_TEST_COUNTER: counter},
     shutdownTimeoutMs: 200,
   });
   const result = await worker.request(analysisRequest("retry"), {timeoutMs: 2000});

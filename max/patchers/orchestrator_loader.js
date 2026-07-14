@@ -5,10 +5,10 @@ const os = require("os");
 const path = require("path");
 
 const roots = [
-  process.env.SLICE_LABELER_ROOT,
+  process.env.DRUMSLICE_ID_ROOT,
   path.resolve(__dirname, ".."),
-  path.join(os.homedir(), "Documents", "Max 9", "Packages", "SliceLabeler"),
-  path.join(os.homedir(), "Documents", "Max 8", "Packages", "SliceLabeler")
+  path.join(os.homedir(), "Documents", "Max 9", "Packages", "DrumSliceID"),
+  path.join(os.homedir(), "Documents", "Max 8", "Packages", "DrumSliceID")
 ].filter(Boolean);
 
 let orchestrator = null;
@@ -21,7 +21,7 @@ for (const root of roots) {
 }
 
 if (!orchestrator) {
-  throw new Error("DrumSLICE ID Node runtime is not installed. Set SLICE_LABELER_ROOT or install the SliceLabeler Max package.");
+  throw new Error("DrumSLICE ID Node runtime is not installed. Set DRUMSLICE_ID_ROOT or install the DrumSliceID Max package.");
 }
 
 orchestrator.installMaxHandlers();

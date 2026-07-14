@@ -280,11 +280,11 @@
 					"outlettype" : [ "", "", "" ],
 					"patching_rect" : [ 340.0, 285.0, 160.0, 22.0 ],
 					"saved_object_attributes" : 					{
-						"filename" : "slice_labeler_bundle_v2.js",
+						"filename" : "drumslice_id_bundle_v2.js",
 						"parameter_enable" : 0
 					}
 ,
-					"text" : "js slice_labeler_bundle_v2.js"
+					"text" : "js drumslice_id_bundle_v2.js"
 				}
 
 			}
@@ -589,7 +589,7 @@
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
 					"patching_rect" : [ 455.0, 330.0, 120.0, 22.0 ],
-					"text" : "SliceLabelerResults"
+					"text" : "DrumSliceIDResults"
 				}
 
 			}
@@ -646,8 +646,8 @@
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
 					"patching_rect" : [ 600.0, 330.0, 125.0, 22.0 ],
-					"text" : "SliceLabelerSettings",
-					"varname" : "SliceLabelerSettings"
+					"text" : "DrumSliceIDSettings",
+					"varname" : "DrumSliceIDSettings"
 				}
 
 			}

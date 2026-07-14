@@ -1,6 +1,6 @@
-from slice_labeler_worker.backends.base import ModelOutput
-from slice_labeler_worker.events import Event, EventCluster, cluster_events, extract_events
-from slice_labeler_worker.mapping import Region, activation_fallback, assign_clusters, map_regions
+from drumslice_id_worker.backends.base import ModelOutput
+from drumslice_id_worker.events import Event, EventCluster, cluster_events, extract_events
+from drumslice_id_worker.mapping import Region, activation_fallback, assign_clusters, map_regions
 
 
 THRESHOLDS = {"kick": 0.22, "snare": 0.24, "tom": 0.32, "hihat": 0.22, "cymbal": 0.30}
@@ -10,7 +10,7 @@ def output(frames):
     return ModelOutput(100.0, ("kick", "snare", "tom", "hihat", "cymbal"), frames, len(frames) / 100, {})
 
 
-def test_event_extraction_matches_adtof_baseline_subtraction_and_keeps_raw_score():
+def test_event_extraction_uses_local_prominence_and_keeps_raw_score():
     frames = [[0.0] * 5 for _ in range(40)]
     frames[20][0] = 0.8
     events = extract_events(frames, 100.0, output(frames).class_names, THRESHOLDS)

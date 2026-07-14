@@ -16,12 +16,12 @@ test("corrupted cache entries are deleted", async () => {
 });
 
 test("the default activation cache is isolated from sibling logs", () => {
-  const previous = process.env.SLICE_LABELER_CACHE_DIR;
-  delete process.env.SLICE_LABELER_CACHE_DIR;
+  const previous = process.env.DRUMSLICE_ID_CACHE_DIR;
+  delete process.env.DRUMSLICE_ID_CACHE_DIR;
   try { assert.equal(workerCacheRoot(), path.join(cacheRoot(), "worker")); }
   finally {
-    if (previous == null) delete process.env.SLICE_LABELER_CACHE_DIR;
-    else process.env.SLICE_LABELER_CACHE_DIR = previous;
+    if (previous == null) delete process.env.DRUMSLICE_ID_CACHE_DIR;
+    else process.env.DRUMSLICE_ID_CACHE_DIR = previous;
   }
 });
 
@@ -33,7 +33,7 @@ test("Clear Cache preserves logs and unrelated files in an explicit cache root",
   fs.writeFileSync(path.join(dir, `${key}.deadbeef.tmp`), "temporary");
   fs.mkdirSync(path.join(dir, "numba"));
   fs.writeFileSync(path.join(dir, "numba", "compiled.nbc"), "compiled");
-  fs.writeFileSync(path.join(dir, "slice-labeler.log"), "diagnostic");
+  fs.writeFileSync(path.join(dir, "drumslice-id.log"), "diagnostic");
   fs.writeFileSync(path.join(dir, "keep-me.txt"), "user data");
 
   await cache.clear();
@@ -41,7 +41,7 @@ test("Clear Cache preserves logs and unrelated files in an explicit cache root",
   assert.equal(fs.existsSync(path.join(dir, `${key}.json.gz`)), false);
   assert.equal(fs.existsSync(path.join(dir, `${key}.deadbeef.tmp`)), false);
   assert.equal(fs.existsSync(path.join(dir, "numba")), false);
-  assert.equal(fs.readFileSync(path.join(dir, "slice-labeler.log"), "utf8"), "diagnostic");
+  assert.equal(fs.readFileSync(path.join(dir, "drumslice-id.log"), "utf8"), "diagnostic");
   assert.equal(fs.readFileSync(path.join(dir, "keep-me.txt"), "utf8"), "user data");
 });
 

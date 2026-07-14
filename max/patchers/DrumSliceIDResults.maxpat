@@ -496,7 +496,7 @@
         "box": {
           "id": "dict",
           "maxclass": "dict",
-          "text": "slice_labeler_results",
+          "text": "drumslice_id_results",
           "patching_rect": [
             285,
             65,
@@ -521,7 +521,7 @@
         "box": {
           "id": "controller",
           "maxclass": "newobj",
-          "text": "js slice_labeler_results_bundle_v2.js",
+          "text": "js drumslice_id_results_bundle_v2.js",
           "numinlets": 2,
           "numoutlets": 2,
           "patching_rect": [

@@ -13,7 +13,7 @@ flowchart LR
     UI["Max for Live patchers\ncontrols, status, results"]
     LOM["Max JavaScript\nlive_controller.js"]
     NODE["Node for Max\norchestrator.js"]
-    PY["Long-lived Python worker\nslice_labeler_worker"]
+    PY["Long-lived Python worker\ndrumslice_id_worker"]
     MODEL["Pinned ADTOF PyTorch\nFrame_RNN + weights"]
     LIVE["Ableton Live Object Model\nTrack / Drum Rack / Simpler / Sample"]
     CACHE["Local activation cache\ncompressed JSON, no audio"]
@@ -31,7 +31,7 @@ There are four runtime boundaries:
 1. The Max patchers own presentation, control routing, validated serialized-JSON message transport, diagnostic export through a named `Dict`, and unconditional MIDI pass-through.
 2. [`live_controller.js`](../max/javascript/live_controller.js) is the only component that traverses the Live Object Model or mutates a Live Set. Its only write operation is `Chain.name`.
 3. [`orchestrator.js`](../max/node/orchestrator.js) validates and reduces the Live snapshot, fingerprints source files, supervises Python, and correlates requests and responses.
-4. The Python package in [`python/slice_labeler_worker`](../python/slice_labeler_worker) performs audio inference, activation caching, event extraction, onset clustering, and slice classification.
+4. The Python package in [`python/drumslice_id_worker`](../python/drumslice_id_worker) performs audio inference, activation caching, event extraction, onset clustering, and slice classification.
 
 This separation is a safety boundary as well as an implementation choice. The Python process never receives a Live object ID and therefore cannot write to Live. The model backend never needs to know what a Drum Rack, pad, chain, or Simpler is.
 
@@ -163,7 +163,7 @@ flowchart TD
     A["Decode and resample entire source"] --> B["84-bin log-frequency spectrogram\n100 frames/s"]
     B --> C["ADTOF Frame_RNN inference"]
     C --> D["T × 5 sigmoid activations"]
-    D --> E["Pinned ADTOF PeakPicker behavior\nper class"]
+    D --> E["Project-owned local-prominence picker\nper class"]
     E --> F["Cross-class onset clusters"]
     F --> G["Assign each cluster to at most one Live region"]
     G --> H["Choose closest cluster or bounded activation fallback"]
@@ -259,7 +259,7 @@ The channels are independent, not a softmax distribution:
 - a high value is confidence-like model evidence, not a calibrated probability that the entire slice belongs to that class;
 - the raw magnitudes are only comparable after accounting for the class-specific thresholds used during model development.
 
-DrumSLICE ID caches this activation matrix. It does **not** call ADTOF's convenience function that writes a MIDI file. The repository's [`events.py`](../python/slice_labeler_worker/events.py) reproduces the pinned ADTOF `PeakPicker` behavior directly so the worker can retain raw activations and attach the raw value at each selected frame. [`mapping.py`](../python/slice_labeler_worker/mapping.py) then defines DrumSLICE ID's cluster-to-region and class-selection behavior.
+DrumSLICE ID caches this activation matrix. It does **not** call ADTOF's convenience function that writes a MIDI file, and it does not import the port's post-processing implementation. The project-owned [`events.py`](../python/drumslice_id_worker/events.py) converts activations to events so the backend remains replaceable and the worker can retain the original activation at each selected frame. [`mapping.py`](../python/drumslice_id_worker/mapping.py) then defines DrumSLICE ID's cluster-to-region and class-selection behavior.
 
 ## 10. From frame activations to slice labels
 
@@ -267,17 +267,17 @@ This stage is where DrumSLICE ID adapts a whole-song drum transcription model to
 
 ### 10.1 Per-class event extraction
 
-For each class, DrumSLICE ID applies the standard settings of the pinned ADTOF peak picker at the model's 100 FPS:
+For each class, DrumSLICE ID applies an independently implemented local-prominence detector at the model's 100 FPS:
 
 ```text
-moving-average window: 100 ms before through 10 ms after
-local-maximum window:  20 ms before through 10 ms after
-combine window:        20 ms
+median context:       100 ms before through 30 ms after
+local-maximum radius: 20 ms
+refractory radius:    20 ms
 ```
 
-First, an edge-padded moving average is subtracted from the raw class activation and negative residuals are clamped to zero. A residual frame must meet the class threshold and equal the maximum residual in the asymmetric local window. Candidate frames no more than 20 ms apart are grouped, and the frame with the strongest processed residual survives. Event time is `frame_index / 100`; the event's diagnostic score is the original unprocessed activation at that frame.
+For every frame, the median of the bounded surrounding context is subtracted from the raw activation and negative differences are clamped to zero. A prominence must meet its class threshold and equal the maximum prominence within a ±20 ms neighborhood. Candidates are considered strongest-first; a candidate is retained only when it lies more than 20 ms from every already-retained candidate, with earlier frames winning equal-score ties. Event time is `frame_index / 100`; the diagnostic score remains the original activation, not the prominence.
 
-This matches the pinned backend's event-time behavior without transcribing to MIDI and parsing MIDI back. The checked-in implementation and regression tests remain the source of truth if the external backend changes.
+This algorithm was written for DrumSLICE ID's activation-to-slice adapter and is not copied from the optional backend. The checked-in implementation and regression tests are the source of truth if the external backend changes.
 
 ### 10.2 Cross-class onset clustering
 
@@ -431,8 +431,8 @@ The project has two separately installable pieces.
 The root [`install.sh`](../install.sh) and [`install.ps1`](../install.ps1) are the clone-to-use entry points. They:
 
 1. validate required repository/runtime files and, when a current Node executable is available, the AMPF structure;
-2. install and health-check the private Python backend unless explicitly skipped;
-3. stage and atomically replace a recognized `SliceLabeler` Max package with a copied runtime tree;
+2. require explicit acknowledgement before downloading and health-checking the external ADTOF backend, unless backend setup is skipped;
+3. stage and atomically replace a recognized `DrumSliceID` Max package with a copied runtime tree;
 4. copy the AMXD into the selected Ableton User Library;
 5. compare the installed runtime and device with the checkout; and
 6. record the resolved paths and install a self-locating uninstaller under the backend root.
@@ -441,30 +441,34 @@ An unrecognized existing package directory is never overwritten without an expli
 
 For active source development, [`install_local.sh`](../scripts/install_local.sh):
 
-1. symlinks the repository's `max` directory to `~/Documents/Max 9/Packages/SliceLabeler`; and
+1. symlinks the repository's `max` directory to `~/Documents/Max 9/Packages/DrumSliceID`; and
 2. copies the `.amxd` to the Ableton User Library.
 
-The `.amxd` is not a fully self-contained Max release and does not contain Python, PyTorch, ADTOF, or weights. The device resolves the installed `SliceLabeler` Max package at runtime. The root installer now copies that package for ordinary use, while `install_local.sh` keeps source edits live through a symlink. In both cases the `.amxd` cannot be copied by itself to a clean machine.
+The `.amxd` is not a fully self-contained Max release and does not contain Python, PyTorch, ADTOF, or weights. The device resolves the installed `DrumSliceID` Max package at runtime. The root installer now copies that package for ordinary use, while `install_local.sh` keeps source edits live through a symlink. In both cases the `.amxd` cannot be copied by itself to a clean machine.
 
 The source patchers use small loader scripts plus generated bundles in [`max/patchers`](../max/patchers). [`build_max_js_bundle.js`](../scripts/build_max_js_bundle.js) rebuilds those Max-compatible bundles from the source JavaScript modules; its `--check` mode fails if committed bundles are stale. [`verify_max_device.js`](../scripts/verify_max_device.js) compares the generated device's semantic patch graph with the source and rejects exposed development/user dependency paths. Both checks are required before the generated binary is treated as current.
 
-A public release needs a separate clean freeze containing every project-owned Max patcher, JavaScript bundle, Node file, and schema required at runtime, tested without a repository checkout or package symlink. The Python/model environment remains a separate install unless redistribution rights are cleared. Freezing project-owned assets does not itself grant permission to redistribute third-party model code or weights.
+The public alpha release is an installer bundle rather than a standalone frozen AMXD. Its deterministic ZIP contains every project-owned Max patcher, JavaScript bundle, Node file, schema, worker module, installer, and notice required to create the copied installation. A generated manifest hashes every file, `SHA256SUMS` covers the ZIP and manifest, and release construction excludes virtual environments, caches, samples, ADTOF source, and weights. The Python/model environment remains a separate user-initiated download unless redistribution rights are cleared.
 
 ### Python backend
 
-The backend installer accepts only CPython 3.10–3.12, creates `~/.slice-labeler/venv`, installs the exact production dependency set from `python/requirements.lock`, installs the local worker without dependency re-resolution, performs a health check against the installed package, and writes `~/.slice-labeler/backend-config.json` containing the selected Python executable. Setuptools package discovery excludes namespace/bytecode caches, and a small `build_py` hook clears stale incremental `build/lib` content before every wheel so ignored `__pycache__` files cannot leak into distribution artifacts. The Node layer resolves Python in this order:
+The backend installer accepts only CPython 3.10–3.12, requires the ADTOF acknowledgement, creates `~/.drumslice-id/venv`, installs the exact production dependency set from `python/requirements.lock`, installs the local worker without dependency re-resolution, performs a health check against the installed package, and writes `~/.drumslice-id/backend-config.json` containing the selected Python executable. Setuptools package discovery excludes namespace/bytecode caches, and a small `build_py` hook clears stale incremental `build/lib` content before every wheel so ignored `__pycache__` files cannot leak into distribution artifacts. The Node layer resolves Python in this order:
 
-1. `SLICE_LABELER_BACKEND_CONFIG`;
-2. `~/.slice-labeler/backend-config.json`;
-3. `SLICE_LABELER_PYTHON`.
+1. `DRUMSLICE_ID_BACKEND_CONFIG`;
+2. the explicitly set legacy `SLICE_LABELER_BACKEND_CONFIG` alias;
+3. `~/.drumslice-id/backend-config.json`;
+4. the `~/.slice-labeler/backend-config.json` migration fallback;
+5. `DRUMSLICE_ID_PYTHON`, then the legacy `SLICE_LABELER_PYTHON` alias.
 
-The Settings window can override the Python executable for the current device process through **Backend Python path**. That field should point to the virtual environment's executable (for example `~/.slice-labeler/venv/bin/python`), not to a folder containing audio or Max files.
+When a legacy config is selected, Node starts the legacy `slice_labeler_worker` module from that existing environment. New configs always use `drumslice_id_worker`. Virtual environments are rebuilt, never moved, because their launchers contain absolute paths.
+
+The Settings window can override the Python executable for the current device process through **Backend Python path**. That field should point to the virtual environment's executable (for example `~/.drumslice-id/venv/bin/python`), not to a folder containing audio or Max files.
 
 Loading the device never downloads or installs backend software. Backend setup is an explicit user action.
 
 ## 15. Process supervision, timeouts, and recovery
 
-Node starts one long-lived Python child with `python -m slice_labeler_worker`. Keeping the process alive avoids re-importing PyTorch and reloading weights for every Analyze operation except after explicit cancellation, which recycles that child. Backend instances are reused by backend ID and true model-identity options; threshold and `maxThreads` changes do not retain duplicate models.
+Node starts one long-lived Python child with `python -m drumslice_id_worker`. Keeping the process alive avoids re-importing PyTorch and reloading weights for every Analyze operation except after explicit cancellation, which recycles that child. Backend instances are reused by backend ID and true model-identity options; threshold and `maxThreads` changes do not retain duplicate models.
 
 Model loading, health inspection, runtime thread configuration, and inference are protected by one worker-wide lock. Only one request enters these PyTorch paths at a time. The requested `maxThreads` value is reapplied immediately before every inference because Torch stores it process-globally.
 
@@ -483,13 +487,13 @@ Unexpected Python exceptions are printed to stderr and returned publicly as a ge
 
 Production activations are cached by Python as gzip-compressed JSON under the platform cache directory:
 
-- macOS: `~/Library/Caches/Slice Labeler/worker`;
-- Windows: `%LOCALAPPDATA%/Slice Labeler/Cache/worker`;
-- Linux: `$XDG_CACHE_HOME/slice-labeler/worker` or `~/.cache/slice-labeler/worker`.
+- macOS: `~/Library/Caches/DrumSLICE ID/worker`;
+- Windows: `%LOCALAPPDATA%/DrumSLICE ID/Cache/worker`;
+- Linux: `$XDG_CACHE_HOME/drumslice-id/worker` or `~/.cache/drumslice-id/worker`.
 
-Each entry contains FPS, class names, the activation matrix, source duration, and backend metadata. It contains no audio samples and no Live object IDs. Writes use a temporary file followed by atomic replacement. Malformed, non-finite, corrupt, or class-incompatible entries are deleted and recomputed. Least-recently-accessed files are removed when compressed entries exceed 512 MiB by default; `SLICE_LABELER_CACHE_MAX_MIB` can set a whole-MiB ceiling from 1 through 102,400. REX/RX2 companion identity is included in its derived cache key as described in section 11.
+Each entry contains FPS, class names, the activation matrix, source duration, and backend metadata. It contains no audio samples and no Live object IDs. Writes use a temporary file followed by atomic replacement. Malformed, non-finite, corrupt, or class-incompatible entries are deleted and recomputed. Least-recently-accessed files are removed when compressed entries exceed 512 MiB by default; `DRUMSLICE_ID_CACHE_MAX_MIB` can set a whole-MiB ceiling from 1 through 102,400. REX/RX2 companion identity is included in its derived cache key as described in section 11.
 
-The legacy-compatible `Slice Labeler`/`slice-labeler` internal storage names are intentionally retained so existing installations keep their backend and cache after the product rename. Node's cache root also contains `slice-labeler.log`. Logs rotate at 1 MiB with three backups, use owner-only file mode where supported, and redact common absolute home-path forms from structured detail payloads. Numba's compiled runtime cache lives in a `numba` child of the worker cache so imports also work when installed packages are read-only. The **Clear Cache** action removes only hashed activation entries, their temporary files, and that `numba` subtree. It preserves the diagnostic log and any unrelated files even when an explicit cache directory is shared.
+Canonical internal storage uses `DrumSLICE ID`/`drumslice-id`. The old cache is preserved during migration rather than silently merged; only explicit legacy environment-variable overrides redirect the new runtime to it. Node's cache root also contains `drumslice-id.log`. Logs rotate at 1 MiB with three backups, use owner-only file mode where supported, and redact common absolute home-path forms from structured detail payloads. Numba's compiled runtime cache lives in a `numba` child of the worker cache so imports also work when installed packages are read-only. The **Clear Cache** action removes only hashed activation entries, their temporary files, and that `numba` subtree. It preserves the diagnostic log and any unrelated files even when an explicit cache directory is shared.
 
 Source file paths necessarily cross the Node/Python boundary so the local decoder can open them. Nothing in the device sends audio, paths, activations, or labels over a network. Network access is needed only during the explicit backend installation step that fetches dependencies.
 
@@ -522,7 +526,7 @@ The automated suites are split at the process boundary:
 - Node tests cover Live graph/value helpers, naming, protocol framing/validation, cache/log behavior, source grouping/fingerprinting, orchestration, cancellation, and worker error handling.
 - Python tests cover event extraction, clustering, one-owner region assignment, fallback behavior, cache reuse/invalidation, protocol behavior, backend health/error paths, RX2 companion scaling, and partial source failures.
 
-The current audited baseline is 80 passing Node tests and 48 passing Python tests. The Node total includes isolated macOS install, repair, verification, uninstall, and collision-safety coverage plus static compatibility/contract checks for the Windows entry points; native Windows acceptance remains a release gate.
+The alpha baseline has more than 80 passing Node tests and 48 passing Python tests. Node coverage includes isolated macOS install, repair, verification, uninstall, migration and collision safety; GitHub CI also performs a native Windows PowerShell file-install smoke test. Native Windows Live/Max host acceptance remains open.
 
 Run them from the repository root:
 
@@ -546,6 +550,6 @@ The pure automated tests do not prove that a particular Ableton/Max version expo
 - Apply is guarded and verified but not fully transactional across rows.
 - Session object IDs and opaque region IDs are not durable across Live Set reloads or rescans.
 
-The backend interface in [`backends/base.py`](../python/slice_labeler_worker/backends/base.py) is the intended model extension point. A replacement backend must return a `ModelOutput` containing FPS, an ordered class tuple, frame activations, source duration, and metadata. Any material model/preprocessing change must also change the reported identity so cached activations cannot cross the compatibility boundary.
+The backend interface in [`backends/base.py`](../python/drumslice_id_worker/backends/base.py) is the intended model extension point. A replacement backend must return a `ModelOutput` containing FPS, an ordered class tuple, frame activations, source duration, and metadata. Any material model/preprocessing change must also change the reported identity so cached activations cannot cross the compatibility boundary.
 
 For user-visible behavior and recovery steps, see the [User Guide](USER_GUIDE.md) and [Troubleshooting](TROUBLESHOOTING.md). For design constraints and accepted trade-offs, see [`DECISIONS.md`](../DECISIONS.md), [`KNOWN_LIMITATIONS.md`](../KNOWN_LIMITATIONS.md), and [`THIRD_PARTY_NOTICES.md`](../THIRD_PARTY_NOTICES.md).

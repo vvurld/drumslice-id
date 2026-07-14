@@ -1,0 +1,49 @@
+name: Bug report
+description: Report a reproducible DrumSLICE ID alpha problem.
+title: "[Bug]: "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Do not include copyrighted samples, private paths, Live Sets, or security vulnerabilities.
+  - type: input
+    id: version
+    attributes:
+      label: DrumSLICE ID version
+      placeholder: 0.1.0-alpha.1
+    validations:
+      required: true
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Platform
+      options: [macOS Apple silicon, macOS Intel, Windows x64]
+    validations:
+      required: true
+  - type: input
+    id: host
+    attributes:
+      label: Live, Max, and Python versions
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Reproduction steps
+      placeholder: Include rack structure, actions, expected result, and actual result.
+    validations:
+      required: true
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: Redacted diagnostics
+      description: Review diagnostics for source paths before attaching them.
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: I reproduced this with the current alpha release.
+          required: true
+        - label: I removed private paths and copyrighted audio from the report.
+          required: true

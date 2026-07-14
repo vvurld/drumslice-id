@@ -2,21 +2,23 @@
 
 ## Setup
 
-From a complete repository clone, run [`install.sh`](../install.sh) on macOS or [`install.ps1`](../install.ps1) on Windows. The one-step installer requires CPython 3.10, 3.11, or 3.12 plus Git/network access. It creates a dedicated environment under your user profile, installs the exact dependency set in `python/requirements.lock`, runs an installed-package health check with strict model-weight loading, copies the complete Max package and AMXD, and verifies that the installed runtime matches the checkout. Loading the device itself never installs or downloads anything.
+From a release archive or complete repository clone, run [`install.sh`](../install.sh) on macOS or [`install.ps1`](../install.ps1) on Windows. The backend path requires CPython 3.10, 3.11, or 3.12 plus Git/network access. It creates a dedicated environment under your user profile, installs the exact dependency set in `python/requirements.lock`, runs an installed-package health check with strict model-weight loading, copies the complete Max package and AMXD, and verifies that the installed runtime matches the source. Loading the device itself never installs or downloads anything.
+
+The external ADTOF backend is not part of the release. Its upstream NonCommercial license and the PyTorch port's missing license declaration require explicit acknowledgement; read [`THIRD_PARTY_NOTICES.md`](../THIRD_PARTY_NOTICES.md) before continuing.
 
 The default commands are:
 
 ```sh
-./install.sh
+./install.sh --accept-adtof-license
 ```
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\install.ps1
+powershell -ExecutionPolicy Bypass -File .\install.ps1 -AcceptAdtofLicense
 ```
 
 Restart Live or rescan its User Library, then load **User Library → Presets → MIDI Effects → Max MIDI Effect → DrumSLICE ID**. Both installers accept custom Max package, Ableton User Library, backend, configuration, and Python paths. Use `--help` on macOS or `Get-Help .\install.ps1 -Detailed` on Windows for the complete interface.
 
-The copied installation does not depend on the clone remaining in place. A self-locating uninstaller is copied to `~/.slice-labeler`; by default it removes only the AMXD and Max package. Use `--all`/`-All` only when you also want to remove the private backend and cache.
+The copied installation does not depend on the archive or clone remaining in place. A self-locating uninstaller is copied to `~/.drumslice-id`; by default it removes only the AMXD and Max package. Use `--all`/`-All` only when you also want to remove the private backend and cache. Pre-rename users should also read [`MIGRATION.md`](MIGRATION.md).
 
 For repository development, [`scripts/install_local.sh`](../scripts/install_local.sh) remains the opt-in symlink workflow. To rebuild the editable source, follow [`scripts/build_max_device.md`](../scripts/build_max_device.md). Copying `dist/DrumSLICE ID.amxd` alone is insufficient in either workflow; the package and backend are required. Place the resulting MIDI Effect immediately before the sliced Drum Rack on the same MIDI track.
 
@@ -37,4 +39,4 @@ Live can decode REX/RX2 files that the ADTOF audio loader cannot. For those sour
 
 Cancel is immediate from the device's point of view and restarts only DrumSLICE ID's dedicated Python worker. This guarantees stale work cannot refill a cache after Clear Cache, but the next Analyze pays the cold model-load cost again.
 
-The Settings controls are persisted as Max for Live parameters. Their defaults are restored by Live/Max, then read by the settings controller; opening Settings does not reset saved values. **Backend Python path** must be the executable itself (for example `~/.slice-labeler/venv/bin/python`), not a virtual-environment folder.
+The Settings controls are persisted as Max for Live parameters. Their defaults are restored by Live/Max, then read by the settings controller; opening Settings does not reset saved values. **Backend Python path** must be the executable itself (for example `~/.drumslice-id/venv/bin/python`), not a virtual-environment folder.

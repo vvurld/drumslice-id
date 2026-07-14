@@ -12,9 +12,10 @@ param(
   [int]$MaxVersion = 9,
   [string]$MaxPackagesDir = "",
   [string]$UserLibrary = "",
-  [string]$InstallRoot = "$HOME\.slice-labeler",
-  [string]$ConfigPath = "$HOME\.slice-labeler\backend-config.json",
+  [string]$InstallRoot = "$HOME\.drumslice-id",
+  [string]$ConfigPath = "$HOME\.drumslice-id\backend-config.json",
   [switch]$SkipBackend,
+  [switch]$AcceptAdtofLicense,
   [switch]$VerifyOnly,
   [switch]$Force
 )
@@ -32,10 +33,16 @@ function Invoke-NativeChecked([string]$Command, [string[]]$Arguments) {
   & $Command @Arguments
   if ($LASTEXITCODE -ne 0) { throw "Command failed with exit code $LASTEXITCODE`: $Command $($Arguments -join ' ')" }
 }
-function Test-SliceLabelerPackage([string]$Directory) {
+function Test-DrumSliceIDPackage([string]$Directory) {
   $Metadata = Join-Path $Directory "package-info.json"
   if (-not (Test-Path -LiteralPath $Metadata -PathType Leaf)) { return $false }
-  try { return ((Get-Content -LiteralPath $Metadata -Raw | ConvertFrom-Json).name -eq "SliceLabeler") }
+  try { return ((Get-Content -LiteralPath $Metadata -Raw | ConvertFrom-Json).name -eq "DrumSliceID") }
+  catch { return $false }
+}
+function Test-LegacyPackage([string]$Directory) {
+  $Metadata = Join-Path $Directory "package-info.json"
+  if (-not (Test-Path -LiteralPath $Metadata -PathType Leaf)) { return $false }
+  try { return ((Get-Content -LiteralPath $Metadata -Raw | ConvertFrom-Json).name -in @("SliceLabeler", "DrumSliceID")) }
   catch { return $false }
 }
 function Assert-SourceComplete {
@@ -46,8 +53,8 @@ function Assert-SourceComplete {
     "scripts\check_backend.py",
     "python\requirements.lock",
     "max\package-info.json",
-    "max\patchers\SliceLabeler.maxpat",
-    "max\patchers\slice_labeler_bundle_v2.js",
+    "max\patchers\DrumSliceID.maxpat",
+    "max\patchers\drumslice_id_bundle_v2.js",
     "max\patchers\orchestrator_loader.js",
     "max\node\orchestrator.js",
     "max\schemas\analysis_request.schema.json"
@@ -95,13 +102,30 @@ function Assert-TreesEqual([string]$Source, [string]$Destination) {
 
 if ($env:OS -ne "Windows_NT") { throw "install.ps1 supports Windows; use ./install.sh on macOS." }
 if ($MaxVersion -lt 1) { throw "MaxVersion must be a positive major version." }
+if (-not $PSBoundParameters.ContainsKey("MaxPackagesDir")) {
+  if (-not [string]::IsNullOrWhiteSpace($env:DRUMSLICE_ID_MAX_PACKAGES_DIR)) { $MaxPackagesDir = $env:DRUMSLICE_ID_MAX_PACKAGES_DIR }
+  elseif (-not [string]::IsNullOrWhiteSpace($env:SLICE_LABELER_MAX_PACKAGES_DIR)) { $MaxPackagesDir = $env:SLICE_LABELER_MAX_PACKAGES_DIR }
+}
+if (-not $PSBoundParameters.ContainsKey("UserLibrary")) {
+  if (-not [string]::IsNullOrWhiteSpace($env:DRUMSLICE_ID_USER_LIBRARY)) { $UserLibrary = $env:DRUMSLICE_ID_USER_LIBRARY }
+  elseif (-not [string]::IsNullOrWhiteSpace($env:SLICE_LABELER_USER_LIBRARY)) { $UserLibrary = $env:SLICE_LABELER_USER_LIBRARY }
+}
+if (-not $PSBoundParameters.ContainsKey("InstallRoot")) {
+  if (-not [string]::IsNullOrWhiteSpace($env:DRUMSLICE_ID_HOME)) { $InstallRoot = $env:DRUMSLICE_ID_HOME }
+  elseif (-not [string]::IsNullOrWhiteSpace($env:SLICE_LABELER_HOME)) { $InstallRoot = $env:SLICE_LABELER_HOME }
+}
+if (-not $PSBoundParameters.ContainsKey("ConfigPath")) {
+  if (-not [string]::IsNullOrWhiteSpace($env:DRUMSLICE_ID_BACKEND_CONFIG)) { $ConfigPath = $env:DRUMSLICE_ID_BACKEND_CONFIG }
+  elseif (-not [string]::IsNullOrWhiteSpace($env:SLICE_LABELER_BACKEND_CONFIG)) { $ConfigPath = $env:SLICE_LABELER_BACKEND_CONFIG }
+}
 if ([string]::IsNullOrWhiteSpace($MaxPackagesDir)) { $MaxPackagesDir = Join-Path $HOME "Documents\Max $MaxVersion\Packages" }
 if ([string]::IsNullOrWhiteSpace($UserLibrary)) { $UserLibrary = Join-Path $HOME "Documents\Ableton\User Library" }
 $MaxPackagesDir = Resolve-InstallPath $MaxPackagesDir "Max Packages directory"
 $UserLibrary = Resolve-InstallPath $UserLibrary "Ableton User Library"
 $InstallRoot = Resolve-InstallPath $InstallRoot "Backend install root"
 $ConfigPath = Resolve-InstallPath $ConfigPath "Backend configuration path"
-$PackageDir = Join-Path $MaxPackagesDir "SliceLabeler"
+$PackageDir = Join-Path $MaxPackagesDir "DrumSliceID"
+$LegacyPackageDir = Join-Path $MaxPackagesDir "SliceLabeler"
 $DeviceDir = Join-Path $UserLibrary "Presets\MIDI Effects\Max MIDI Effect"
 $DevicePath = Join-Path $DeviceDir "DrumSLICE ID.amxd"
 $LegacyDevicePath = Join-Path $DeviceDir "Slice Labeler.amxd"
@@ -116,13 +140,16 @@ if (Test-Path -LiteralPath $ManifestPath -PathType Leaf) {
 
 Write-Step "Checking the repository and prerequisites"
 Assert-SourceComplete
-if (-not $VerifyOnly -and (Test-Path -LiteralPath $PackageDir) -and -not (Test-SliceLabelerPackage $PackageDir) -and -not $Force) {
-  throw "$PackageDir exists but is not a recognized SliceLabeler package. Inspect it or rerun with -Force."
+if (-not $VerifyOnly -and (Test-Path -LiteralPath $PackageDir) -and -not (Test-DrumSliceIDPackage $PackageDir) -and -not $Force) {
+  throw "$PackageDir exists but is not a recognized DrumSliceID package. Inspect it or rerun with -Force."
 }
 if (-not $VerifyOnly -and -not $SkipBackend -and $null -eq (Get-Command git -ErrorAction SilentlyContinue)) {
   throw "Git is required to install the pinned ADTOF dependency."
 }
 if (-not $VerifyOnly -and -not $SkipBackend) {
+  if (-not $AcceptAdtofLicense -and $env:DRUMSLICE_ID_ACCEPT_ADTOF_LICENSE -ne "1") {
+    throw "The external ADTOF backend requires -AcceptAdtofLicense. Upstream is CC BY-NC-SA 4.0 and the pinned PyTorch port has no separate declared license; see THIRD_PARTY_NOTICES.md. Use -SkipBackend to install only the device files."
+  }
   $PythonCommand = Get-Command $Python -ErrorAction SilentlyContinue
   if ($null -eq $PythonCommand) { throw "DrumSLICE ID requires Python 3.10, 3.11, or 3.12; command not found: $Python" }
   & $PythonCommand.Source -c 'import sys; raise SystemExit(0 if (3, 10) <= sys.version_info[:2] < (3, 13) else 1)'
@@ -132,7 +159,7 @@ if (-not $VerifyOnly -and -not $SkipBackend) {
 if (-not $VerifyOnly) {
   if (-not $SkipBackend) {
     Write-Step "Installing the private Python analysis backend"
-    & (Join-Path $Root "scripts\setup_backend.ps1") -InstallRoot $InstallRoot -Python $Python -ConfigPath $ConfigPath
+    & (Join-Path $Root "scripts\setup_backend.ps1") -InstallRoot $InstallRoot -Python $Python -ConfigPath $ConfigPath -AcceptAdtofLicense
     if ($LASTEXITCODE -ne 0) { throw "Backend installation failed with exit code $LASTEXITCODE." }
   } else {
     Write-Step "Skipping backend installation as requested"
@@ -140,11 +167,11 @@ if (-not $VerifyOnly) {
 
   Write-Step "Copying the Max package"
   New-Item -ItemType Directory -Force -Path $MaxPackagesDir | Out-Null
-  if ((Test-Path -LiteralPath $PackageDir) -and -not (Test-SliceLabelerPackage $PackageDir) -and -not $Force) {
-    throw "$PackageDir exists but is not a recognized SliceLabeler package. Inspect it or rerun with -Force."
+  if ((Test-Path -LiteralPath $PackageDir) -and -not (Test-DrumSliceIDPackage $PackageDir) -and -not $Force) {
+    throw "$PackageDir exists but is not a recognized DrumSliceID package. Inspect it or rerun with -Force."
   }
-  $Staging = Join-Path $MaxPackagesDir ".SliceLabeler.installing-$PID"
-  $Backup = Join-Path $MaxPackagesDir ".SliceLabeler.backup-$PID"
+  $Staging = Join-Path $MaxPackagesDir ".DrumSliceID.installing-$PID"
+  $Backup = Join-Path $MaxPackagesDir ".DrumSliceID.backup-$PID"
   Remove-Item -LiteralPath $Staging, $Backup -Recurse -Force -ErrorAction SilentlyContinue
   try {
     New-Item -ItemType Directory -Force -Path $Staging | Out-Null
@@ -169,13 +196,27 @@ if (-not $VerifyOnly) {
   } else {
     Move-Item -LiteralPath $DeviceTemporary -Destination $DevicePath
   }
-  if ($PreviousDevicePath -eq $LegacyDevicePath -and (Test-Path -LiteralPath $LegacyDevicePath -PathType Leaf)) {
+  if (Test-Path -LiteralPath $LegacyPackageDir) {
+    if (Test-LegacyPackage $LegacyPackageDir) {
+      Remove-Item -LiteralPath $LegacyPackageDir -Recurse -Force
+      Write-Host "    Removed recognized legacy Max package: $LegacyPackageDir"
+    } else {
+      Write-Host "    Preserved unrecognized legacy package path: $LegacyPackageDir"
+    }
+  }
+  if (Test-Path -LiteralPath $LegacyDevicePath -PathType Leaf) {
     Remove-Item -LiteralPath $LegacyDevicePath -Force
+    Write-Host "    Removed legacy device copy: $LegacyDevicePath"
+  }
+  $LegacyBackend = Join-Path $HOME ".slice-labeler"
+  if ($InstallRoot -ne $LegacyBackend -and (Test-Path -LiteralPath $LegacyBackend -PathType Container)) {
+    Write-Host "    Preserved legacy backend at $LegacyBackend; remove it manually after validating this install."
   }
 
   New-Item -ItemType Directory -Force -Path $InstallRoot | Out-Null
   $Manifest = @{
-    schemaVersion = 1
+    schemaVersion = 2
+    product = "DrumSLICE ID"
     packageDir = $PackageDir
     devicePath = $DevicePath
     configPath = $ConfigPath
@@ -193,7 +234,7 @@ if (-not $VerifyOnly) {
 
 Write-Step "Verifying the installed files"
 if (-not (Test-Path -LiteralPath $PackageDir -PathType Container)) { throw "Installed Max package is missing: $PackageDir" }
-if (-not (Test-SliceLabelerPackage $PackageDir)) { throw "Installed Max package metadata is invalid." }
+if (-not (Test-DrumSliceIDPackage $PackageDir)) { throw "Installed Max package metadata is invalid." }
 Assert-TreesEqual $SourcePackage $PackageDir
 if (-not (Test-Path -LiteralPath $DevicePath -PathType Leaf)) { throw "Installed AMXD is missing: $DevicePath" }
 if ((Get-FileHash -LiteralPath $SourceDevice -Algorithm SHA256).Hash -ne (Get-FileHash -LiteralPath $DevicePath -Algorithm SHA256).Hash) {

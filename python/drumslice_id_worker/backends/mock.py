@@ -19,7 +19,7 @@ class MockBackend:
         self.options = options or {}
 
     def load(self) -> None:
-        if os.environ.get("SLICE_LABELER_DEBUG") != "1":
+        if os.environ.get("DRUMSLICE_ID_DEBUG") != "1" and os.environ.get("SLICE_LABELER_DEBUG") != "1":
             raise WorkerError("MOCK_BACKEND_DISABLED", "The mock backend is disabled outside explicit development mode.")
 
     def analyze_file(self, path: Path) -> ModelOutput:

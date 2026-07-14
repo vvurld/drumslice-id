@@ -1,6 +1,6 @@
 {
-  "name": "slice-labeler-node",
-  "version": "0.1.0",
+  "name": "drumslice-id-node",
+  "version": "0.1.0-alpha.1",
   "private": true,
   "type": "commonjs",
   "scripts": {"test": "node --test ../../tests/node/*.test.js"},

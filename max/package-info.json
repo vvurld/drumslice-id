@@ -1,12 +1,12 @@
 {
-  "name": "SliceLabeler",
+  "name": "DrumSliceID",
   "displayname": "DrumSLICE ID",
-  "version": "1.0.0",
+  "version": "0.1.0-alpha.1",
   "author": "DrumSLICE ID contributors",
   "authors": [],
   "description": "Max for Live drum-slice identification support files for DrumSLICE ID.",
   "tags": ["Max for Live", "MIDI", "drums"],
-  "website": "",
+  "website": "https://github.com/sjfbo/drumslice-id",
   "extends": "Max for Live",
   "extensible": 0,
   "max_version_min": "9.0",
@@ -23,6 +23,6 @@
   },
   "homepatcher": "",
   "package_extra": {
-    "reverse_domain": "local.slice-labeler"
+    "reverse_domain": "io.github.sjfbo.drumslice-id"
   }
 }

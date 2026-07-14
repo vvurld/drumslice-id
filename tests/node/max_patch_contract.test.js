@@ -22,7 +22,7 @@ function hasLine(patch, sourceId, sourceOutlet, destinationId, destinationInlet)
 }
 
 test("main Max patch preserves MIDI and wires state/progress/runtime paths", () => {
-  const patch = patcher("SliceLabeler.maxpat");
+  const patch = patcher("DrumSliceID.maxpat");
   const boxes = boxesById(patch);
   assert.equal(hasLine(patch, "midi-in", 0, "midi-out", 0), true);
   assert.equal(hasLine(patch, "controller", 1, "node", 0), true);
@@ -52,10 +52,10 @@ test("main Max patch preserves MIDI and wires state/progress/runtime paths", () 
 });
 
 test("Settings exposes every required classifier control with persisted safe ranges", () => {
-  const patch = patcher("SliceLabelerSettings.maxpat");
+  const patch = patcher("DrumSliceIDSettings.maxpat");
   const boxes = boxesById(patch);
   assert.equal(patch.openinpresentation, 1);
-  assert.equal(boxes.get("controller").text, "js slice_labeler_settings_bundle_v2.js");
+  assert.equal(boxes.get("controller").text, "js drumslice_id_settings_bundle_v2.js");
   assert.equal(boxes.get("title").text, "DrumSLICE ID Settings");
   assert.equal(boxes.get("window-title").text, 'title "DrumSLICE ID — Settings"');
   assert.equal(hasLine(patch, "loadbang", 0, "window-title", 0), true);
@@ -76,10 +76,10 @@ test("Settings exposes every required classifier control with persisted safe ran
 });
 
 test("Results text editing strips Max's text selector and has synchronized controls", () => {
-  const patch = patcher("SliceLabelerResults.maxpat");
+  const patch = patcher("DrumSliceIDResults.maxpat");
   const boxes = boxesById(patch);
   assert.equal(patch.openinpresentation, 1);
-  assert.equal(boxes.get("controller").text, "js slice_labeler_results_bundle_v2.js");
+  assert.equal(boxes.get("controller").text, "js drumslice_id_results_bundle_v2.js");
   assert.equal(boxes.get("window-title").text, 'title "DrumSLICE ID — Results"');
   assert.equal(hasLine(patch, "window-loadbang", 0, "window-title", 0), true);
   assert.equal(hasLine(patch, "window-title", 0, "window-thispatcher", 0), true);

@@ -5,6 +5,7 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const os = require("node:os");
 const path = require("node:path");
+const {spawnSync} = require("node:child_process");
 const {
   decodePatcherChunk,
   embeddedFilenames,
@@ -15,6 +16,7 @@ const {
 const {buildBuffer, run} = require("../../scripts/build_max_device");
 const {checkOutputs, createOutputs, writeOutputs} = require("../../scripts/build_max_js_bundle");
 const {verify} = require("../../scripts/verify_max_device");
+const ROOT = path.resolve(__dirname, "../..");
 
 function documentWith({box = {}, dependencyCache = []} = {}) {
   return {
@@ -72,7 +74,7 @@ test("collective patch parser extracts only the first JSON document", () => {
 });
 
 test("development device builder applies source geometry and replaces the functional graph", () => {
-  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "slice-labeler-device-"));
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "drumslice-id-device-"));
   const templatePath = path.join(directory, "template.amxd");
   const sourcePath = path.join(directory, "source.maxpat");
   const outputPath = path.join(directory, "output.amxd");
@@ -98,7 +100,7 @@ test("development device builder applies source geometry and replaces the functi
 });
 
 test("device verifier checks presentation/runtime attributes and development paths", () => {
-  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "slice-labeler-verify-"));
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "drumslice-id-verify-"));
   const artifactPath = path.join(directory, "device.amxd");
   const sourcePath = path.join(directory, "source.maxpat");
   const source = documentWith({box: {active: 0, presentation_rect: [1, 2, 3, 4]}});
@@ -118,7 +120,7 @@ test("device verifier checks presentation/runtime attributes and development pat
 });
 
 test("Max JavaScript bundle check is read-only and identifies every stale output", () => {
-  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "slice-labeler-bundles-"));
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "drumslice-id-bundles-"));
   for (const relative of [
     "max/javascript/live_value_helpers.js",
     "max/javascript/naming_engine.js",
@@ -135,7 +137,13 @@ test("Max JavaScript bundle check is read-only and identifies every stale output
   assert.deepEqual(checkOutputs(createOutputs(directory), directory), []);
   fs.appendFileSync(path.join(directory, "max/javascript/live_controller.js"), "// changed\n");
   assert.deepEqual(checkOutputs(createOutputs(directory), directory).sort(), [
-    "max/patchers/slice_labeler_bundle.js",
-    "max/patchers/slice_labeler_bundle_v2.js",
+    "max/patchers/drumslice_id_bundle.js",
+    "max/patchers/drumslice_id_bundle_v2.js",
   ]);
+});
+
+test("release versions are aligned across runtimes", () => {
+  const result = spawnSync(process.execPath, [path.join(ROOT, "scripts", "check_versions.js")], {cwd: ROOT, encoding: "utf8"});
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+  assert.match(result.stdout, /"ok":true/);
 });

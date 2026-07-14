@@ -3,12 +3,12 @@ from threading import Event, Thread
 
 import pytest
 
-import slice_labeler_worker.service as service_module
-from slice_labeler_worker.backends.base import BackendHealth, CLASS_NAMES, ModelOutput
-from slice_labeler_worker.backends.mock import MockBackend
-from slice_labeler_worker.cache import ActivationCache, DEFAULT_MAX_BYTES
-from slice_labeler_worker.errors import WorkerError
-from slice_labeler_worker.service import AnalysisService
+import drumslice_id_worker.service as service_module
+from drumslice_id_worker.backends.base import BackendHealth, CLASS_NAMES, ModelOutput
+from drumslice_id_worker.backends.mock import MockBackend
+from drumslice_id_worker.cache import ActivationCache, DEFAULT_MAX_BYTES
+from drumslice_id_worker.errors import WorkerError
+from drumslice_id_worker.service import AnalysisService
 
 
 class Backend:
@@ -68,10 +68,16 @@ def test_cache_roundtrip_corruption_and_safe_key_behavior(tmp_path):
 
 
 def test_cache_maximum_is_configurable_in_whole_mebibytes(monkeypatch, tmp_path):
-    monkeypatch.setenv("SLICE_LABELER_CACHE_MAX_MIB", "64")
+    monkeypatch.setenv("DRUMSLICE_ID_CACHE_MAX_MIB", "64")
     assert ActivationCache(tmp_path / "configured").max_bytes == 64 * 1024 * 1024
-    monkeypatch.setenv("SLICE_LABELER_CACHE_MAX_MIB", "not-a-number")
+    monkeypatch.setenv("DRUMSLICE_ID_CACHE_MAX_MIB", "not-a-number")
     assert ActivationCache(tmp_path / "fallback").max_bytes == DEFAULT_MAX_BYTES
+
+
+def test_legacy_cache_limit_environment_name_remains_a_migration_alias(monkeypatch, tmp_path):
+    monkeypatch.delenv("DRUMSLICE_ID_CACHE_MAX_MIB", raising=False)
+    monkeypatch.setenv("SLICE_LABELER_CACHE_MAX_MIB", "32")
+    assert ActivationCache(tmp_path / "legacy-configured").max_bytes == 32 * 1024 * 1024
 
 
 def test_service_continues_after_source_failure(tmp_path):
@@ -152,7 +158,7 @@ def test_runtime_thread_setting_is_reapplied_for_each_inference(tmp_path):
 
 
 def test_mock_cache_identity_changes_with_supplied_activation_fixture(monkeypatch, tmp_path):
-    monkeypatch.setenv("SLICE_LABELER_DEBUG", "1")
+    monkeypatch.setenv("DRUMSLICE_ID_DEBUG", "1")
     source_id = hashlib.sha256(b"mock-source").hexdigest()
     first = MockBackend({"fps": 100, "mockActivations": [[0.8, 0, 0, 0, 0]]})
     same = MockBackend({"fps": 100, "mockActivations": [[0.8, 0, 0, 0, 0]]})
@@ -272,7 +278,7 @@ def test_cancellation_after_inference_skips_post_processing(monkeypatch, tmp_pat
     backend.analyze_file = analyze_and_cancel
     service = AnalysisService(ActivationCache(tmp_path / "cache")); service.backend = lambda *_: backend
     calls = []
-    monkeypatch.setattr("slice_labeler_worker.service.extract_events", lambda *args: calls.append(args) or [])
+    monkeypatch.setattr("drumslice_id_worker.service.extract_events", lambda *args: calls.append(args) or [])
     file = tmp_path / "a.wav"; file.write_bytes(b"x")
     with pytest.raises(WorkerError) as caught:
         service.analyze(params([file]), cancel, lambda _: None)

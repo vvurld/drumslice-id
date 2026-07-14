@@ -69,7 +69,7 @@ function parseArguments(argv) {
   const options = {
     check: false,
     templatePath: path.join(root, "dist", "DrumSLICE ID.amxd"),
-    sourcePath: path.join(root, "max", "patchers", "SliceLabeler.maxpat"),
+    sourcePath: path.join(root, "max", "patchers", "DrumSliceID.maxpat"),
     outputPath: path.join(root, "dist", "DrumSLICE ID.amxd"),
   };
   for (let index = 0; index < argv.length; index += 1) {
