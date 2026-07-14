@@ -36,7 +36,7 @@ DIRECTORY_FILES = {
     "max": {".json", ".js", ".maxpat", ".maxproj"},
     "python": {".py", ".toml", ".lock"},
     "scripts": {".py", ".js", ".sh", ".ps1", ".md"},
-    "docs": {".md"},
+    "docs": {".md", ".png"},
 }
 
 
