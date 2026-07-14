@@ -143,4 +143,6 @@ test("Windows entry points retain backend, copy, verification, manifest, and saf
   }
   assert.equal(install.includes("??"), false, "Windows PowerShell 5.1 does not support null-coalescing syntax");
   assert.equal(uninstall.includes("??"), false, "Windows PowerShell 5.1 does not support null-coalescing syntax");
+  assert.match(install, /\$NodeVersion = & \$Node\.Source --version/);
+  assert.equal(install.includes("$Node.Source -e"), false, "Windows must not pass quoted JavaScript through native PowerShell argument parsing");
 });
