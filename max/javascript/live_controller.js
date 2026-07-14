@@ -20,7 +20,13 @@ var activeAnalysisSettings = null;
 var overwriteConflicts = false;
 var analysisSettings = {backend: "adtof", modelOptions: {device: "cpu", fps: 100, maxThreads: 2, thresholds: {kick: 0.22, snare: 0.24, tom: 0.32, hihat: 0.22, cymbal: 0.30}}, mappingOptions: {preToleranceMs: 35, postToleranceMs: 90, clusterMs: 18, multiLabel: true, fallbackEnabled: true, fallbackNormalizedFloor: 0.70}, namingOptions: {numbering: "duplicates", longNames: false, preserveUnknown: false}};
 
-function emitStatus(code, message, details) { outlet(0, "status", code, message); if (details) { outlet(2, "diagnostic", JSON.stringify(details)); } }
+function emitStatus(code, message, details) {
+    /* Keep the structured status event for diagnostics/tests and publish a
+       display-only event so the patch never has to parse Max selectors. */
+    outlet(0, "status", code, message);
+    outlet(0, "display_status", message);
+    if (details) { outlet(2, "diagnostic", JSON.stringify(details)); }
+}
 function setState(next) {
     var revertBusy;
     if (!STATES[next]) { throw new Error("Unknown state " + next); }
@@ -183,6 +189,14 @@ function scan() {
         setState("READY_TO_SCAN"); emitStatus("NO_ANALYZABLE_PADS", "No populated pad has exactly one supported reachable Simpler." + (reasonText.length ? " " + reasonText.join(", ") + "." : ""), summary);
     }
     outlet(2, "snapshot", JSON.stringify(snapshot));
+}
+
+/* Primary device action: refresh the rack snapshot first, then immediately
+   start analysis when the scan found supported slices. Keeping scan() public
+   preserves the explicit Refresh control and the existing integration API. */
+function scanandanalyze() {
+    scan();
+    if (state === "SCAN_READY") { analyze(); }
 }
 
 function analyze() {
