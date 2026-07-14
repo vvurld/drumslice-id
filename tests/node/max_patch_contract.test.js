@@ -38,7 +38,10 @@ test("main Max patch preserves MIDI and wires state/progress/runtime paths", () 
   assert.equal(boxes.get("progress").maxclass, "multislider");
   assert.notEqual(boxes.get("progress").presentation, 1, "progress bar should stay out of the device UI");
   assert.notEqual(boxes.get("progress-label").presentation, 1, "duplicate progress text should stay out of the device UI");
-  assert.deepEqual(boxes.get("surface").presentation_rect, [0, 0, 802, 140]);
+  assert.equal(patch.devicewidth, 560);
+  assert.deepEqual(boxes.get("surface").presentation_rect, [0, 0, 560, 124]);
+  assert.notEqual(boxes.get("rack-label").presentation, 1);
+  assert.notEqual(boxes.get("workflow-hint").presentation, 1);
   for (let i = 1; i <= 7; i += 1) assert.equal(boxes.get(`slice-mark-${i}`).presentation, 1);
   for (const id of ["scan-active", "analyze-active", "cancel-active", "apply-active", "revert-active", "results-active"]) {
     assert.ok(boxes.has(id), `missing state gate ${id}`);
