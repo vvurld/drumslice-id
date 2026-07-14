@@ -38,6 +38,7 @@ function setState(next) {
     revertBusy = next === "SCANNING" || next === "ANALYZING" || next === "CANCELLING" || next === "APPLYING";
     outlet(0, "revert_available", !revertBusy && lastApply && lastApply.writes && lastApply.writes.length ? 1 : 0);
 }
+function countLabel(count, singular, plural) { return count + " " + (count === 1 ? singular : plural); }
 /* Do not name this function `error`: Node for Max sends an `error` selector,
    and Max dispatches matching selectors directly to global JS functions. */
 function fail(code, message, details) { setState(lastApply && lastApply.writes && lastApply.writes.length ? "APPLIED" : "ERROR"); emitStatus(code, message, details); }
@@ -98,7 +99,7 @@ function discoverRacks() {
             for (i = 0; i < rackCandidates.length; i += 1) { if (rackCandidates[i].path === previousRack.path) { previousIndex = i; break; } }
         }
     }
-    targetRackIndex = previousIndex >= 0 ? previousIndex : Math.max(0, Math.min(Number(targetRackIndex) || 0, rackCandidates.length - 1)); setState("READY_TO_SCAN"); emitStatus("READY", "Ready to scan " + rackCandidates[targetRackIndex].name + ".");
+    targetRackIndex = previousIndex >= 0 ? previousIndex : Math.max(0, Math.min(Number(targetRackIndex) || 0, rackCandidates.length - 1)); setState("READY_TO_SCAN"); emitStatus("READY", "Ready · " + rackCandidates[targetRackIndex].name);
 }
 
 function selectrack(index) {
@@ -161,14 +162,14 @@ function extractRegion(jobId, rack, pad, padIndex, chainId) {
 }
 
 function scan() {
-    var rack, pad, padIds, chains, i, result, jobId, sourceSeen = {}, reasonCounts = {}, summary, reasonText = [];
+    var rack, pad, padIds, chains, i, result, jobId, sourceSeen = {}, reasonCounts = {}, summary;
     if (state === "APPLYING") { emitStatus("BUSY_APPLYING", "Wait for the current Apply operation to finish before scanning again."); return; }
     if (state === "ANALYZING" || state === "CANCELLING") { outlet(1, "cancel"); }
     activeAnalysisJobId = null; activeAnalysisSettings = null;
     /* Re-resolve the enclosing track and downstream devices on every scan so
        adding, deleting, moving, or reordering racks cannot leave stale IDs. */
     discoverRacks(); if (!rackCandidates.length) { return; }
-    setState("SCANNING"); chainByRegion = {}; plan = null; jobId = newId(); rack = makeApi(rackCandidates[targetRackIndex].id);
+    setState("SCANNING"); emitStatus("SCANNING", "Scanning rack…"); chainByRegion = {}; plan = null; jobId = newId(); rack = makeApi(rackCandidates[targetRackIndex].id);
     if (!rack.id) { fail("TARGET_RACK_MISSING", "The selected Drum Rack no longer exists."); return; }
     snapshot = {schemaVersion: 1, jobId: jobId, createdAt: new Date().toISOString(), track: {displayName: V.string(get(makeApi(trackPath), "name")), sessionPath: trackPath}, rack: {displayName: V.string(get(rack, "name")), sessionId: Number(rack.id), sessionPath: apiPath(rack)}, regions: [], skippedPads: []};
     padIds = V.idList(get(rack, "drum_pads"));
@@ -181,12 +182,11 @@ function scan() {
         if (result.skip) { snapshot.skippedPads.push(result.skip); reasonCounts[result.skip.reasonCode] = (reasonCounts[result.skip.reasonCode] || 0) + 1; }
         else { snapshot.regions.push(result.region); sourceSeen[result.region.source.path] = true; }
     }
-    summary = {populatedPads: snapshot.regions.length + snapshot.skippedPads.length, analyzablePads: snapshot.regions.length, skippedPads: snapshot.skippedPads.length, uniqueSources: Object.keys(sourceSeen).length};
-    for (i in reasonCounts) { if (reasonCounts.hasOwnProperty(i)) { reasonText.push(i + "=" + reasonCounts[i]); } }
+    summary = {populatedPads: snapshot.regions.length + snapshot.skippedPads.length, analyzablePads: snapshot.regions.length, skippedPads: snapshot.skippedPads.length, uniqueSources: Object.keys(sourceSeen).length, reasonCounts: reasonCounts};
     if (snapshot.regions.length) {
-        setState("SCAN_READY"); emitStatus("SCAN_COMPLETE", summary.analyzablePads + " analyzable · " + summary.skippedPads + " skipped · " + summary.uniqueSources + " source(s)" + (reasonText.length ? " · " + reasonText.join(", ") : "") + (snapshot.skippedPads.length ? " · " + snapshot.skippedPads[0].message : ""), summary);
+        setState("SCAN_READY"); emitStatus("SCAN_COMPLETE", countLabel(summary.analyzablePads, "slice", "slices") + " ready · " + countLabel(summary.uniqueSources, "source", "sources") + (summary.skippedPads ? " · " + countLabel(summary.skippedPads, "skipped", "skipped") : ""), summary);
     } else {
-        setState("READY_TO_SCAN"); emitStatus("NO_ANALYZABLE_PADS", "No populated pad has exactly one supported reachable Simpler." + (reasonText.length ? " " + reasonText.join(", ") + "." : ""), summary);
+        setState("READY_TO_SCAN"); emitStatus("NO_ANALYZABLE_PADS", "No supported slices found in this rack" + (summary.skippedPads ? " · " + countLabel(summary.skippedPads, "pad skipped", "pads skipped") : ""), summary);
     }
     outlet(2, "snapshot", JSON.stringify(snapshot));
 }
@@ -202,6 +202,7 @@ function scanandanalyze() {
 function analyze() {
     if (state !== "SCAN_READY" || !snapshot || !snapshot.regions.length) { return; }
     activeAnalysisJobId = snapshot.jobId; activeAnalysisSettings = copyValue(analysisSettings); setState("ANALYZING");
+    emitStatus("ANALYSIS_STARTED", "Analyzing " + countLabel(snapshot.regions.length, "slice", "slices") + "…");
     outlet(1, "analyze", JSON.stringify({snapshot: snapshot, settings: activeAnalysisSettings}));
 }
 function cancel() { if (state !== "ANALYZING") { return; } setState("CANCELLING"); outlet(1, "cancel"); }
@@ -230,7 +231,7 @@ function receiveNode(kind, json) {
         outlet(0, "progress", Number(payload.completed || 0), Math.max(1, Number(payload.total || 1)), payload.message || "Analyzing"); return;
     }
     if (!snapshot || state !== "ANALYZING" || !scoped || String(payload.jobId) !== String(snapshot.jobId) || payload.requestId == null) { return; }
-    buildPlan(payload.predictions || [], activeAnalysisSettings || analysisSettings); activeAnalysisJobId = null; activeAnalysisSettings = null; setState("REVIEW_READY"); emitStatus("ANALYSIS_COMPLETE", plan.rows.length + " analyzed · " + snapshot.skippedPads.length + " skipped · " + countUnknown(plan.rows) + " unknown"); outlet(2, "plan", JSON.stringify(plan));
+    buildPlan(payload.predictions || [], activeAnalysisSettings || analysisSettings); activeAnalysisJobId = null; activeAnalysisSettings = null; setState("REVIEW_READY"); emitStatus("ANALYSIS_COMPLETE", countLabel(plan.rows.length, "slice", "slices") + " analyzed" + (countUnknown(plan.rows) ? " · " + countLabel(countUnknown(plan.rows), "uncertain", "uncertain") : "") + (snapshot.skippedPads.length ? " · " + countLabel(snapshot.skippedPads.length, "skipped", "skipped") : "") + " · Ready to review"); outlet(2, "plan", JSON.stringify(plan));
 }
 
 function buildPlan(predictions, settingsForJob) {
@@ -300,7 +301,7 @@ function apply() {
         }
         if (writes.length) {
             newApply = {applyId: newId(), rackFingerprint: V.sha256(snapshot.rack.sessionPath + "\0" + snapshot.jobId), writes: writes}; lastApply = newApply;
-            setState("APPLIED"); emitStatus(failures ? "PARTIAL_APPLY" : "APPLY_COMPLETE", writes.length + " chain name(s) applied" + (failures ? " · " + failures + " skipped/failed." : "."));
+            setState("APPLIED"); emitStatus(failures ? "PARTIAL_APPLY" : "APPLY_COMPLETE", countLabel(writes.length, "name", "names") + " applied" + (failures ? " · " + countLabel(failures, "skipped or failed", "skipped or failed") : ""));
         } else if (!failures && unchanged) { setState(lastApply && lastApply.writes.length ? "APPLIED" : "REVIEW_READY"); emitStatus("APPLY_NO_CHANGES", "No chain names needed changing; any previous verified Apply remains available to Revert."); }
         else { fail("APPLY_FAILED", "No chain names were changed."); }
         outlet(2, "plan", JSON.stringify(plan));
@@ -336,7 +337,7 @@ function revert() {
                 setState(plan ? "REVIEW_READY" : (snapshot && snapshot.regions && snapshot.regions.length ? "SCAN_READY" : "READY_TO_SCAN"));
             } else { setState("APPLIED"); }
         }
-        emitStatus(remaining.length ? "PARTIAL_REVERT" : "REVERT_COMPLETE", restored + " chain name(s) restored.");
+        emitStatus(remaining.length ? "PARTIAL_REVERT" : "REVERT_COMPLETE", countLabel(restored, "name", "names") + " restored");
         if (plan) { outlet(2, "plan", JSON.stringify(plan)); }
     }, this); task.schedule(0);
 }
