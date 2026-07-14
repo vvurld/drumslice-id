@@ -27,9 +27,9 @@
 					"mode" : 0,
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 20.0, 770.0, 802.0, 176.0 ],
+					"patching_rect" : [ 20.0, 770.0, 802.0, 140.0 ],
 					"presentation" : 1,
-					"presentation_rect" : [ 0.0, 0.0, 802.0, 176.0 ],
+					"presentation_rect" : [ 0.0, 0.0, 802.0, 140.0 ],
 					"proportion" : 0.5,
 					"rounded" : 0
 				}
@@ -46,11 +46,137 @@
 					"mode" : 0,
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 20.0, 950.0, 774.0, 69.0 ],
+					"patching_rect" : [ 20.0, 950.0, 774.0, 32.0 ],
 					"presentation" : 1,
-					"presentation_rect" : [ 14.0, 92.0, 774.0, 69.0 ],
+					"presentation_rect" : [ 14.0, 94.0, 774.0, 32.0 ],
 					"proportion" : 0.5,
-					"rounded" : 8
+					"rounded" : 6
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"bgcolor" : [ 0.431372549, 0.4549019608, 0.5176470588, 1.0 ],
+					"border" : 0,
+					"id" : "slice-mark-1",
+					"ignoreclick" : 1,
+					"maxclass" : "panel",
+					"mode" : 0,
+					"numinlets" : 1,
+					"numoutlets" : 0,
+					"patching_rect" : [ 20.0, 990.0, 2.0, 8.0 ],
+					"presentation" : 1,
+					"presentation_rect" : [ 28.0, 106.0, 2.0, 8.0 ],
+					"proportion" : 0.5,
+					"rounded" : 1
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"bgcolor" : [ 0.431372549, 0.4549019608, 0.5176470588, 1.0 ],
+					"border" : 0,
+					"id" : "slice-mark-2",
+					"ignoreclick" : 1,
+					"maxclass" : "panel",
+					"mode" : 0,
+					"numinlets" : 1,
+					"numoutlets" : 0,
+					"patching_rect" : [ 25.0, 987.0, 2.0, 14.0 ],
+					"presentation" : 1,
+					"presentation_rect" : [ 33.0, 103.0, 2.0, 14.0 ],
+					"proportion" : 0.5,
+					"rounded" : 1
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"bgcolor" : [ 0.3098039216, 0.6117647059, 0.7960784314, 1.0 ],
+					"border" : 0,
+					"id" : "slice-mark-3",
+					"ignoreclick" : 1,
+					"maxclass" : "panel",
+					"mode" : 0,
+					"numinlets" : 1,
+					"numoutlets" : 0,
+					"patching_rect" : [ 30.0, 984.0, 2.0, 20.0 ],
+					"presentation" : 1,
+					"presentation_rect" : [ 38.0, 100.0, 2.0, 20.0 ],
+					"proportion" : 0.5,
+					"rounded" : 1
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"bgcolor" : [ 0.431372549, 0.4549019608, 0.5176470588, 1.0 ],
+					"border" : 0,
+					"id" : "slice-mark-4",
+					"ignoreclick" : 1,
+					"maxclass" : "panel",
+					"mode" : 0,
+					"numinlets" : 1,
+					"numoutlets" : 0,
+					"patching_rect" : [ 35.0, 988.0, 2.0, 12.0 ],
+					"presentation" : 1,
+					"presentation_rect" : [ 43.0, 104.0, 2.0, 12.0 ],
+					"proportion" : 0.5,
+					"rounded" : 1
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"bgcolor" : [ 0.3098039216, 0.6117647059, 0.7960784314, 1.0 ],
+					"border" : 0,
+					"id" : "slice-mark-5",
+					"ignoreclick" : 1,
+					"maxclass" : "panel",
+					"mode" : 0,
+					"numinlets" : 1,
+					"numoutlets" : 0,
+					"patching_rect" : [ 42.0, 986.0, 2.0, 16.0 ],
+					"presentation" : 1,
+					"presentation_rect" : [ 50.0, 102.0, 2.0, 16.0 ],
+					"proportion" : 0.5,
+					"rounded" : 1
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"bgcolor" : [ 0.431372549, 0.4549019608, 0.5176470588, 1.0 ],
+					"border" : 0,
+					"id" : "slice-mark-6",
+					"ignoreclick" : 1,
+					"maxclass" : "panel",
+					"mode" : 0,
+					"numinlets" : 1,
+					"numoutlets" : 0,
+					"patching_rect" : [ 47.0, 989.0, 2.0, 10.0 ],
+					"presentation" : 1,
+					"presentation_rect" : [ 55.0, 105.0, 2.0, 10.0 ],
+					"proportion" : 0.5,
+					"rounded" : 1
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"bgcolor" : [ 0.431372549, 0.4549019608, 0.5176470588, 1.0 ],
+					"border" : 0,
+					"id" : "slice-mark-7",
+					"ignoreclick" : 1,
+					"maxclass" : "panel",
+					"mode" : 0,
+					"numinlets" : 1,
+					"numoutlets" : 0,
+					"patching_rect" : [ 52.0, 991.0, 2.0, 6.0 ],
+					"presentation" : 1,
+					"presentation_rect" : [ 60.0, 107.0, 2.0, 6.0 ],
+					"proportion" : 0.5,
+					"rounded" : 1
 				}
 
 			}
@@ -66,7 +192,7 @@
 					"patching_rect" : [ 20.0, 1035.0, 70.0, 18.0 ],
 					"presentation" : 1,
 					"presentation_rect" : [ 16.0, 10.0, 56.0, 18.0 ],
-					"text" : "SOURCE",
+					"text" : "TARGET",
 					"textcolor" : [ 0.6509803922, 0.6705882353, 0.7254901961, 1.0 ]
 				}
 
@@ -81,8 +207,8 @@
 					"numoutlets" : 0,
 					"patching_rect" : [ 100.0, 1035.0, 320.0, 20.0 ],
 					"presentation" : 1,
-					"presentation_rect" : [ 16.0, 62.0, 408.0, 20.0 ],
-					"text" : "Analyze  →  review  →  apply. Names change only when you apply.",
+					"presentation_rect" : [ 16.0, 62.0, 260.0, 20.0 ],
+					"text" : "Analyze  →  Review  →  Apply",
 					"textcolor" : [ 0.6509803922, 0.6705882353, 0.7254901961, 1.0 ]
 				}
 
@@ -218,7 +344,7 @@
 					"parameter_enable" : 0,
 					"patching_rect" : [ 120.0, 90.0, 190.0, 22.0 ],
 					"presentation" : 1,
-					"presentation_rect" : [ 72.0, 26.0, 288.0, 26.0 ],
+					"presentation_rect" : [ 72.0, 26.0, 348.0, 26.0 ],
 					"annotation" : "Choose the downstream Drum Rack whose slices will be analyzed and labeled.",
 					"varname" : "target_rack"
 				}
@@ -252,7 +378,7 @@
 					"parameter_enable" : 0,
 					"patching_rect" : [ 35.0, 175.0, 55.0, 22.0 ],
 					"presentation" : 1,
-					"presentation_rect" : [ 368.0, 26.0, 72.0, 26.0 ],
+					"presentation_rect" : [ 428.0, 26.0, 72.0, 26.0 ],
 					"rounded" : 6,
 					"text" : "Refresh",
 					"textcolor" : [ 0.8862745098, 0.8980392157, 0.9254901961, 1.0 ],
@@ -289,7 +415,7 @@
 					"parameter_enable" : 0,
 					"patching_rect" : [ 105.0, 175.0, 65.0, 22.0 ],
 					"presentation" : 1,
-					"presentation_rect" : [ 448.0, 26.0, 116.0, 26.0 ],
+					"presentation_rect" : [ 508.0, 26.0, 116.0, 26.0 ],
 					"rounded" : 6,
 					"text" : "Analyze Rack",
 					"textcolor" : [ 0.0549019608, 0.1019607843, 0.1333333333, 1.0 ],
@@ -324,7 +450,7 @@
 					"parameter_enable" : 0,
 					"patching_rect" : [ 180.0, 175.0, 55.0, 22.0 ],
 					"presentation" : 1,
-					"presentation_rect" : [ 572.0, 26.0, 66.0, 26.0 ],
+					"presentation_rect" : [ 632.0, 26.0, 66.0, 26.0 ],
 					"rounded" : 6,
 					"text" : "Cancel",
 					"textcolor" : [ 0.8862745098, 0.8980392157, 0.9254901961, 1.0 ]
@@ -395,7 +521,7 @@
 					"presentation" : 1,
 					"presentation_rect" : [ 552.0, 58.0, 102.0, 26.0 ],
 					"rounded" : 6,
-					"text" : "Undo Apply",
+					"text" : "Undo",
 					"textcolor" : [ 0.8862745098, 0.8980392157, 0.9254901961, 1.0 ]
 				}
 
@@ -429,7 +555,7 @@
 					"presentation" : 1,
 					"presentation_rect" : [ 442.0, 58.0, 102.0, 26.0 ],
 					"rounded" : 6,
-					"text" : "Review",
+					"text" : "Review Results",
 					"textcolor" : [ 0.8862745098, 0.8980392157, 0.9254901961, 1.0 ]
 				}
 
@@ -484,7 +610,7 @@
 					"parameter_enable" : 0,
 					"patching_rect" : [ 555.0, 175.0, 67.0, 22.0 ],
 					"presentation" : 1,
-					"presentation_rect" : [ 646.0, 26.0, 142.0, 26.0 ],
+					"presentation_rect" : [ 706.0, 26.0, 82.0, 26.0 ],
 					"rounded" : 6,
 					"text" : "Settings",
 					"textcolor" : [ 0.8862745098, 0.8980392157, 0.9254901961, 1.0 ]
@@ -562,7 +688,7 @@
 					"numoutlets" : 0,
 					"patching_rect" : [ 340.0, 415.0, 500.0, 20.0 ],
 					"presentation" : 1,
-					"presentation_rect" : [ 30.0, 101.0, 744.0, 20.0 ],
+					"presentation_rect" : [ 74.0, 100.0, 700.0, 20.0 ],
 					"text" : "Waiting for Live to initialize…",
 					"textcolor" : [ 0.9176470588, 0.9254901961, 0.9450980392, 1.0 ]
 				}
@@ -591,8 +717,6 @@
 						}
 ,
 						"patching_rect" : [ 340.0, 445.0, 300.0, 8.0 ],
-					"presentation" : 1,
-					"presentation_rect" : [ 30.0, 126.0, 744.0, 8.0 ],
 					"setminmax" : [ 0.0, 1.0 ],
 					"setstyle" : 1,
 					"size" : 1,
@@ -632,8 +756,6 @@
 					"numinlets" : 1,
 					"numoutlets" : 0,
 					"patching_rect" : [ 655.0, 505.0, 185.0, 18.0 ],
-					"presentation" : 1,
-					"presentation_rect" : [ 30.0, 138.0, 744.0, 18.0 ],
 					"text" : "Ready",
 					"textcolor" : [ 0.6509803922, 0.6705882353, 0.7254901961, 1.0 ]
 				}
@@ -1079,6 +1201,13 @@
 , 			{
 				"patchline" : 				{
 					"destination" : [ "progress-label-set", 0 ],
+					"source" : [ "progress-unpack", 2 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "status-set", 0 ],
 					"source" : [ "progress-unpack", 2 ]
 				}
 

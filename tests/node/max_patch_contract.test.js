@@ -32,9 +32,14 @@ test("main Max patch preserves MIDI and wires state/progress/runtime paths", () 
   assert.equal(hasLine(patch, "status-route", 5, "revert-active", 0), true);
   assert.equal(hasLine(patch, "status-route", 6, "status-set", 0), true);
   assert.equal(hasLine(patch, "progress-unpack", 2, "progress-label-set", 0), true);
+  assert.equal(hasLine(patch, "progress-unpack", 2, "status-set", 0), true, "compact status must show live analysis progress");
   assert.equal(hasLine(patch, "state-ui-route", 1, "state-ready-scan", 0), true, "NO_RACK must leave Scan available for rediscovery");
   assert.equal(boxes.get("analyze-msg").text, "scanandanalyze");
   assert.equal(boxes.get("progress").maxclass, "multislider");
+  assert.notEqual(boxes.get("progress").presentation, 1, "progress bar should stay out of the device UI");
+  assert.notEqual(boxes.get("progress-label").presentation, 1, "duplicate progress text should stay out of the device UI");
+  assert.deepEqual(boxes.get("surface").presentation_rect, [0, 0, 802, 140]);
+  for (let i = 1; i <= 7; i += 1) assert.equal(boxes.get(`slice-mark-${i}`).presentation, 1);
   for (const id of ["scan-active", "analyze-active", "cancel-active", "apply-active", "revert-active", "results-active"]) {
     assert.ok(boxes.has(id), `missing state gate ${id}`);
   }
