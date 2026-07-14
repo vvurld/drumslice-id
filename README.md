@@ -1,113 +1,74 @@
-# DrumSLICE ID for Ableton Live 12
+# DrumSLICE ID for Ableton
 
-> **Alpha software:** `0.1.0-alpha.1` is intended for testing and feedback. Back up important Live Sets and review the classifier licensing notice below.
+[![CI](https://github.com/vvurld/drumslice-id/actions/workflows/ci.yml/badge.svg)](https://github.com/vvurld/drumslice-id/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-4c9ed9.svg)](LICENSE)
 
-DrumSLICE ID is a Max for Live MIDI Effect that identifies kick, snare, tom, hi-hat, and cymbal content in the existing regions of a sliced Drum Rack. It never changes the slices. It analyzes each unique source once, presents a dry-run naming plan, and writes only `Chain.name` after an explicit Apply.
+![DrumSLICE ID running in Ableton](docs/images/drumslice-id-device-hires.png)
 
-## Classifier and licensing
+Built for the annoying part of chopping breaks: a Drum Rack full of pads called *Slice 1*, *Slice 2*, *Slice 3*.
 
-The project-owned code is available under the MIT License. The functional alpha currently uses an optional, separately downloaded ADTOF-pytorch backend:
+DrumSLICE ID listens to the slices already in the rack and suggests useful names such as kick, snare, hi-hat, tom, and cymbal. It does not move markers or touch the audio. You see the naming plan first, and nothing is written until you press **Apply Names**.
 
-- upstream ADTOF is licensed CC BY-NC-SA 4.0;
-- the pinned PyTorch port does not declare a separate license for its code or converted weights; and
-- this repository and its release archive contain neither ADTOF source nor model weights.
+**Analyze → Review → Apply Names.** Weak or unsupported hits are left alone instead of being forced into a category.
 
-Backend installation therefore requires an explicit acknowledgement and is intended for **free, noncommercial, experimental use**. The MIT License for our code does not grant rights to the external backend. Do not sell or commercially redistribute a backend-equipped build. See [Third-party notices](THIRD_PARTY_NOTICES.md) for the exact revision and status.
+> **Alpha:** `0.1.0-alpha.1` is ready for testing, not irreplaceable sessions. Back up important Live Sets and read the classifier license note below.
 
 ## Install
 
-Prerequisites:
+Download the current archive and `SHA256SUMS` from [Releases](https://github.com/vvurld/drumslice-id/releases), then extract it.
 
-- Ableton Live 12 with Max for Live;
-- CPython 3.10, 3.11, or 3.12;
-- Git and internet access when installing the external backend; and
-- enough disk space for a private PyTorch environment.
+You will need Ableton Live 12 with Max for Live, Git, and CPython 3.10–3.12. The backend installer also needs an internet connection and enough space for a private PyTorch environment.
 
-Download the release archive, verify it against `SHA256SUMS`, extract it, and run one command from its root.
-
-macOS:
+On macOS:
 
 ```sh
 ./install.sh --accept-adtof-license
 ```
 
-Windows PowerShell:
+On Windows PowerShell:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\install.ps1 -AcceptAdtofLicense
 ```
 
-To install only the device and MIT-licensed project runtime, use `--skip-backend` or `-SkipBackend`. Analysis will remain unavailable until a compatible backend is configured.
-
-The installer validates its input, builds a private environment under `~/.drumslice-id`, copies the complete `DrumSliceID` Max package and AMXD, verifies the installed files, and prints their exact locations. It never modifies a Live Set. The installed runtime is copied rather than symlinked, so the extracted archive can be moved or deleted afterward.
-
-Restart Live or rescan the User Library, then open:
+Restart Live or rescan the User Library. The device will appear under:
 
 ```text
 User Library > Presets > MIDI Effects > Max MIDI Effect > DrumSLICE ID
 ```
 
-Place the device immediately before the sliced Drum Rack on the same MIDI track. Read the [User guide](docs/USER_GUIDE.md) before applying names.
+Put it immediately before the sliced Drum Rack on the same MIDI track. Choose the rack, press **Analyze**, review the result, then apply the names you want.
 
-Useful modes:
+The installer copies everything into user-owned locations, verifies the installation, and prints the paths it used. The extracted archive can be deleted afterward. Custom locations and verification-only installs are supported; run `./install.sh --help` or `Get-Help .\install.ps1 -Detailed` for the full list of options.
 
-```sh
-./install.sh --verify-only
-./install.sh --skip-backend
-./install.sh --user-library "/custom/Ableton/User Library"
-./install.sh --help
-```
+Want the device without the classifier backend? Use `--skip-backend` on macOS or `-SkipBackend` on Windows. The interface will load, but analysis will remain unavailable until a backend is configured.
 
-PowerShell exposes the matching `-VerifyOnly`, `-SkipBackend`, `-UserLibrary`, `-MaxPackagesDir`, `-InstallRoot`, and `-ConfigPath` parameters.
+See the [user guide](docs/USER_GUIDE.md) for settings, layered breaks, REX files, conflict handling, and uninstall instructions.
 
-The self-locating uninstaller preserves the large backend and cache by default:
+## What changes in your Live Set?
 
-```sh
-~/.drumslice-id/uninstall.sh
-~/.drumslice-id/uninstall.sh --all
-~/.drumslice-id/uninstall.sh --remove-legacy
-```
+Only Drum Rack chain names. DrumSLICE ID reads the existing Simpler sources and slice regions, analyzes each unique audio source once, and prepares a dry-run result. Applying a result writes `Chain.name` and reads it back to verify the change. **Undo** restores the last batch where those names have not since been edited by hand.
 
-```powershell
-& "$HOME\.drumslice-id\uninstall.ps1"
-& "$HOME\.drumslice-id\uninstall.ps1" -All
-```
+Audio files, slice markers, devices, pads, MIDI, and routing are not changed.
 
-Upgrading a pre-rename development install requires a new device instance; see [Migration](docs/MIGRATION.md).
+## Classification and licensing
 
-## What the alpha does
+The current alpha uses an external ADTOF-based PyTorch backend. It aligns five drum-activation streams with the rack's real slice starts, then keeps the dominant class only when the evidence is strong enough. The displayed scores help compare classes; they are not calibrated probabilities.
 
-1. Discovers downstream Drum Racks without changing Live state.
-2. Scans each populated pad for exactly one supported Simpler source and its existing region markers.
-3. Runs one local inference per unique source/cache identity.
-4. Maps five-class activation peaks to the authoritative slice starts.
-5. Shows the proposed names, all class scores, skipped rows, and warnings.
-6. Applies only validated, non-conflicting `Chain.name` writes and verifies them by reading back.
-7. Reverts the most recent Apply only where the written name is still unchanged.
+The code in this repository is MIT-licensed. The optional backend is downloaded separately because ADTOF is licensed CC BY-NC-SA 4.0, while the pinned PyTorch port does not publish a separate license for its code or converted weights. Neither ADTOF code nor model weights are included here or in the release archive.
 
-Scores are ranking evidence, not calibrated probabilities. Unknown or skipped slices are preserved instead of being forced into a class.
+For now, treat a backend-equipped installation as **free, noncommercial, experimental software**. The installer asks you to acknowledge that before downloading it. Read [Third-party notices](THIRD_PARTY_NOTICES.md) for the pinned revision and exact status.
 
 ## Development
 
-Use Node 18 or newer and CPython 3.10–3.12:
+For an editable local install:
 
 ```sh
-node scripts/check_versions.js
-node scripts/build_max_js_bundle.js --check
-node scripts/build_max_device.js --check
-node scripts/verify_max_device.js
-node --test tests/node/*.test.js
-PYTHONPATH=python python -m pytest -q tests/python
-python scripts/build_release.py --check
+./scripts/install_local.sh
 ```
 
-For live source development, run `./scripts/install_local.sh` and open `max/DrumSliceID.maxproj` in Max. Rebuild generated bundles and `dist/DrumSLICE ID.amxd` after source changes. The committed AMXD is a small development artifact that resolves the copied `DrumSliceID` package; copying it alone is not an installation.
+Open `max/DrumSliceID.maxproj` in Max and rebuild the generated bundles after source changes. Copying `dist/DrumSLICE ID.amxd` by itself is not enough; the device also resolves files from the `DrumSliceID` Max package.
 
-The deterministic release builder creates a backend-free ZIP, file manifest, and checksums in `release/`:
+Start with [Contributing](CONTRIBUTING.md), then use the [technical reference](docs/TECHNICAL_REFERENCE.md) and [architecture notes](docs/ARCHITECTURE.md) when working on classification or the Max/Node/Python bridge. Known rough edges are tracked in [Known limitations](KNOWN_LIMITATIONS.md).
 
-```sh
-python scripts/build_release.py
-python scripts/build_release.py --check
-```
-
-Architecture and classification details are documented in [Technical reference](docs/TECHNICAL_REFERENCE.md). See [Known limitations](KNOWN_LIMITATIONS.md), [Release checklist](docs/RELEASE_CHECKLIST.md), [Contributing](CONTRIBUTING.md), [Support](SUPPORT.md), and [Security](SECURITY.md) before publishing changes or reports.
+Bug reports are welcome. For ordinary problems, see [Support](SUPPORT.md). Please use the process in [Security](SECURITY.md) for security issues.
