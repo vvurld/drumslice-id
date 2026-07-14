@@ -71,7 +71,7 @@ function parseArguments(argv) {
   if (positional.length > 2) throw new Error("Usage: verify_max_device.js [--require-self-contained] [artifact.amxd] [source.maxpat]");
   return {
     artifactPath: path.resolve(positional[0] || path.join(root, "dist", "DrumSLICE ID.amxd")),
-    sourcePath: path.resolve(positional[1] || path.join(root, "max", "patchers", "SliceLabeler.maxpat")),
+    sourcePath: path.resolve(positional[1] || path.join(root, "max", "patchers", "DrumSliceID.maxpat")),
     requireSelfContained,
   };
 }

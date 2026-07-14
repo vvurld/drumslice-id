@@ -3,19 +3,20 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 MAX_VERSION="${MAX_VERSION:-9}"
-MAX_PACKAGES_DIR="${SLICE_LABELER_MAX_PACKAGES_DIR:-}"
-USER_LIBRARY="${SLICE_LABELER_USER_LIBRARY:-}"
-INSTALL_ROOT="${SLICE_LABELER_HOME:-$HOME/.slice-labeler}"
-CONFIG_PATH="${SLICE_LABELER_BACKEND_CONFIG:-$HOME/.slice-labeler/backend-config.json}"
-CACHE_DIR="${SLICE_LABELER_CACHE_DIR:-$HOME/Library/Caches/Slice Labeler}"
+MAX_PACKAGES_DIR="${DRUMSLICE_ID_MAX_PACKAGES_DIR:-${SLICE_LABELER_MAX_PACKAGES_DIR:-}}"
+USER_LIBRARY="${DRUMSLICE_ID_USER_LIBRARY:-${SLICE_LABELER_USER_LIBRARY:-}}"
+INSTALL_ROOT="${DRUMSLICE_ID_HOME:-${SLICE_LABELER_HOME:-$HOME/.drumslice-id}}"
+CONFIG_PATH="${DRUMSLICE_ID_BACKEND_CONFIG:-${SLICE_LABELER_BACKEND_CONFIG:-$HOME/.drumslice-id/backend-config.json}}"
+CACHE_DIR="${DRUMSLICE_ID_CACHE_DIR:-${SLICE_LABELER_CACHE_DIR:-$HOME/Library/Caches/DrumSLICE ID}}"
 REMOVE_BACKEND=0
 REMOVE_CACHE=0
+REMOVE_LEGACY=0
 FORCE=0
 CUSTOM_MAX=0
 CUSTOM_LIBRARY=0
 CUSTOM_CONFIG=0
 
-if [[ -z "${SLICE_LABELER_HOME:-}" && -f "$SCRIPT_DIR/install-paths.txt" ]]; then
+if [[ -z "${DRUMSLICE_ID_HOME:-}" && -f "$SCRIPT_DIR/install-paths.txt" ]]; then
   INSTALL_ROOT="$SCRIPT_DIR"
 fi
 
@@ -32,11 +33,12 @@ Options:
   --max-version VERSION     Max major version for the default package path
   --max-packages-dir DIR    Override the Max Packages directory
   --user-library DIR        Override the Ableton User Library root
-  --install-root DIR        Backend environment root (default: ~/.slice-labeler)
+  --install-root DIR        Backend environment root (default: ~/.drumslice-id)
   --config PATH             Backend configuration file
   --cache-dir DIR           Analysis/log cache directory
   --remove-backend          Also remove the private Python environment/config
   --remove-cache            Also remove cached activations and diagnostics
+  --remove-legacy           Also remove recognized pre-rename files/backend
   --all                     Equivalent to --remove-backend --remove-cache
   --force                   Remove unrecognized paths selected explicitly
   -h, --help                Show this help
@@ -46,7 +48,7 @@ EOF
 die() { printf 'DrumSLICE ID uninstall failed: %s\n' "$*" >&2; exit 1; }
 step() { printf '==> %s\n' "$*"; }
 expand_home() { case "$1" in "~") printf '%s\n' "$HOME" ;; \~/*) printf '%s/%s\n' "$HOME" "${1#\~/}" ;; *) printf '%s\n' "$1" ;; esac; }
-is_slice_labeler_package() { [[ -f "$1/package-info.json" ]] && grep -Eq '"name"[[:space:]]*:[[:space:]]*"SliceLabeler"' "$1/package-info.json"; }
+is_drumslice_id_package() { [[ -f "$1/package-info.json" ]] && grep -Eq '"name"[[:space:]]*:[[:space:]]*"DrumSliceID"' "$1/package-info.json"; }
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -58,6 +60,7 @@ while [[ $# -gt 0 ]]; do
     --cache-dir) [[ $# -ge 2 ]] || die "--cache-dir requires a value"; CACHE_DIR="$2"; shift 2 ;;
     --remove-backend) REMOVE_BACKEND=1; shift ;;
     --remove-cache) REMOVE_CACHE=1; shift ;;
+    --remove-legacy) REMOVE_LEGACY=1; shift ;;
     --all) REMOVE_BACKEND=1; REMOVE_CACHE=1; shift ;;
     --force) FORCE=1; shift ;;
     -h|--help) usage; exit 0 ;;
@@ -81,8 +84,10 @@ MAX_PACKAGES_DIR="$(expand_home "${MAX_PACKAGES_DIR:-$HOME/Documents/Max $MAX_VE
 USER_LIBRARY="$(expand_home "${USER_LIBRARY:-$HOME/Music/Ableton/User Library}")"
 CONFIG_PATH="$(expand_home "$CONFIG_PATH")"
 CACHE_DIR="$(expand_home "$CACHE_DIR")"
-PACKAGE_DIR="$MAX_PACKAGES_DIR/SliceLabeler"
+PACKAGE_DIR="$MAX_PACKAGES_DIR/DrumSliceID"
+LEGACY_PACKAGE_DIR="$MAX_PACKAGES_DIR/SliceLabeler"
 DEVICE_PATH="$USER_LIBRARY/Presets/MIDI Effects/Max MIDI Effect/DrumSLICE ID.amxd"
+LEGACY_DEVICE_PATH="$USER_LIBRARY/Presets/MIDI Effects/Max MIDI Effect/Slice Labeler.amxd"
 if [[ "$CUSTOM_MAX" -eq 0 && -n "$MANIFEST_PACKAGE" ]]; then PACKAGE_DIR="$MANIFEST_PACKAGE"; fi
 if [[ "$CUSTOM_LIBRARY" -eq 0 && -n "$MANIFEST_DEVICE" ]]; then DEVICE_PATH="$MANIFEST_DEVICE"; fi
 if [[ "$CUSTOM_CONFIG" -eq 0 && -n "$MANIFEST_CONFIG" ]]; then CONFIG_PATH="$MANIFEST_CONFIG"; fi
@@ -91,14 +96,14 @@ for path_to_check in "$PACKAGE_DIR" "$DEVICE_PATH" "$INSTALL_ROOT" "$CONFIG_PATH
   case "$path_to_check" in /*) ;; *) die "refusing non-absolute removal path: $path_to_check" ;; esac
 done
 
-[[ "$(basename "$PACKAGE_DIR")" == "SliceLabeler" ]] || die "refusing unexpected package path: $PACKAGE_DIR"
+[[ "$(basename "$PACKAGE_DIR")" == "DrumSliceID" ]] || die "refusing unexpected package path: $PACKAGE_DIR"
 case "$(basename "$DEVICE_PATH")" in
   "DrumSLICE ID.amxd"|"Slice Labeler.amxd") ;;
   *) die "refusing unexpected device path: $DEVICE_PATH" ;;
 esac
 
 if [[ -e "$PACKAGE_DIR" || -L "$PACKAGE_DIR" ]]; then
-  if ! is_slice_labeler_package "$PACKAGE_DIR" && [[ "$FORCE" -ne 1 ]]; then die "$PACKAGE_DIR is not a recognized SliceLabeler package; use --force only after inspecting it"; fi
+  if ! is_drumslice_id_package "$PACKAGE_DIR" && [[ "$FORCE" -ne 1 ]]; then die "$PACKAGE_DIR is not a recognized DrumSliceID package; use --force only after inspecting it"; fi
   step "Removing Max package: $PACKAGE_DIR"
   rm -rf -- "$PACKAGE_DIR"
 else printf 'Max package is already absent: %s\n' "$PACKAGE_DIR"
@@ -108,6 +113,26 @@ if [[ -f "$DEVICE_PATH" ]]; then
   step "Removing device: $DEVICE_PATH"
   rm -f -- "$DEVICE_PATH"
 else printf 'Device is already absent: %s\n' "$DEVICE_PATH"
+fi
+
+if [[ "$REMOVE_LEGACY" -eq 1 ]]; then
+  if [[ -e "$LEGACY_PACKAGE_DIR" || -L "$LEGACY_PACKAGE_DIR" ]]; then
+    if [[ -f "$LEGACY_PACKAGE_DIR/package-info.json" ]] && grep -Eq '"name"[[:space:]]*:[[:space:]]*"(SliceLabeler|DrumSliceID)"' "$LEGACY_PACKAGE_DIR/package-info.json"; then
+      step "Removing legacy Max package: $LEGACY_PACKAGE_DIR"
+      rm -rf -- "$LEGACY_PACKAGE_DIR"
+    elif [[ "$FORCE" -eq 1 ]]; then rm -rf -- "$LEGACY_PACKAGE_DIR"
+    else die "legacy package path is unrecognized: $LEGACY_PACKAGE_DIR"
+    fi
+  fi
+  [[ ! -f "$LEGACY_DEVICE_PATH" ]] || rm -f -- "$LEGACY_DEVICE_PATH"
+  LEGACY_ROOT="$HOME/.slice-labeler"
+  if [[ -d "$LEGACY_ROOT" ]]; then
+    if [[ -f "$LEGACY_ROOT/backend-config.json" || "$FORCE" -eq 1 ]]; then
+      step "Removing legacy backend: $LEGACY_ROOT"
+      rm -rf -- "$LEGACY_ROOT"
+    else die "legacy backend has no recognizable config: $LEGACY_ROOT"
+    fi
+  fi
 fi
 
 if [[ "$REMOVE_BACKEND" -eq 1 ]]; then
@@ -123,7 +148,7 @@ fi
 
 if [[ "$REMOVE_CACHE" -eq 1 ]]; then
   case "$CACHE_DIR" in
-    "$HOME/Library/Caches/Slice Labeler"|*/Slice\ Labeler) ;;
+    "$HOME/Library/Caches/DrumSLICE ID"|"$HOME/Library/Caches/Slice Labeler") ;;
     *) [[ "$FORCE" -eq 1 ]] || die "refusing unexpected cache path: $CACHE_DIR" ;;
   esac
   if [[ -e "$CACHE_DIR" ]]; then step "Removing cache: $CACHE_DIR"; rm -rf -- "$CACHE_DIR"; fi

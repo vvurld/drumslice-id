@@ -55,7 +55,7 @@ function resetall() { outlet(1, "resetall"); }
 function clearcache() { outlet(1, "clearcache"); }
 function cancelanalysis() { outlet(1, "cancel"); }
 function exportdiagnostics() {
-    var dict = new Dict("slice_labeler_diagnostics_export");
+    var dict = new Dict("drumslice_id_diagnostics_export");
     dict.clear(); dict.parse(JSON.stringify({schemaVersion: 1, snapshot: resultSnapshot, plan: resultPlan, diagnostics: resultDiagnostics})); dict.export_json();
 }
 function anything() {

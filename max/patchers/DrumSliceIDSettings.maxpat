@@ -883,7 +883,7 @@
         "box": {
           "id": "controller",
           "maxclass": "newobj",
-          "text": "js slice_labeler_settings_bundle_v2.js",
+          "text": "js drumslice_id_settings_bundle_v2.js",
           "patching_rect": [
             365,
             465,

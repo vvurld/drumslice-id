@@ -14,6 +14,7 @@ const {
   stripLiveData,
   maxAtomsToPath,
   workerRuntimeOptions,
+  loadBackendConfig,
   parseBackendConfig,
   mergeSettings,
 } = require("../../max/node/orchestrator");
@@ -52,7 +53,7 @@ test("fingerprints are stable and change with file metadata", async () => {
 });
 
 test("missing files are rejected and Live fields are stripped", async () => {
-  const missing = path.join(path.parse(process.cwd()).root, "definitely", "missing-slice-labeler.wav");
+  const missing = path.join(path.parse(process.cwd()).root, "definitely", "missing-drumslice-id.wav");
   await assert.rejects(() => fingerprintSource(missing, metadata), {code: "SAMPLE_FILE_MISSING"});
   assert.deepEqual(stripLiveData(snapshot("/tmp/x").regions[0]), {regionId: "r0", startFrame: 0, endFrame: 10});
 });
@@ -206,6 +207,27 @@ test("a copied Max package uses an existing cwd and does not inject a missing so
   const options = workerRuntimeOptions({python: "/venv/bin/python"}, {error() {}}, path.join(copiedPackageRoot, "missing-python-source"));
   assert.equal(options.cwd, os.homedir());
   assert.equal(options.env, undefined);
+});
+
+test("a legacy backend config selects the legacy module only for that existing environment", () => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "drumslice-id-legacy-config-"));
+  const config = path.join(directory, "backend.json");
+  fs.writeFileSync(config, JSON.stringify({schemaVersion: 1, python: "/legacy/python", backend: "adtof"}));
+  const previousNew = process.env.DRUMSLICE_ID_BACKEND_CONFIG;
+  const previousOld = process.env.SLICE_LABELER_BACKEND_CONFIG;
+  delete process.env.DRUMSLICE_ID_BACKEND_CONFIG;
+  process.env.SLICE_LABELER_BACKEND_CONFIG = config;
+  try {
+    const loaded = loadBackendConfig();
+    assert.equal(loaded.workerModule, "slice_labeler_worker");
+    const options = workerRuntimeOptions(loaded, {error() {}}, path.join(directory, "missing-source"));
+    assert.deepEqual(options.args, ["-m", "slice_labeler_worker"]);
+  } finally {
+    if (previousNew == null) delete process.env.DRUMSLICE_ID_BACKEND_CONFIG;
+    else process.env.DRUMSLICE_ID_BACKEND_CONFIG = previousNew;
+    if (previousOld == null) delete process.env.SLICE_LABELER_BACKEND_CONFIG;
+    else process.env.SLICE_LABELER_BACKEND_CONFIG = previousOld;
+  }
 });
 
 test("a failed replacement health check preserves the prior worker and configuration", async () => {

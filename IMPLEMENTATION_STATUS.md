@@ -1,44 +1,51 @@
 # Implementation status
 
-Updated: 2026-07-13
+Updated: 2026-07-14
+
+## Alpha candidate
+
+- Product/version: DrumSLICE ID `0.1.0-alpha.1` (`0.1.0a1` for the Python package).
+- Project-owned code: MIT. The optional functional classifier is installed separately and remains restricted to free, noncommercial, experimental alpha use; no ADTOF source, environment, or weights are committed or bundled.
+- Release unit: the deterministic ZIP in `release/`, not the standalone AMXD. It contains the copied Max package, Node orchestration layer, Python adapter, installers, uninstallers, notices, and documentation.
+- Candidate AMXD: AMPF v4 MIDI Effect, 40,171 bytes, SHA-256 `8f3ae84d3605e1721c4179d1934f103aa711ea82d951c980bdb999b834088263`; verification finds no saved user/development paths or embedded dependency table.
+- Supported backend runtime: CPython 3.10–3.12, CPU-only inference, five classes in the fixed order kick/snare/tom/hi-hat/cymbal.
 
 ## Completed
 
-- Initialized the specified repository layout, JSON contracts, four runtime layers, setup/check scripts, source device project, documentation, and manual checklist.
-- Implemented deterministic naming, duplicate numbering, unknown handling, user-name validation, event extraction, cross-class clustering, unique cluster assignment, activation fallback, source fingerprinting, atomic bounded caches, JSON Lines parsing, worker health/cancellation/restart, and structured errors.
-- Implemented downstream rack discovery, 128-pad scan, single-chain enforcement, recursive nested-Instrument-Rack Simpler discovery, exact Sample marker extraction, opaque region IDs, dry-run plan construction, stale validation, conflict-safe deferred Chain.name Apply, read-back verification, and conflict-safe session Revert.
-- Verified current official Cycling '74 Live Object Model/Node for Max documentation and Ableton Live 12 rack/slicing behavior. Reviewed both ADTOF repositories at pinned revisions.
-- Automated test result: 80 Node tests and 48 Python tests pass. Coverage now includes copied installer verification/repair/uninstall safety, AMPF build/verification, Max controller runtime behavior, state/progress/UI patch contracts, stale-job isolation, immediate preflight cancellation and worker recycling, timeout reuse barriers, rack rediscovery/reordering, incomplete and unreadable traversal rejection, zero-analyzable scans, immutable in-flight settings, row-selection retention, all-score/warning rendering, rack/pad/chain ownership checks, no-op Apply/Revert preservation, Python worker shutdown/retry/timeout behavior, backend-maintenance and Torch-thread races, strict result validation, settings persistence, exact pinned peak-picker behavior, complete matched-event score reporting, non-finite feature and activation rejection, concurrent-analysis serialization, configurable/safe cache behavior, RX2 companion scaling/cache identity, adjacent-format-folder lookup, write-probed Numba-cache fallback, and partial source failures.
-- Completed an installed-host acceptance pass with Max 9 and Ableton Live 12.4.2. The device UI opens in Presentation Mode, discovers the prepared downstream Drum Rack, and Scan reports 15 analyzable pads, 0 skipped pads, and one unique source.
-- Installed and health-checked the production backend in a dedicated Python 3.10.19 environment. Health verifies the expected five-class order and strict loading of the pinned weights.
-- Exercised production analysis against the supplied 15-slice REX2 break and its same-stem WAV companion. The corrected peak picker returns 22 events on that source, analysis completes without per-source errors, and the disputed sixth slice resolves to snare rather than kick.
-- Repeated the final integration through the clean installed worker package: cancellation during a real backend preflight returned `ANALYSIS_CANCELLED` in 2 ms, the dedicated child had exited before Clear Cache completed, and the subsequent fresh production run returned 15 predictions, 0 source errors, and the same snare decision/score vector for slice 6.
-- Host-tested the acceptance build through Scan and production Analyze. The Results window rendered 15 readable rows, 0 skipped, 0 unknown; slice 6 displayed `snare` with score `S 0.21`. After the final audit fixes, rebuilt and deterministically verified the current committed development `dist/DrumSLICE ID.amxd` (AMPF v4 MIDI Effect, 30,435 bytes, no saved user/development paths) and installed a byte-identical copy. The current binary's final Live UI recheck remains listed below rather than being implied by the earlier acceptance pass.
-- Versioned the Results and Settings controller bundle filenames after host testing proved that a legacy Max project could shadow identically named package files. Fresh instances now resolve the v2 files without modifying or deleting the user's old project.
-- Registered `max/` as the local `SliceLabeler` Max package on the acceptance machine so the development `.amxd` resolves its project-owned dependencies.
-- Audited the backend wheel manifest and made incremental builds deterministic: stale ignored build output is cleared by the setuptools hook, package discovery excludes namespace caches, and the resulting wheel contains only the 12 Python source modules plus metadata—no `__pycache__` or `.pyc` payloads.
-- Added clone-to-run macOS and Windows installers that copy the complete runtime, support path overrides and verification-only operation, preserve a recoverable package during replacement, record resolved paths, and install matching self-locating uninstallers. The macOS copy/repair/default-removal/full-removal flow passes in isolated paths; the PowerShell contract is source-tested pending its native Windows release pass.
+- Completed the source/runtime rename from Slice Labeler to DrumSLICE ID. Canonical names are `DrumSliceID` for the Max package and abstractions, `drumslice_id_worker` for Python, `drumslice-id` for install state and slugs, and `DRUMSLICE_ID_` for environment variables.
+- Added migration compatibility for recognized pre-rename installs. Legacy environment variables and a legacy configured worker can still be read; old Max artifacts are replaced only when positively identified; old environments and caches require explicit removal.
+- Implemented downstream Drum Rack discovery, 128-pad scan, single-chain enforcement, recursive nested-Instrument-Rack Simpler discovery, exact Sample marker extraction, opaque region IDs, dry-run construction, stale-plan validation, conflict-safe deferred `Chain.name` Apply, read-back verification, and conflict-safe session Revert.
+- Implemented source grouping/fingerprinting, bounded atomic activation caches, JSON Lines worker transport, health/cancellation/restart, immutable in-flight settings, and structured errors. Live IDs remain inside the Max/Node boundary and are never persisted or sent to Python.
+- Isolated ADTOF behind a separately installed adapter. The release builder excludes external source, weights, virtual environments, caches, logs, and sample audio. Backend setup requires explicit acknowledgement in both platform installers and direct setup scripts.
+- Replaced copied peak-picker behavior with the project-owned local-median prominence detector documented in `docs/TECHNICAL_REFERENCE.md`. ADTOF supplies preprocessing, model/weights loading, and frame activations only.
+- Added clone-and-run macOS and Windows installers with copied runtimes, path overrides, prerequisite checks, verification-only mode, repair behavior, recognized-legacy migration, clear summaries, and matching self-locating uninstallers. `scripts/install_local.sh` remains the development symlink workflow.
+- Added deterministic version checks, Max bundle/device builds, a backend-free release ZIP, a complete file manifest, SHA-256 checksums, GitHub Actions CI/release workflows, Dependabot, issue forms, a pull-request template, security/support/contribution policies, changelog, migration guide, and alpha release notes.
+- Automated verification passes: 85 Node tests and 49 Python tests. Coverage includes installers, AMPF structure, Max controller/runtime behavior, scan/plan/apply/revert invariants, worker lifecycle and races, result validation, settings, cache safety, REX companion identity/scaling, source failures, event extraction, and classification mapping.
+- Completed a clean isolated macOS ZIP install/verify/uninstall pass and a clean full backend install using Python 3.10.19. Strict health loaded the expected five-class model and pinned weights with SHA-256 `1bc986e596ec47ba0b44916f87cd4a39f0b2bec23596df3fb5d0e87749217320`.
+- Installed the canonical candidate on the target machine. The package and device are copied rather than symlinked, the new backend/config live under `~/.drumslice-id`, and the recognized old Max package was removed while the old backend was preserved.
+- Host-tested the prepared 15-slice REX2 break with its same-stem companion: 15 predictions, zero per-source errors, and slice 6 resolves to snare rather than kick. The Results window rendered all 15 rows, five score columns, zero skipped, and zero unknown rows in the recorded acceptance run.
+- Verified cancellation during production preflight returns `ANALYSIS_CANCELLED`, the dedicated child exits before cache maintenance, and a subsequent analysis starts a fresh worker without accepting stale output.
 
-## Remaining verification
+## Open acceptance work
 
-- Complete and record the full Live Apply/Revert/staleness/conflict checklist with the production result plan.
-- Re-open the final 30,435-byte audited device in Live and confirm the independently gated Revert button remains available after a rescan and disabled during busy states.
-- Measure cold inference and cache-hit timing on the target machine; no performance claim has been recorded yet.
-- Produce a clean release-distribution freeze separately, validate it on clean macOS and Windows accounts, and resolve classifier/weights redistribution rights before public or commercial distribution.
+- The current candidate opens in Ableton Live 12.4.2, discovers the prepared downstream rack, and displays `Ready`. The desktop automation layer can select the device but cannot activate the embedded Max presentation controls, so the final candidate's Apply/Revert/conflict/staleness click-through is recorded as Not Run rather than inferred from controller tests or an earlier host pass.
+- A native Windows Max/Live acceptance pass remains open. CI covers the Windows PowerShell file-install/verify/uninstall workflow after publication; it is not a substitute for a Windows DAW host pass.
+- A clean 128-region host run, non-ASCII/path-with-spaces host run, transport stress pass, and multi-rack host pass remain open.
+- Cold model load, cold inference, and cache-hit timing have not been recorded, so no performance claim is made.
+- Signing/notarization and a classifier with clearly redistributable commercial rights are required before any paid release.
 
-## Commands run
+## Verification commands
 
-- `node --version`; `npm --version`; `python3 --version`
-- `git ls-remote` and isolated `/tmp` checkouts for MZehren/ADTOF and xavriley/ADTOF-pytorch
-- `npm test --prefix max/node`
-- `PYTHONPATH=python pytest -q tests/python`
-- Isolated `install.sh --skip-backend` install, repair, `--verify-only`, default uninstall, full backend removal, and unknown-package refusal tests
+- `node scripts/check_versions.js`
 - `node scripts/build_max_js_bundle.js --check`
 - `node scripts/build_max_device.js --check`
 - `node scripts/verify_max_device.js`
-- `~/.slice-labeler/venv/bin/python scripts/check_backend.py --python ~/.slice-labeler/venv/bin/python`
-- `pip wheel --no-build-isolation --no-deps` plus `unzip -l`/`unzip -Z1` manifest verification
-- Production RX2/companion analysis through the Python service and Node/Python protocol
-- Official documentation searches/reads for Live API, Device, RackDevice, DrumPad, Chain, SimplerDevice, Sample, `this_device`, `node.script`, and Ableton Live 12 racks/slicing
+- `node --test tests/node/*.test.js`
+- `PYTHONPATH=python python -m pytest -q tests/python`
+- `python scripts/build_release.py --check`
+- JSON parsing for every `.json`, `.maxpat`, and `.maxproj`
+- `shellcheck` for every committed shell script
+- Isolated macOS ZIP install, verify-only, repair/uninstall safety, and full backend health checks
+- Installed-host scan/analyze/results and cancellation/restart acceptance against the supplied break
 
-No performance claim has been recorded because production inference has not been benchmarked on the target machine.
+Detailed item-by-item host evidence and Not Run entries are in `tests/manual/LIVE_12_TEST_CHECKLIST.md`.

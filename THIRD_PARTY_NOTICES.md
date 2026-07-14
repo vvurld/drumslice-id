@@ -1,20 +1,25 @@
 # Third-party notices
 
-## ADTOF PyTorch
+DrumSLICE ID's repository and release bundle contain project-owned code under the MIT License. They do **not** contain ADTOF source code, converted model weights, a Python virtual environment, or user audio.
 
-- Source: `https://github.com/xavriley/ADTOF-pytorch`
-- Reviewed/pinned revision: `85c192e78f716ea0b111cc8a5ee4a8f6a3a4f8a9` (2025-11-11)
+## Optional ADTOF PyTorch backend
+
+- Source: [xavriley/ADTOF-pytorch](https://github.com/xavriley/ADTOF-pytorch)
+- Pinned revision: `85c192e78f716ea0b111cc8a5ee4a8f6a3a4f8a9`
 - Package version at that revision: `0.1.0`
-- Direct API used: model construction, packaged weights lookup, audio preprocessing, weight loading, and frame activations. MIDI export is not used.
+- Used API: audio preprocessing, model construction, packaged-weights lookup, strict weight loading, and five frame-activation streams
 - Expected label order: `[35, 38, 47, 42, 49]`
-- Default thresholds: `[0.22, 0.24, 0.32, 0.22, 0.30]`
-- License status: the reviewed repository revision has no license file or license declaration in `pyproject.toml`. Rights for redistribution are therefore not established. The dependency and bundled weights are not vendored or redistributed by this repository; setup is explicit and user-run. Obtain legal/license confirmation before distribution.
+- License status at review: the pinned repository has no license file and its `pyproject.toml` declares no license. The converted weights have no separate license notice visible in that repository. Public availability is not permission to redistribute or use copyrighted material.
 
-The port derives from MZehren/ADTOF. The upstream ADTOF repository at reviewed revision `b3968fb332f69b65ee07c089fc62f436503755db` declares CC BY-NC-SA 4.0. That declaration does not resolve the separate PyTorch port’s missing license.
+The port describes itself as derived from [MZehren/ADTOF](https://github.com/MZehren/ADTOF). Upstream ADTOF is licensed [Creative Commons Attribution-NonCommercial-ShareAlike 4.0](https://github.com/MZehren/ADTOF/blob/master/LICENSE). That NonCommercial license is not compatible with a future paid DrumSLICE ID backend, and it does not resolve the separate port/converted-weight uncertainty.
 
-## Pinned production dependency set
+The platform installers download the pinned port only after the user supplies `--accept-adtof-license`, `-AcceptAdtofLicense`, or the matching explicit environment flag. This acknowledgement is a disclosure, not a warranty or legal determination. The external backend path is intended only for free, noncommercial, experimental alpha testing. Users—including musicians releasing commercial work—must assess whether their intended use is permitted.
 
-`python/requirements.lock` is the authoritative install manifest. The production environment verified on macOS arm64 with Python 3.10.19 contains these exact packages:
+DrumSLICE ID does not call or copy the port's MIDI/peak-post-processing implementation. Project-owned `events.py` independently converts the returned activation matrix to local-prominence events before slice mapping.
+
+## Pinned backend dependency set
+
+`python/requirements.lock` is the exact external-backend install manifest verified on macOS arm64 with Python 3.10.19:
 
 ```text
 adtof-pytorch 0.1.0 (Git revision above)
@@ -30,4 +35,6 @@ six 1.17.0; soundfile 0.14.0; soxr 1.1.0; sympy 1.14.0
 threadpoolctl 3.6.0; torch 2.13.0; typing-extensions 4.16.0; urllib3 2.7.0
 ```
 
-The setup scripts additionally pin build tooling to `pip 26.1.2` and `setuptools 80.9.0`. Exact version pinning improves reproducibility; it does not grant redistribution rights. Before shipping an installer or bundled backend, collect and reproduce every applicable dependency notice/license, confirm obligations for binary wheels and their bundled native libraries, and obtain explicit permission for `adtof-pytorch` and its converted weights. This file is a technical inventory, not legal advice.
+Setup also pins `pip 26.1.2` and `setuptools 80.9.0`. Exact pins improve reproducibility; they do not grant redistribution rights. Binary wheels may contain additional native-library notices. A commercial or backend-bundled release requires a complete dependency-license audit and explicit permission or a replacement model with commercially redistributable code and weights.
+
+This inventory is not legal advice.

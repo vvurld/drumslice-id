@@ -31,9 +31,9 @@ function isolatedArguments(directory) {
 }
 
 test("macOS installer copies, verifies, and removes a repository-independent runtime", {skip: process.platform !== "darwin"}, () => {
-  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "slice-labeler-installer-test-"));
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "drumslice-id-installer-test-"));
   const args = isolatedArguments(directory);
-  const packageDirectory = path.join(directory, "Max Packages", "SliceLabeler");
+  const packageDirectory = path.join(directory, "Max Packages", "DrumSliceID");
   const device = path.join(directory, "User Library", "Presets", "MIDI Effects", "Max MIDI Effect", "DrumSLICE ID.amxd");
   const installedUninstaller = path.join(directory, "state", "uninstall.sh");
   try {
@@ -74,15 +74,51 @@ test("macOS installer copies, verifies, and removes a repository-independent run
 });
 
 test("macOS installer refuses to replace an unrecognized package", {skip: process.platform !== "darwin"}, () => {
-  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "slice-labeler-installer-safety-"));
-  const unrelated = path.join(directory, "Max Packages", "SliceLabeler", "unrelated.txt");
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "drumslice-id-installer-safety-"));
+  const unrelated = path.join(directory, "Max Packages", "DrumSliceID", "unrelated.txt");
   try {
     fs.mkdirSync(path.dirname(unrelated), {recursive: true});
     fs.writeFileSync(unrelated, "keep me\n");
     const result = run("/bin/bash", [installScript, ...isolatedArguments(directory)]);
     assert.notEqual(result.status, 0);
-    assert.match(result.stderr, /not a recognized SliceLabeler package/);
+    assert.match(result.stderr, /not a recognized DrumSliceID package/);
     assert.equal(fs.readFileSync(unrelated, "utf8"), "keep me\n");
+  } finally {
+    fs.rmSync(directory, {recursive: true, force: true});
+  }
+});
+
+test("macOS installer removes only recognized pre-rename runtime files", {skip: process.platform !== "darwin"}, () => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "drumslice-id-installer-migration-"));
+  const legacyPackage = path.join(directory, "Max Packages", "SliceLabeler");
+  const legacyDevice = path.join(directory, "User Library", "Presets", "MIDI Effects", "Max MIDI Effect", "Slice Labeler.amxd");
+  try {
+    fs.mkdirSync(legacyPackage, {recursive: true});
+    fs.writeFileSync(path.join(legacyPackage, "package-info.json"), JSON.stringify({name: "SliceLabeler"}));
+    fs.mkdirSync(path.dirname(legacyDevice), {recursive: true});
+    fs.writeFileSync(legacyDevice, "legacy");
+    const result = run("/bin/bash", [installScript, ...isolatedArguments(directory)]);
+    assert.equal(result.status, 0, result.stderr || result.stdout);
+    assert.equal(fs.existsSync(legacyPackage), false);
+    assert.equal(fs.existsSync(legacyDevice), false);
+    assert.equal(fs.existsSync(path.join(directory, "Max Packages", "DrumSliceID")), true);
+  } finally {
+    fs.rmSync(directory, {recursive: true, force: true});
+  }
+});
+
+test("macOS backend download requires an explicit ADTOF acknowledgement", {skip: process.platform !== "darwin"}, () => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "drumslice-id-license-gate-"));
+  try {
+    const result = run("/bin/bash", [installScript,
+      "--max-packages-dir", path.join(directory, "Max Packages"),
+      "--user-library", path.join(directory, "User Library"),
+      "--install-root", path.join(directory, "state"),
+      "--config", path.join(directory, "config", "backend.json"),
+    ], {env: {DRUMSLICE_ID_ACCEPT_ADTOF_LICENSE: "0"}});
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, /requires --accept-adtof-license/);
+    assert.equal(fs.existsSync(path.join(directory, "state")), false);
   } finally {
     fs.rmSync(directory, {recursive: true, force: true});
   }
@@ -99,10 +135,10 @@ test("installer entry points expose concise usage without mutating the machine",
 test("Windows entry points retain backend, copy, verification, manifest, and safety contracts", () => {
   const install = fs.readFileSync(path.join(ROOT, "install.ps1"), "utf8");
   const uninstall = fs.readFileSync(path.join(ROOT, "uninstall.ps1"), "utf8");
-  for (const token of ["setup_backend.ps1", "Copying the Max package", "Assert-TreesEqual", "install-manifest.json", "SkipBackend", "VerifyOnly", "Test-SliceLabelerPackage"]) {
+  for (const token of ["setup_backend.ps1", "Copying the Max package", "Assert-TreesEqual", "install-manifest.json", "SkipBackend", "VerifyOnly", "AcceptAdtofLicense", "Test-DrumSliceIDPackage", "Test-LegacyPackage"]) {
     assert.equal(install.includes(token), true, `Windows installer is missing ${token}`);
   }
-  for (const token of ["install-manifest.json", "RemoveBackend", "RemoveCache", "Test-SliceLabelerPackage", "PSScriptRoot"]) {
+  for (const token of ["install-manifest.json", "RemoveBackend", "RemoveCache", "RemoveLegacy", "Test-DrumSliceIDPackage", "PSScriptRoot"]) {
     assert.equal(uninstall.includes(token), true, `Windows uninstaller is missing ${token}`);
   }
   assert.equal(install.includes("??"), false, "Windows PowerShell 5.1 does not support null-coalescing syntax");

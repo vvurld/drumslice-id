@@ -9,23 +9,23 @@ from types import SimpleNamespace
 
 import pytest
 
-import slice_labeler_worker.backends.adtof as adtof_module
-from slice_labeler_worker.backends.adtof import AdtofBackend, _configure_numba_cache, _escape_spotlight_literal, _resolve_audio_source
-from slice_labeler_worker.backends.base import CLASS_NAMES, ModelOutput, validate_model_output
-from slice_labeler_worker.backends.mock import MockBackend
-from slice_labeler_worker.errors import WorkerError
-from slice_labeler_worker.protocol import WorkerProtocol
+import drumslice_id_worker.backends.adtof as adtof_module
+from drumslice_id_worker.backends.adtof import AdtofBackend, _configure_numba_cache, _escape_spotlight_literal, _resolve_audio_source
+from drumslice_id_worker.backends.base import CLASS_NAMES, ModelOutput, validate_model_output
+from drumslice_id_worker.backends.mock import MockBackend
+from drumslice_id_worker.errors import WorkerError
+from drumslice_id_worker.protocol import WorkerProtocol
 
 
 def test_mock_backend_is_impossible_without_explicit_debug_flag(monkeypatch):
-    monkeypatch.delenv("SLICE_LABELER_DEBUG", raising=False)
+    monkeypatch.delenv("DRUMSLICE_ID_DEBUG", raising=False)
     with pytest.raises(WorkerError, match="disabled") as caught:
         MockBackend({}).health()
     assert caught.value.code == "MOCK_BACKEND_DISABLED"
 
 
 def test_mock_backend_requires_explicit_activations(monkeypatch, tmp_path):
-    monkeypatch.setenv("SLICE_LABELER_DEBUG", "1")
+    monkeypatch.setenv("DRUMSLICE_ID_DEBUG", "1")
     with pytest.raises(WorkerError) as caught:
         MockBackend({}).analyze_file(tmp_path / "x.wav")
     assert caught.value.code == "MOCK_DATA_REQUIRED"
@@ -55,7 +55,7 @@ def test_model_output_rejects_invalid_rate_duration_and_class_order(output):
 
 
 def test_mock_backend_rejects_nonfinite_output(monkeypatch, tmp_path):
-    monkeypatch.setenv("SLICE_LABELER_DEBUG", "1")
+    monkeypatch.setenv("DRUMSLICE_ID_DEBUG", "1")
     with pytest.raises(WorkerError) as caught:
         MockBackend({"mockActivations": [[math.nan, 0, 0, 0, 0]]}).analyze_file(tmp_path / "x.wav")
     assert caught.value.code == "MALFORMED_MODEL_OUTPUT"
@@ -209,7 +209,7 @@ def test_spotlight_companion_query_escapes_quotes_and_backslashes():
 
 
 def test_numba_cache_is_redirected_outside_the_installed_package(tmp_path, monkeypatch):
-    monkeypatch.setenv("SLICE_LABELER_CACHE_DIR", str(tmp_path / "worker-cache"))
+    monkeypatch.setenv("DRUMSLICE_ID_CACHE_DIR", str(tmp_path / "worker-cache"))
     monkeypatch.delenv("NUMBA_CACHE_DIR", raising=False)
     _configure_numba_cache()
     assert os.environ["NUMBA_CACHE_DIR"] == str(tmp_path / "worker-cache" / "numba")
@@ -219,7 +219,7 @@ def test_numba_cache_is_redirected_outside_the_installed_package(tmp_path, monke
 def test_numba_cache_falls_back_when_the_primary_directory_is_not_writable(tmp_path, monkeypatch):
     primary = tmp_path / "worker-cache" / "numba"
     fallback_root = tmp_path / "system-temp"
-    monkeypatch.setenv("SLICE_LABELER_CACHE_DIR", str(tmp_path / "worker-cache"))
+    monkeypatch.setenv("DRUMSLICE_ID_CACHE_DIR", str(tmp_path / "worker-cache"))
     monkeypatch.delenv("NUMBA_CACHE_DIR", raising=False)
     monkeypatch.setattr(adtof_module.tempfile, "gettempdir", lambda: str(fallback_root))
     real_named_temporary_file = adtof_module.tempfile.NamedTemporaryFile
@@ -233,6 +233,6 @@ def test_numba_cache_falls_back_when_the_primary_directory_is_not_writable(tmp_p
     _configure_numba_cache()
 
     user_token = str(os.getuid()) if hasattr(os, "getuid") else "user"
-    expected = fallback_root / f"slice-labeler-numba-{user_token}"
+    expected = fallback_root / f"drumslice-id-numba-{user_token}"
     assert os.environ["NUMBA_CACHE_DIR"] == str(expected)
     assert expected.is_dir()

@@ -256,7 +256,7 @@ def _configure_numba_cache() -> None:
     user_token = str(os.getuid()) if hasattr(os, "getuid") else "user"
     candidates = [
         default_cache_dir() / "numba",
-        Path(tempfile.gettempdir()) / f"slice-labeler-numba-{user_token}",
+        Path(tempfile.gettempdir()) / f"drumslice-id-numba-{user_token}",
     ]
     last_error: OSError | None = None
     for directory in candidates:
@@ -265,7 +265,7 @@ def _configure_numba_cache() -> None:
             # mkdir(exist_ok=True) succeeds for an existing read-only
             # directory.  Probe an actual file creation so Numba does not fail
             # later while importing librosa from a read-only installation.
-            with tempfile.NamedTemporaryFile(prefix=".slice-labeler-write-", dir=directory) as probe:
+            with tempfile.NamedTemporaryFile(prefix=".drumslice-id-write-", dir=directory) as probe:
                 probe.write(b"ok")
                 probe.flush()
             os.environ["NUMBA_CACHE_DIR"] = str(directory)

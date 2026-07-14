@@ -11,14 +11,14 @@ from typing import Any
 
 
 def default_cache_dir() -> Path:
-    override = os.environ.get("SLICE_LABELER_CACHE_DIR")
+    override = os.environ.get("DRUMSLICE_ID_CACHE_DIR") or os.environ.get("SLICE_LABELER_CACHE_DIR")
     if override:
         return Path(override)
     if os.name == "nt":
-        return Path(os.environ.get("LOCALAPPDATA", Path.home())) / "Slice Labeler" / "Cache" / "worker"
+        return Path(os.environ.get("LOCALAPPDATA", Path.home())) / "DrumSLICE ID" / "Cache" / "worker"
     if os.uname().sysname == "Darwin":
-        return Path.home() / "Library" / "Caches" / "Slice Labeler" / "worker"
-    return Path(os.environ.get("XDG_CACHE_HOME", Path.home() / ".cache")) / "slice-labeler" / "worker"
+        return Path.home() / "Library" / "Caches" / "DrumSLICE ID" / "worker"
+    return Path(os.environ.get("XDG_CACHE_HOME", Path.home() / ".cache")) / "drumslice-id" / "worker"
 
 
 DEFAULT_MAX_BYTES = 512 * 1024 * 1024
@@ -27,7 +27,7 @@ DEFAULT_MAX_BYTES = 512 * 1024 * 1024
 def default_cache_max_bytes() -> int:
     """Return the optional user-configured cache ceiling in whole MiB."""
 
-    raw = os.environ.get("SLICE_LABELER_CACHE_MAX_MIB")
+    raw = os.environ.get("DRUMSLICE_ID_CACHE_MAX_MIB") or os.environ.get("SLICE_LABELER_CACHE_MAX_MIB")
     if raw is None:
         return DEFAULT_MAX_BYTES
     try:

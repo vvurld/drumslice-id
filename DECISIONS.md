@@ -6,12 +6,12 @@
 - Kept ADTOF entirely external and user-installed. The reviewed PyTorch revision has no explicit license; redistribution is not safe to assume.
 - Implemented activation caching in the Python worker and source fingerprinting/grouping in Node. This keeps large activation arrays off the Max message bus while preserving the specified cache identity and one-inference-per-source behavior.
 - Enabled only CPU in the production adapter. Hardware acceleration remains disabled until capability and Live-load testing can establish reliability.
-- Committed editable `.maxpat` sources plus a generated development `.amxd`. The development artifact deliberately resolves the separately installed `SliceLabeler` Max package; a clean freeze of project-owned dependencies is a distinct release task.
+- Committed editable `.maxpat` sources plus a generated development `.amxd`. The development artifact deliberately resolves the separately installed `DrumSliceID` Max package; a clean freeze of project-owned dependencies is a distinct release task.
 - Used hand-written boundary validation in Node plus checked Python decoding; the versioned JSON Schemas remain the normative data contracts.
 
 ## 2026-07-12
 
-- Replaced the prototype raw-local-maximum event detector with the pinned backend's standard `PeakPicker` behavior: edge-padded moving-average subtraction, asymmetric local-maximum filtering, per-class thresholds, and 20 ms event combination. DrumSLICE ID retains the raw activation at the selected frame as the diagnostic score.
+- At that stage, replaced the prototype raw-local-maximum event detector with the pinned backend's standard `PeakPicker` behavior. This historical choice was superseded on 2026-07-14 by the project-owned detector below.
 - Kept threshold-normalized dominant-class filtering for both matched clusters and activation fallback. In multi-label mode only near-tied secondary evidence (within 0.15 normalized score) is retained. This is an intentional product decision for layered breaks, where copying every weak simultaneous class produced misleading compound names.
 - Ended fallback analysis 20 ms before the next slice boundary. This deliberate anti-bleed guard prevents a following slice's pre-onset smear from labeling a short or quiet current slice.
 - Made Live's full sample length authoritative for REX/RX2 time scaling. A discovered companion is now included in the activation-cache identity by resolved path, size, and nanosecond mtime, so companion-backed analysis can be cached without reusing activations after the companion changes.
@@ -27,5 +27,13 @@
 
 - Made the root platform installers the ordinary clone-to-use workflow. They copy the Max runtime rather than symlinking it, so moving or deleting the clone cannot break an installed device. The existing `scripts/install_local.sh` remains explicitly development-only because live source edits benefit from its symlink.
 - Kept backend installation explicit at installer execution time and never at device load. The unified installer may download the pinned backend only because the user deliberately ran it; the AMXD itself remains network-inert.
-- Refuse to replace an existing unrecognized `SliceLabeler` package without a force flag. Installation uses a staging directory and backup/restore path, then verifies the complete runtime tree and AMXD against the checkout.
+- Refuse to replace an existing unrecognized `DrumSliceID` package without a force flag. Installation uses a staging directory and backup/restore path, then verifies the complete runtime tree and AMXD against the checkout.
 - Install a self-locating uninstaller beside the backend manifest. Default removal preserves the costly backend and cache; destructive backend/cache cleanup requires an explicit option.
+
+## 2026-07-14
+
+- Completed the runtime rename to DrumSLICE ID: `DrumSliceID` for the Max package/abstractions, `drumslice_id_worker` for Python, `drumslice-id` for slugs/state, and `DRUMSLICE_ID_` for environment variables. Legacy identifiers now appear only in documented migration aliases and safe old-install detection.
+- Rebuild virtual environments at the canonical path instead of moving them because their launchers and package metadata contain absolute paths. Preserve the old backend until users explicitly remove it.
+- Replaced the external port's peak-picker behavior with a project-owned local-median prominence detector and nearby-candidate suppression. ADTOF is now used only for preprocessing, weights/model loading, and frame activations.
+- Publish the first release as `0.1.0-alpha.1`. Keep project-owned code MIT, keep ADTOF code/weights out of the repository and ZIP, require an explicit backend-status acknowledgement, and label the functional backend path free/noncommercial/experimental.
+- Treat the release ZIP—not the small AMXD—as the installable unit. Build it deterministically with a complete file manifest and SHA-256 checksums, and verify it in CI.

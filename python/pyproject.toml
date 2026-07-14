@@ -3,8 +3,8 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "slice-labeler-worker"
-version = "0.1.0"
+name = "drumslice-id-worker"
+version = "0.1.0a1"
 description = "Local analysis worker for the DrumSLICE ID Max for Live device"
 requires-python = ">=3.10,<3.13"
 dependencies = []
@@ -21,8 +21,8 @@ include-package-data = false
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["slice_labeler_worker*"]
-exclude = ["slice_labeler_worker.__pycache__", "slice_labeler_worker.*.__pycache__"]
+include = ["drumslice_id_worker*"]
+exclude = ["drumslice_id_worker.__pycache__", "drumslice_id_worker.*.__pycache__"]
 namespaces = false
 
 [tool.pytest.ini_options]

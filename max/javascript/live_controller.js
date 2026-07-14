@@ -4,8 +4,8 @@
 autowatch = 1;
 inlets = 2;
 outlets = 3;
-var V = SliceLabelerValues;
-var Naming = SliceLabelerNaming;
+var V = DrumSliceIDValues;
+var Naming = DrumSliceIDNaming;
 var STATES = {INITIALIZING: 1, NO_RACK: 1, READY_TO_SCAN: 1, SCANNING: 1, SCAN_READY: 1, ANALYZING: 1, REVIEW_READY: 1, APPLYING: 1, APPLIED: 1, CANCELLING: 1, ERROR: 1};
 var state = "INITIALIZING";
 var trackPath = "";

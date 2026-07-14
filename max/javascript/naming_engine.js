@@ -96,6 +96,6 @@
         return {ok: true, value: name};
     }
     var api = {generate: generate, validateUserName: validateUserName, orderedClasses: ordered, codePointLength: codePointLength};
-    root.SliceLabelerNaming = api;
+    root.DrumSliceIDNaming = api;
     if (typeof module !== "undefined" && module.exports) { module.exports = api; }
 }(this));

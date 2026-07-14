@@ -2,9 +2,15 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-INSTALL_ROOT="${SLICE_LABELER_HOME:-$HOME/.slice-labeler}"
-VENV="${SLICE_LABELER_VENV:-$INSTALL_ROOT/venv}"
+INSTALL_ROOT="${DRUMSLICE_ID_HOME:-${SLICE_LABELER_HOME:-$HOME/.drumslice-id}}"
+VENV="${DRUMSLICE_ID_VENV:-${SLICE_LABELER_VENV:-$INSTALL_ROOT/venv}}"
 PYTHON="${PYTHON:-}"
+
+if [[ "${DRUMSLICE_ID_ACCEPT_ADTOF_LICENSE:-0}" != "1" ]]; then
+  echo "Refusing to download the external ADTOF backend without explicit acknowledgement." >&2
+  echo "Run the top-level installer with --accept-adtof-license; see THIRD_PARTY_NOTICES.md." >&2
+  exit 1
+fi
 
 # ADTOF/Torch support trails the newest CPython release. Prefer an installed
 # production-compatible interpreter instead of silently falling through to a
@@ -32,7 +38,7 @@ mkdir -p "$INSTALL_ROOT"
 "$VENV/bin/python" -m pip install --no-build-isolation -r "$ROOT/python/requirements.lock"
 "$VENV/bin/python" -m pip install --no-build-isolation --no-deps "$ROOT/python"
 "$VENV/bin/python" "$ROOT/scripts/check_backend.py" --python "$VENV/bin/python"
-CONFIG_PATH="${SLICE_LABELER_BACKEND_CONFIG:-$HOME/.slice-labeler/backend-config.json}"
+CONFIG_PATH="${DRUMSLICE_ID_BACKEND_CONFIG:-${SLICE_LABELER_BACKEND_CONFIG:-$HOME/.drumslice-id/backend-config.json}}"
 "$VENV/bin/python" -c 'import json,os,pathlib,sys; p=pathlib.Path(sys.argv[1]).expanduser(); p.parent.mkdir(parents=True,exist_ok=True); t=p.with_name(p.name+f".tmp-{os.getpid()}"); t.write_text(json.dumps({"schemaVersion":1,"python":sys.executable,"backend":"adtof","revision":"85c192e78f716ea0b111cc8a5ee4a8f6a3a4f8a9"},indent=2)+"\n",encoding="utf-8"); os.replace(t,p)' "$CONFIG_PATH"
 
 echo "DrumSLICE ID backend configured at $VENV"

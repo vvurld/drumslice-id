@@ -48,7 +48,7 @@
         return h.map(hex).join("");
     }
     var api = {scalar: scalar, number: number, string: string, idList: idList, sha256: sha256};
-    root.SliceLabelerValues = api;
+    root.DrumSliceIDValues = api;
     if (typeof module !== "undefined" && module.exports) { module.exports = api; }
 }(this));
 
@@ -153,7 +153,7 @@
         return {ok: true, value: name};
     }
     var api = {generate: generate, validateUserName: validateUserName, orderedClasses: ordered, codePointLength: codePointLength};
-    root.SliceLabelerNaming = api;
+    root.DrumSliceIDNaming = api;
     if (typeof module !== "undefined" && module.exports) { module.exports = api; }
 }(this));
 
@@ -166,8 +166,8 @@
 autowatch = 1;
 inlets = 2;
 outlets = 3;
-var V = SliceLabelerValues;
-var Naming = SliceLabelerNaming;
+var V = DrumSliceIDValues;
+var Naming = DrumSliceIDNaming;
 var STATES = {INITIALIZING: 1, NO_RACK: 1, READY_TO_SCAN: 1, SCANNING: 1, SCAN_READY: 1, ANALYZING: 1, REVIEW_READY: 1, APPLYING: 1, APPLIED: 1, CANCELLING: 1, ERROR: 1};
 var state = "INITIALIZING";
 var trackPath = "";

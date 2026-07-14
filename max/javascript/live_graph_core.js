@@ -30,5 +30,5 @@
         return result;
     }
     var api = {downstreamRacks: downstreamRacks, reachableSimplers: reachableSimplers, validateIdentity: validateIdentity, applyRows: applyRows, revertWrites: revertWrites};
-    root.SliceLabelerLiveGraph = api; if (typeof module !== "undefined" && module.exports) { module.exports = api; }
+    root.DrumSliceIDLiveGraph = api; if (typeof module !== "undefined" && module.exports) { module.exports = api; }
 }(this));

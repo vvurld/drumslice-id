@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import statistics
 from dataclasses import dataclass
 
 
@@ -26,56 +27,55 @@ def extract_events(
     class_names: tuple[str, ...],
     thresholds: dict[str, float],
 ) -> list[Event]:
+    """Convert frame activations into class-labelled onset candidates.
+
+    This project-owned picker is intentionally independent of the optional
+    ADTOF package.  It treats a peak as a local activation whose prominence
+    above the surrounding median reaches the user threshold, then applies a
+    short refractory interval.  Keeping post-processing here makes the
+    backend replaceable and avoids importing or redistributing third-party
+    peak-picker code.
+    """
+
     if fps <= 0 or not activations:
         return []
     events: list[Event] = []
-    pre_average_frames = max(0, int(round(0.100 * fps)))
-    post_average_frames = max(0, int(round(0.010 * fps)))
-    pre_maximum_frames = max(0, int(round(0.020 * fps)))
-    post_maximum_frames = max(0, int(round(0.010 * fps)))
-    combine_frames = max(1, int(round(0.020 * fps)))
+    context_before = max(1, int(round(0.100 * fps)))
+    context_after = max(1, int(round(0.030 * fps)))
+    peak_radius = max(1, int(round(0.020 * fps)))
+    refractory_frames = max(1, int(round(0.020 * fps)))
     for class_index, class_name in enumerate(class_names):
         threshold = float(thresholds[class_name])
         raw = [float(frame[class_index]) for frame in activations]
-        processed = _subtract_moving_average(raw, pre_average_frames, post_average_frames)
+        prominence = _local_prominence(raw, context_before, context_after)
         candidates: list[int] = []
-        for index, score in enumerate(processed):
-            left = max(0, index - pre_maximum_frames)
-            right = min(len(processed), index + post_maximum_frames + 1)
-            if score >= threshold and score >= max(processed[left:right]):
+        for index, score in enumerate(prominence):
+            left = max(0, index - peak_radius)
+            right = min(len(prominence), index + peak_radius + 1)
+            neighborhood = prominence[left:right]
+            if score >= threshold and score == max(neighborhood):
                 candidates.append(index)
-        for group in _combine_candidates(candidates, combine_frames):
-            chosen = max(group, key=lambda index: processed[index])
+        for chosen in _suppress_nearby(candidates, prominence, refractory_frames):
             events.append(Event(chosen / fps, class_name, raw[chosen]))
     return sorted(events, key=lambda event: (event.time_seconds, event.class_name))
 
 
-def _subtract_moving_average(values: list[float], left: int, right: int) -> list[float]:
-    """Match the pinned ADTOF PeakPicker's edge-padded moving average."""
-
-    if left <= 0 and right <= 0:
-        return list(values)
-    width = left + 1 + right
+def _local_prominence(values: list[float], before: int, after: int) -> list[float]:
     result: list[float] = []
     for index, value in enumerate(values):
-        total = 0.0
-        for offset in range(-left, right + 1):
-            source_index = min(len(values) - 1, max(0, index + offset))
-            total += values[source_index]
-        result.append(max(0.0, value - total / width))
+        start = max(0, index - before)
+        stop = min(len(values), index + after + 1)
+        baseline = statistics.median(values[start:stop])
+        result.append(max(0.0, value - baseline))
     return result
 
 
-def _combine_candidates(candidates: list[int], maximum_gap: int) -> list[list[int]]:
-    if not candidates:
-        return []
-    groups: list[list[int]] = [[candidates[0]]]
-    for candidate in candidates[1:]:
-        if candidate - groups[-1][-1] <= maximum_gap:
-            groups[-1].append(candidate)
-        else:
-            groups.append([candidate])
-    return groups
+def _suppress_nearby(candidates: list[int], scores: list[float], radius: int) -> list[int]:
+    selected: list[int] = []
+    for candidate in sorted(candidates, key=lambda index: (-scores[index], index)):
+        if all(abs(candidate - accepted) > radius for accepted in selected):
+            selected.append(candidate)
+    return sorted(selected)
 
 
 def cluster_events(events: list[Event], cluster_ms: float = 18.0) -> list[EventCluster]:

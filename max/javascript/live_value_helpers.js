@@ -45,6 +45,6 @@
         return h.map(hex).join("");
     }
     var api = {scalar: scalar, number: number, string: string, idList: idList, sha256: sha256};
-    root.SliceLabelerValues = api;
+    root.DrumSliceIDValues = api;
     if (typeof module !== "undefined" && module.exports) { module.exports = api; }
 }(this));

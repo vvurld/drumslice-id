@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://slice-labeler.local/schemas/analysis_result.schema.json",
+  "$id": "https://drumslice-id.local/schemas/analysis_result.schema.json",
   "type": "object",
   "additionalProperties": false,
   "required": ["schemaVersion", "type", "requestId", "backend", "predictions", "sourceErrors"],

@@ -6,11 +6,16 @@ const path = require("path");
 const os = require("os");
 const crypto = require("crypto");
 
+function configuredCacheRoot() {
+  return process.env.DRUMSLICE_ID_CACHE_DIR || process.env.SLICE_LABELER_CACHE_DIR || null;
+}
+
 function cacheRoot() {
-  if (process.env.SLICE_LABELER_CACHE_DIR) return path.resolve(process.env.SLICE_LABELER_CACHE_DIR);
-  if (process.platform === "darwin") return path.join(os.homedir(), "Library", "Caches", "Slice Labeler");
-  if (process.platform === "win32") return path.join(process.env.LOCALAPPDATA || os.homedir(), "Slice Labeler", "Cache");
-  return path.join(process.env.XDG_CACHE_HOME || path.join(os.homedir(), ".cache"), "slice-labeler");
+  const override = configuredCacheRoot();
+  if (override) return path.resolve(override);
+  if (process.platform === "darwin") return path.join(os.homedir(), "Library", "Caches", "DrumSLICE ID");
+  if (process.platform === "win32") return path.join(process.env.LOCALAPPDATA || os.homedir(), "DrumSLICE ID", "Cache");
+  return path.join(process.env.XDG_CACHE_HOME || path.join(os.homedir(), ".cache"), "drumslice-id");
 }
 
 function workerCacheRoot() {
@@ -18,7 +23,7 @@ function workerCacheRoot() {
   /* The Python worker uses a child directory by default, but treats an
      explicit override as the exact cache directory. Mirror that convention
      so Clear Cache removes activations without deleting the sibling log. */
-  return process.env.SLICE_LABELER_CACHE_DIR ? root : path.join(root, "worker");
+  return configuredCacheRoot() ? root : path.join(root, "worker");
 }
 
 class DiskCache {
@@ -35,7 +40,7 @@ class DiskCache {
     await fsp.writeFile(temp, JSON.stringify(data), {encoding: "utf8", mode: 0o600}); await fsp.rename(temp, target); await this.cleanup();
   }
   async clear() {
-    /* An explicit SLICE_LABELER_CACHE_DIR can be a shared directory that also
+    /* An explicit DRUMSLICE_ID_CACHE_DIR can be a shared directory that also
        contains the diagnostic log (or files owned by the user).  Remove only
        cache entries whose names we create, plus Numba's dedicated subtree;
        never recursively delete the configured root itself. */
@@ -66,4 +71,4 @@ function safeKey(key) {
   return /^[0-9a-f]{64}$/.test(key) ? key : crypto.createHash("sha256").update(key).digest("hex");
 }
 
-module.exports = {DiskCache, cacheRoot, workerCacheRoot, safeKey};
+module.exports = {DiskCache, cacheRoot, workerCacheRoot, safeKey, configuredCacheRoot};
