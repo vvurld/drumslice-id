@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-Installs Slice Labeler from a repository clone on Windows.
+Installs DrumSLICE ID from a repository clone on Windows.
 
 .DESCRIPTION
 Copies the Max runtime and AMXD to user-owned locations, installs the private
@@ -40,7 +40,7 @@ function Test-SliceLabelerPackage([string]$Directory) {
 }
 function Assert-SourceComplete {
   $Required = @(
-    "dist\Slice Labeler.amxd",
+    "dist\DrumSLICE ID.amxd",
     "uninstall.ps1",
     "scripts\setup_backend.ps1",
     "scripts\check_backend.py",
@@ -66,7 +66,7 @@ function Assert-SourceComplete {
   if ($NodeIsCurrent) {
     Invoke-NativeChecked $Node.Source @(
       (Join-Path $Root "scripts\verify_max_device.js"),
-      (Join-Path $Root "dist\Slice Labeler.amxd")
+      (Join-Path $Root "dist\DrumSLICE ID.amxd")
     )
     Write-Host "    Source AMXD structure verified."
   } else {
@@ -103,10 +103,16 @@ $InstallRoot = Resolve-InstallPath $InstallRoot "Backend install root"
 $ConfigPath = Resolve-InstallPath $ConfigPath "Backend configuration path"
 $PackageDir = Join-Path $MaxPackagesDir "SliceLabeler"
 $DeviceDir = Join-Path $UserLibrary "Presets\MIDI Effects\Max MIDI Effect"
-$DevicePath = Join-Path $DeviceDir "Slice Labeler.amxd"
+$DevicePath = Join-Path $DeviceDir "DrumSLICE ID.amxd"
+$LegacyDevicePath = Join-Path $DeviceDir "Slice Labeler.amxd"
 $ManifestPath = Join-Path $InstallRoot "install-manifest.json"
 $SourcePackage = Join-Path $Root "max"
-$SourceDevice = Join-Path $Root "dist\Slice Labeler.amxd"
+$SourceDevice = Join-Path $Root "dist\DrumSLICE ID.amxd"
+$PreviousDevicePath = ""
+if (Test-Path -LiteralPath $ManifestPath -PathType Leaf) {
+  try { $PreviousDevicePath = (Get-Content -LiteralPath $ManifestPath -Raw | ConvertFrom-Json).devicePath }
+  catch { throw "Existing installer manifest is malformed: $ManifestPath" }
+}
 
 Write-Step "Checking the repository and prerequisites"
 Assert-SourceComplete
@@ -118,9 +124,9 @@ if (-not $VerifyOnly -and -not $SkipBackend -and $null -eq (Get-Command git -Err
 }
 if (-not $VerifyOnly -and -not $SkipBackend) {
   $PythonCommand = Get-Command $Python -ErrorAction SilentlyContinue
-  if ($null -eq $PythonCommand) { throw "Slice Labeler requires Python 3.10, 3.11, or 3.12; command not found: $Python" }
+  if ($null -eq $PythonCommand) { throw "DrumSLICE ID requires Python 3.10, 3.11, or 3.12; command not found: $Python" }
   & $PythonCommand.Source -c 'import sys; raise SystemExit(0 if (3, 10) <= sys.version_info[:2] < (3, 13) else 1)'
-  if ($LASTEXITCODE -ne 0) { throw "Slice Labeler requires Python 3.10, 3.11, or 3.12: $Python" }
+  if ($LASTEXITCODE -ne 0) { throw "DrumSLICE ID requires Python 3.10, 3.11, or 3.12: $Python" }
 }
 
 if (-not $VerifyOnly) {
@@ -163,6 +169,9 @@ if (-not $VerifyOnly) {
   } else {
     Move-Item -LiteralPath $DeviceTemporary -Destination $DevicePath
   }
+  if ($PreviousDevicePath -eq $LegacyDevicePath -and (Test-Path -LiteralPath $LegacyDevicePath -PathType Leaf)) {
+    Remove-Item -LiteralPath $LegacyDevicePath -Force
+  }
 
   New-Item -ItemType Directory -Force -Path $InstallRoot | Out-Null
   $Manifest = @{
@@ -199,11 +208,11 @@ if (-not $SkipBackend) {
 }
 Write-Host "    Max package and AMXD are byte-identical to this checkout."
 
-Write-Host "`nSlice Labeler is ready."
+Write-Host "`nDrumSLICE ID is ready."
 Write-Host "  Device: $DevicePath"
 Write-Host "  Max package: $PackageDir"
 if (-not $SkipBackend) { Write-Host "  Backend: $(Join-Path $InstallRoot 'venv')" }
 Write-Host "`nRestart Live or rescan the User Library, then open:"
-Write-Host "  User Library > Presets > MIDI Effects > Max MIDI Effect > Slice Labeler"
+Write-Host "  User Library > Presets > MIDI Effects > Max MIDI Effect > DrumSLICE ID"
 Write-Host "Place the device immediately before the sliced Drum Rack."
 Write-Host "Uninstaller: $(Join-Path $InstallRoot 'uninstall.ps1')"

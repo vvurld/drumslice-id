@@ -55,7 +55,7 @@ class AdtofBackend:
         if list(adtof_pytorch.LABELS_5) != EXPECTED_LABELS:
             raise WorkerError(
                 "BACKEND_CLASS_MAPPING_CHANGED",
-                "The installed ADTOF class mapping does not match Slice Labeler.",
+                "The installed ADTOF class mapping does not match DrumSLICE ID.",
                 {"expected": EXPECTED_LABELS, "actual": list(adtof_pytorch.LABELS_5)},
             )
         fps = _integer_option(self.options, "fps", 100)

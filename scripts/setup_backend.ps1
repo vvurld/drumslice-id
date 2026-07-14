@@ -32,5 +32,5 @@ try {
 } finally {
   Remove-Item -Force -ErrorAction SilentlyContinue $ConfigTemporary
 }
-Write-Host "Slice Labeler backend configured at $Venv"
+Write-Host "DrumSLICE ID backend configured at $Venv"
 Write-Host "Backend configuration written to $ConfigPath"

@@ -1,8 +1,8 @@
-# Slice Labeler technical reference
+# DrumSLICE ID technical reference
 
 This document describes the implementation that is committed in this repository. It is intended for maintainers, reviewers, and anyone who needs to understand why a slice received a particular label. The most important distinction is this:
 
-> ADTOF produces five continuous frame-activation streams for an entire audio source. Slice Labeler, not ADTOF, decides which onset belongs to which Live slice and which class names are finally retained.
+> ADTOF produces five continuous frame-activation streams for an entire audio source. DrumSLICE ID, not ADTOF, decides which onset belongs to which Live slice and which class names are finally retained.
 
 The device is deliberately a labeler, not a slicer. It reads the regions already represented by the Simplers in a Drum Rack, analyzes their shared source audio, builds a reviewable dry-run plan, and writes only Drum Rack chain names after the user presses **Apply**. It does not move slice markers, replace samples, create MIDI notes, or modify audio.
 
@@ -45,7 +45,7 @@ This separation is a safety boundary as well as an implementation choice. The Py
 | Orchestration | Node for Max, CommonJS, Node 18+, `max-api` | Validation, grouping, SHA-256 source identity, process supervision, logging |
 | Analysis service | Python 3.10–3.12 standard library | JSON-Lines protocol, backend lifetime, cancellation, caching, mapping |
 | ML inference | `adtof-pytorch` 0.1.0 at Git commit `85c192e78f716ea0b111cc8a5ee4a8f6a3a4f8a9` | Audio preprocessing and five-class Frame_RNN inference |
-| ML dependencies | PyTorch, librosa, NumPy; SoundFile/audioread through librosa; PrettyMIDI in the ADTOF package | Tensor inference, decoding/resampling, STFT and numeric operations; Slice Labeler itself does not export MIDI |
+| ML dependencies | PyTorch, librosa, NumPy; SoundFile/audioread through librosa; PrettyMIDI in the ADTOF package | Tensor inference, decoding/resampling, STFT and numeric operations; DrumSLICE ID itself does not export MIDI |
 | Test stack | Node's built-in test runner and pytest | Pure graph/naming/protocol tests and Python inference/mapping regressions |
 
 The ADTOF dependency is a Git-revision pin in [`python/pyproject.toml`](../python/pyproject.toml), not a loose “latest” dependency. The backend reports a model identity, preprocessing identity, and SHA-256 weights fingerprint before analysis. Those values participate in cache identity, so a changed model or weights file cannot silently reuse old activations.
@@ -81,11 +81,11 @@ Cancel marks the Node job stale immediately, sends the protocol cancellation, an
 
 ## 4. Discovering the target Drum Rack
 
-On initialization, the controller resolves `this_device canonical_parent` and requires that object to be a Live `Track`. It then reads the track's device list, finds this device's position, and offers only devices after Slice Labeler whose `can_have_drum_pads` property is true.
+On initialization, the controller resolves `this_device canonical_parent` and requires that object to be a Live `Track`. It then reads the track's device list, finds this device's position, and offers only devices after DrumSLICE ID whose `can_have_drum_pads` property is true.
 
 Consequences:
 
-- Slice Labeler must be placed on the same MIDI track and before the target Drum Rack.
+- DrumSLICE ID must be placed on the same MIDI track and before the target Drum Rack.
 - Upstream racks are intentionally ignored.
 - Multiple downstream Drum Racks are supported through the **Target Rack** menu.
 - Discovery uses the current Live object ID when possible and the canonical `devices N` path index as a fallback for a short Live/Max initialization race.
@@ -173,7 +173,7 @@ flowchart TD
 
 The five output classes are fixed and asserted at backend load time:
 
-| Output index | ADTOF MIDI label | Slice Labeler class | Default event threshold |
+| Output index | ADTOF MIDI label | DrumSLICE ID class | Default event threshold |
 | ---: | ---: | --- | ---: |
 | 0 | 35 | kick | 0.22 |
 | 1 | 38 | snare | 0.24 |
@@ -187,7 +187,7 @@ These are broad drum families. The model does not expose separate open/closed hi
 
 ## 8. ADTOF audio preprocessing
 
-The pinned ADTOF PyTorch port performs its own librosa-based front end. Slice Labeler calls `load_audio_for_model()` with the production defaults:
+The pinned ADTOF PyTorch port performs its own librosa-based front end. DrumSLICE ID calls `load_audio_for_model()` with the production defaults:
 
 1. `librosa.load` decodes the file, mixes it to mono, and resamples it to 44,100 Hz.
 2. No peak-amplitude normalization is applied (`normalize=False`).
@@ -244,9 +244,9 @@ Sigmoid: independently applied to all five outputs
 
 The standard production configuration has 449,741 trainable parameters. Bidirectionality means inference is non-causal: an activation at one frame can depend on audio both before and after that frame. It is designed for offline whole-file analysis, not real-time streaming.
 
-The installed weights are the PyTorch port's bundled `adtof_frame_rnn_pytorch_weights.pth`. The third-party package describes them as converted from the original Keras/TensorFlow ADTOF Frame_RNN. Slice Labeler computes the file's SHA-256 digest at load time and returns that digest in backend health metadata.
+The installed weights are the PyTorch port's bundled `adtof_frame_rnn_pytorch_weights.pth`. The third-party package describes them as converted from the original Keras/TensorFlow ADTOF Frame_RNN. DrumSLICE ID computes the file's SHA-256 digest at load time and returns that digest in backend health metadata.
 
-The classifier is not trained by this repository. It is the pinned [ADTOF PyTorch port at the exact installed revision](https://github.com/xavriley/ADTOF-pytorch/tree/85c192e78f716ea0b111cc8a5ee4a8f6a3a4f8a9), whose package metadata identifies it as a port of the ADTOF work by Zehren, Alunno, and Bientinesi. The converted pretrained weights and their learned dataset biases are therefore third-party model behavior; Slice Labeler's project-owned contribution begins at backend validation and continues through event extraction, slice mapping, review, and safe application. Licensing and attribution are recorded in [`THIRD_PARTY_NOTICES.md`](../THIRD_PARTY_NOTICES.md).
+The classifier is not trained by this repository. It is the pinned [ADTOF PyTorch port at the exact installed revision](https://github.com/xavriley/ADTOF-pytorch/tree/85c192e78f716ea0b111cc8a5ee4a8f6a3a4f8a9), whose package metadata identifies it as a port of the ADTOF work by Zehren, Alunno, and Bientinesi. The converted pretrained weights and their learned dataset biases are therefore third-party model behavior; DrumSLICE ID's project-owned contribution begins at backend validation and continues through event extraction, slice mapping, review, and safe application. Licensing and attribution are recorded in [`THIRD_PARTY_NOTICES.md`](../THIRD_PARTY_NOTICES.md).
 
 ### 9.3 What the output values mean
 
@@ -259,15 +259,15 @@ The channels are independent, not a softmax distribution:
 - a high value is confidence-like model evidence, not a calibrated probability that the entire slice belongs to that class;
 - the raw magnitudes are only comparable after accounting for the class-specific thresholds used during model development.
 
-Slice Labeler caches this activation matrix. It does **not** call ADTOF's convenience function that writes a MIDI file. The repository's [`events.py`](../python/slice_labeler_worker/events.py) reproduces the pinned ADTOF `PeakPicker` behavior directly so the worker can retain raw activations and attach the raw value at each selected frame. [`mapping.py`](../python/slice_labeler_worker/mapping.py) then defines Slice Labeler's cluster-to-region and class-selection behavior.
+DrumSLICE ID caches this activation matrix. It does **not** call ADTOF's convenience function that writes a MIDI file. The repository's [`events.py`](../python/slice_labeler_worker/events.py) reproduces the pinned ADTOF `PeakPicker` behavior directly so the worker can retain raw activations and attach the raw value at each selected frame. [`mapping.py`](../python/slice_labeler_worker/mapping.py) then defines DrumSLICE ID's cluster-to-region and class-selection behavior.
 
 ## 10. From frame activations to slice labels
 
-This stage is where Slice Labeler adapts a whole-song drum transcription model to pre-existing Live slice boundaries.
+This stage is where DrumSLICE ID adapts a whole-song drum transcription model to pre-existing Live slice boundaries.
 
 ### 10.1 Per-class event extraction
 
-For each class, Slice Labeler applies the standard settings of the pinned ADTOF peak picker at the model's 100 FPS:
+For each class, DrumSLICE ID applies the standard settings of the pinned ADTOF peak picker at the model's 100 FPS:
 
 ```text
 moving-average window: 100 ms before through 10 ms after
@@ -328,7 +328,7 @@ Normalized-score ties use the backend class order: kick, snare, tom, hi-hat, cym
 
 ### 10.5 Bounded activation fallback
 
-Peak extraction can miss a quiet, clipped, or boundary-smeared transient. If no cluster is assigned and fallback is enabled, Slice Labeler examines raw activations near the slice start:
+Peak extraction can miss a quiet, clipped, or boundary-smeared transient. If no cluster is assigned and fallback is enabled, DrumSLICE ID examines raw activations near the slice start:
 
 ```text
 fallback start = max(0, slice start - 20 ms)
@@ -416,7 +416,7 @@ Any structural or source/marker mismatch makes the entire plan stale and stops A
 
 Writes run in a deferred Max `Task`, set only the chain `name`, and immediately read it back. A row is considered applied only when readback exactly matches the requested value. Apply can therefore finish partially; it does not perform an automatic transactional rollback after a later row fails.
 
-The last successful Apply records each old/applied name plus the region and Live-reference identity required to validate that exact chain. It is independent of the current scan, so a later rescan does not erase the ability to revert the previous successful Apply. The controller publishes Revert availability separately from the analysis state: a retained record keeps the button available after a rescan, while scanning, analysis, cancellation, and Apply temporarily disable it. **Revert Last Apply** is compare-and-swap-like: it restores a row only if the rack/pad/chain and sample identity are still valid and the current chain name still equals the name Slice Labeler wrote. If the user renamed that chain afterward, Revert leaves it alone. Revert is best-effort and can also be partial. An Apply that performs zero writes does not replace an earlier usable revert record.
+The last successful Apply records each old/applied name plus the region and Live-reference identity required to validate that exact chain. It is independent of the current scan, so a later rescan does not erase the ability to revert the previous successful Apply. The controller publishes Revert availability separately from the analysis state: a retained record keeps the button available after a rescan, while scanning, analysis, cancellation, and Apply temporarily disable it. **Revert Last Apply** is compare-and-swap-like: it restores a row only if the rack/pad/chain and sample identity are still valid and the current chain name still equals the name DrumSLICE ID wrote. If the user renamed that chain afterward, Revert leaves it alone. Revert is best-effort and can also be partial. An Apply that performs zero writes does not replace an earlier usable revert record.
 
 No other Live property is written anywhere in the codebase.
 
@@ -426,7 +426,7 @@ The project has two separately installable pieces.
 
 ### Max device and package
 
-[`dist/Slice Labeler.amxd`](../dist/Slice%20Labeler.amxd) is the committed development device. The implementation modules, patchers, schemas, Node scripts, and generated Max-compatible JavaScript bundles are committed under [`max`](../max).
+[`dist/DrumSLICE ID.amxd`](../dist/DrumSLICE%20ID.amxd) is the committed development device. The implementation modules, patchers, schemas, Node scripts, and generated Max-compatible JavaScript bundles are committed under [`max`](../max).
 
 The root [`install.sh`](../install.sh) and [`install.ps1`](../install.ps1) are the clone-to-use entry points. They:
 
@@ -489,7 +489,7 @@ Production activations are cached by Python as gzip-compressed JSON under the pl
 
 Each entry contains FPS, class names, the activation matrix, source duration, and backend metadata. It contains no audio samples and no Live object IDs. Writes use a temporary file followed by atomic replacement. Malformed, non-finite, corrupt, or class-incompatible entries are deleted and recomputed. Least-recently-accessed files are removed when compressed entries exceed 512 MiB by default; `SLICE_LABELER_CACHE_MAX_MIB` can set a whole-MiB ceiling from 1 through 102,400. REX/RX2 companion identity is included in its derived cache key as described in section 11.
 
-Node's cache root also contains `slice-labeler.log`. Logs rotate at 1 MiB with three backups, use owner-only file mode where supported, and redact common absolute home-path forms from structured detail payloads. Numba's compiled runtime cache lives in a `numba` child of the worker cache so imports also work when installed packages are read-only. The **Clear Cache** action removes only hashed activation entries, their temporary files, and that `numba` subtree. It preserves the diagnostic log and any unrelated files even when an explicit cache directory is shared.
+The legacy-compatible `Slice Labeler`/`slice-labeler` internal storage names are intentionally retained so existing installations keep their backend and cache after the product rename. Node's cache root also contains `slice-labeler.log`. Logs rotate at 1 MiB with three backups, use owner-only file mode where supported, and redact common absolute home-path forms from structured detail payloads. Numba's compiled runtime cache lives in a `numba` child of the worker cache so imports also work when installed packages are read-only. The **Clear Cache** action removes only hashed activation entries, their temporary files, and that `numba` subtree. It preserves the diagnostic log and any unrelated files even when an explicit cache directory is shared.
 
 Source file paths necessarily cross the Node/Python boundary so the local decoder can open them. Nothing in the device sends audio, paths, activations, or labels over a network. Network access is needed only during the explicit backend installation step that fetches dependencies.
 

@@ -51,6 +51,10 @@ test("Settings exposes every required classifier control with persisted safe ran
   const boxes = boxesById(patch);
   assert.equal(patch.openinpresentation, 1);
   assert.equal(boxes.get("controller").text, "js slice_labeler_settings_bundle_v2.js");
+  assert.equal(boxes.get("title").text, "DrumSLICE ID Settings");
+  assert.equal(boxes.get("window-title").text, 'title "DrumSLICE ID — Settings"');
+  assert.equal(hasLine(patch, "loadbang", 0, "window-title", 0), true);
+  assert.equal(hasLine(patch, "window-title", 0, "window-thispatcher", 0), true);
   for (const id of ["kick", "snare", "tom", "hihat", "cymbal"]) {
     const box = boxes.get(id);
     assert.equal(box.presentation, 1, `${id} threshold is hidden`);
@@ -71,6 +75,9 @@ test("Results text editing strips Max's text selector and has synchronized contr
   const boxes = boxesById(patch);
   assert.equal(patch.openinpresentation, 1);
   assert.equal(boxes.get("controller").text, "js slice_labeler_results_bundle_v2.js");
+  assert.equal(boxes.get("window-title").text, 'title "DrumSLICE ID — Results"');
+  assert.equal(hasLine(patch, "window-loadbang", 0, "window-title", 0), true);
+  assert.equal(hasLine(patch, "window-title", 0, "window-thispatcher", 0), true);
   assert.equal(boxes.get("name").varname, "proposed_name_editor");
   assert.equal(boxes.get("keep").varname, "keep_original_toggle");
   assert.equal(hasLine(patch, "name", 0, "name-route-text", 0), true);

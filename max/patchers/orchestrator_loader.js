@@ -21,7 +21,7 @@ for (const root of roots) {
 }
 
 if (!orchestrator) {
-  throw new Error("Slice Labeler Node runtime is not installed. Set SLICE_LABELER_ROOT or install the SliceLabeler Max package.");
+  throw new Error("DrumSLICE ID Node runtime is not installed. Set SLICE_LABELER_ROOT or install the SliceLabeler Max package.");
 }
 
 orchestrator.installMaxHandlers();

@@ -691,9 +691,45 @@
             22
           ]
         }
+      },
+      {
+        "box": {
+          "id": "window-loadbang",
+          "maxclass": "newobj",
+          "text": "loadbang",
+          "patching_rect": [450, 590, 60, 22]
+        }
+      },
+      {
+        "box": {
+          "id": "window-title",
+          "maxclass": "message",
+          "text": "title \"DrumSLICE ID — Results\"",
+          "patching_rect": [520, 590, 190, 22]
+        }
+      },
+      {
+        "box": {
+          "id": "window-thispatcher",
+          "maxclass": "newobj",
+          "text": "thispatcher",
+          "patching_rect": [720, 590, 75, 22]
+        }
       }
     ],
     "lines": [
+      {
+        "patchline": {
+          "source": ["window-loadbang", 0],
+          "destination": ["window-title", 0]
+        }
+      },
+      {
+        "patchline": {
+          "source": ["window-title", 0],
+          "destination": ["window-thispatcher", 0]
+        }
+      },
       {
         "patchline": {
           "source": [

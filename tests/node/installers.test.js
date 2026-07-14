@@ -34,7 +34,7 @@ test("macOS installer copies, verifies, and removes a repository-independent run
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), "slice-labeler-installer-test-"));
   const args = isolatedArguments(directory);
   const packageDirectory = path.join(directory, "Max Packages", "SliceLabeler");
-  const device = path.join(directory, "User Library", "Presets", "MIDI Effects", "Max MIDI Effect", "Slice Labeler.amxd");
+  const device = path.join(directory, "User Library", "Presets", "MIDI Effects", "Max MIDI Effect", "DrumSLICE ID.amxd");
   const installedUninstaller = path.join(directory, "state", "uninstall.sh");
   try {
     const installed = run("/bin/bash", [installScript, ...args]);
@@ -45,7 +45,7 @@ test("macOS installer copies, verifies, and removes a repository-independent run
       fs.readFileSync(path.join(packageDirectory, "node", "orchestrator.js"), "utf8"),
       fs.readFileSync(path.join(ROOT, "max", "node", "orchestrator.js"), "utf8"),
     );
-    assert.equal(sha256(device), sha256(path.join(ROOT, "dist", "Slice Labeler.amxd")));
+    assert.equal(sha256(device), sha256(path.join(ROOT, "dist", "DrumSLICE ID.amxd")));
     assert.equal((fs.statSync(installedUninstaller).mode & 0o111) !== 0, true);
 
     fs.writeFileSync(path.join(packageDirectory, "stale-runtime-file.txt"), "remove me\n");
@@ -53,7 +53,7 @@ test("macOS installer copies, verifies, and removes a repository-independent run
     const repaired = run("/bin/bash", [installScript, ...args]);
     assert.equal(repaired.status, 0, repaired.stderr || repaired.stdout);
     assert.equal(fs.existsSync(path.join(packageDirectory, "stale-runtime-file.txt")), false);
-    assert.equal(sha256(device), sha256(path.join(ROOT, "dist", "Slice Labeler.amxd")));
+    assert.equal(sha256(device), sha256(path.join(ROOT, "dist", "DrumSLICE ID.amxd")));
 
     const verified = run("/bin/bash", [installScript, "--verify-only", ...args]);
     assert.equal(verified.status, 0, verified.stderr || verified.stdout);

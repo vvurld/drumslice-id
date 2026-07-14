@@ -13,8 +13,11 @@ fi
 
 mkdir -p "$(dirname "$PACKAGE_DIR")" "$DEVICE_DIR"
 ln -sfn "$ROOT/max" "$PACKAGE_DIR"
-cp -f "$ROOT/dist/Slice Labeler.amxd" "$DEVICE_DIR/Slice Labeler.amxd"
+cp -f "$ROOT/dist/DrumSLICE ID.amxd" "$DEVICE_DIR/DrumSLICE ID.amxd"
+# This workflow installs only repository-generated devices, so the previous
+# public filename is safe to remove during the one-time product rename.
+rm -f "$DEVICE_DIR/Slice Labeler.amxd"
 
-echo "Installed SliceLabeler Max package: $PACKAGE_DIR"
-echo "Installed device: $DEVICE_DIR/Slice Labeler.amxd"
+echo "Installed DrumSLICE ID Max package: $PACKAGE_DIR"
+echo "Installed device: $DEVICE_DIR/DrumSLICE ID.amxd"
 echo "Run $ROOT/scripts/setup_backend.sh separately to install or verify ADTOF."

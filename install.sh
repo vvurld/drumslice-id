@@ -17,7 +17,7 @@ STAGING_DEVICE=""
 
 usage() {
   cat <<'EOF'
-Install Slice Labeler from a repository clone on macOS.
+Install DrumSLICE ID from a repository clone on macOS.
 
 Usage: ./install.sh [options]
 
@@ -39,7 +39,7 @@ scripts/install_local.sh instead.
 EOF
 }
 
-die() { printf 'Slice Labeler install failed: %s\n' "$*" >&2; exit 1; }
+die() { printf 'DrumSLICE ID install failed: %s\n' "$*" >&2; exit 1; }
 step() { printf '\n==> %s\n' "$*"; }
 
 expand_home() {
@@ -103,7 +103,8 @@ INSTALL_ROOT="$(expand_home "$INSTALL_ROOT")"
 CONFIG_PATH="$(expand_home "$CONFIG_PATH")"
 PACKAGE_DIR="$MAX_PACKAGES_DIR/SliceLabeler"
 DEVICE_DIR="$USER_LIBRARY/Presets/MIDI Effects/Max MIDI Effect"
-DEVICE_PATH="$DEVICE_DIR/Slice Labeler.amxd"
+DEVICE_PATH="$DEVICE_DIR/DrumSLICE ID.amxd"
+LEGACY_DEVICE_PATH="$DEVICE_DIR/Slice Labeler.amxd"
 MANIFEST_PATH="$INSTALL_ROOT/install-paths.txt"
 
 require_absolute "Max Packages directory" "$MAX_PACKAGES_DIR"
@@ -113,7 +114,7 @@ require_absolute "backend configuration path" "$CONFIG_PATH"
 
 verify_source() {
   local required
-  [[ -s "$ROOT/dist/Slice Labeler.amxd" ]] || die "dist/Slice Labeler.amxd is missing; pull a complete repository checkout"
+  [[ -s "$ROOT/dist/DrumSLICE ID.amxd" ]] || die "dist/DrumSLICE ID.amxd is missing; pull a complete repository checkout"
   for required in \
     uninstall.sh \
     scripts/setup_backend.sh \
@@ -128,7 +129,7 @@ verify_source() {
     [[ -f "$ROOT/$required" ]] || die "required runtime file is missing: $required"
   done
   if command -v node >/dev/null 2>&1 && node -e 'process.exit(Number(process.versions.node.split(".")[0]) >= 18 ? 0 : 1)' >/dev/null 2>&1; then
-    node "$ROOT/scripts/verify_max_device.js" "$ROOT/dist/Slice Labeler.amxd" >/dev/null
+    node "$ROOT/scripts/verify_max_device.js" "$ROOT/dist/DrumSLICE ID.amxd" >/dev/null
     printf '    Source AMXD structure verified.\n'
   else
     printf '    Node.js is not installed; continuing with file-integrity verification.\n'
@@ -168,10 +169,13 @@ install_device() {
   step "Copying the Max for Live device"
   mkdir -p "$DEVICE_DIR"
   STAGING_DEVICE="$DEVICE_PATH.installing-$$"
-  cp "$ROOT/dist/Slice Labeler.amxd" "$STAGING_DEVICE"
+  cp "$ROOT/dist/DrumSLICE ID.amxd" "$STAGING_DEVICE"
   chmod 0644 "$STAGING_DEVICE"
   mv -f "$STAGING_DEVICE" "$DEVICE_PATH"
   STAGING_DEVICE=""
+  if [[ -f "$LEGACY_DEVICE_PATH" && -f "$MANIFEST_PATH" ]] && grep -Fqx "devicePath=$LEGACY_DEVICE_PATH" "$MANIFEST_PATH"; then
+    rm -f -- "$LEGACY_DEVICE_PATH"
+  fi
 }
 
 write_manifest() {
@@ -197,7 +201,7 @@ verify_installation() {
   is_slice_labeler_package "$PACKAGE_DIR" || die "installed Max package metadata is invalid"
   diff -qr "$ROOT/max" "$PACKAGE_DIR" >/dev/null || die "installed Max package differs from the repository runtime"
   [[ -f "$DEVICE_PATH" ]] || die "installed AMXD is missing: $DEVICE_PATH"
-  cmp -s "$ROOT/dist/Slice Labeler.amxd" "$DEVICE_PATH" || die "installed AMXD differs from the repository artifact"
+  cmp -s "$ROOT/dist/DrumSLICE ID.amxd" "$DEVICE_PATH" || die "installed AMXD differs from the repository artifact"
   if [[ "$SKIP_BACKEND" -eq 0 ]]; then
     [[ -x "$backend_python" ]] || die "backend Python is missing: $backend_python"
     [[ -f "$CONFIG_PATH" ]] || die "backend configuration is missing: $CONFIG_PATH"
@@ -228,11 +232,11 @@ fi
 verify_installation
 trap - EXIT INT TERM
 
-printf '\nSlice Labeler is ready.\n'
+printf '\nDrumSLICE ID is ready.\n'
 printf '  Device: %s\n' "$DEVICE_PATH"
 printf '  Max package: %s\n' "$PACKAGE_DIR"
 if [[ "$SKIP_BACKEND" -eq 0 ]]; then printf '  Backend: %s\n' "$INSTALL_ROOT/venv"; fi
 printf '\nRestart Live or rescan the User Library, then open:\n'
-printf '  User Library > Presets > MIDI Effects > Max MIDI Effect > Slice Labeler\n'
+printf '  User Library > Presets > MIDI Effects > Max MIDI Effect > DrumSLICE ID\n'
 printf 'Place the device immediately before the sliced Drum Rack.\n'
 printf 'Uninstaller: %s\n' "$INSTALL_ROOT/uninstall.sh"

@@ -21,7 +21,7 @@ fi
 
 usage() {
   cat <<'EOF'
-Remove Slice Labeler from macOS.
+Remove DrumSLICE ID from macOS.
 
 Usage: ./uninstall.sh [options]
 
@@ -43,7 +43,7 @@ Options:
 EOF
 }
 
-die() { printf 'Slice Labeler uninstall failed: %s\n' "$*" >&2; exit 1; }
+die() { printf 'DrumSLICE ID uninstall failed: %s\n' "$*" >&2; exit 1; }
 step() { printf '==> %s\n' "$*"; }
 expand_home() { case "$1" in "~") printf '%s\n' "$HOME" ;; \~/*) printf '%s/%s\n' "$HOME" "${1#\~/}" ;; *) printf '%s\n' "$1" ;; esac; }
 is_slice_labeler_package() { [[ -f "$1/package-info.json" ]] && grep -Eq '"name"[[:space:]]*:[[:space:]]*"SliceLabeler"' "$1/package-info.json"; }
@@ -82,7 +82,7 @@ USER_LIBRARY="$(expand_home "${USER_LIBRARY:-$HOME/Music/Ableton/User Library}")
 CONFIG_PATH="$(expand_home "$CONFIG_PATH")"
 CACHE_DIR="$(expand_home "$CACHE_DIR")"
 PACKAGE_DIR="$MAX_PACKAGES_DIR/SliceLabeler"
-DEVICE_PATH="$USER_LIBRARY/Presets/MIDI Effects/Max MIDI Effect/Slice Labeler.amxd"
+DEVICE_PATH="$USER_LIBRARY/Presets/MIDI Effects/Max MIDI Effect/DrumSLICE ID.amxd"
 if [[ "$CUSTOM_MAX" -eq 0 && -n "$MANIFEST_PACKAGE" ]]; then PACKAGE_DIR="$MANIFEST_PACKAGE"; fi
 if [[ "$CUSTOM_LIBRARY" -eq 0 && -n "$MANIFEST_DEVICE" ]]; then DEVICE_PATH="$MANIFEST_DEVICE"; fi
 if [[ "$CUSTOM_CONFIG" -eq 0 && -n "$MANIFEST_CONFIG" ]]; then CONFIG_PATH="$MANIFEST_CONFIG"; fi
@@ -92,7 +92,10 @@ for path_to_check in "$PACKAGE_DIR" "$DEVICE_PATH" "$INSTALL_ROOT" "$CONFIG_PATH
 done
 
 [[ "$(basename "$PACKAGE_DIR")" == "SliceLabeler" ]] || die "refusing unexpected package path: $PACKAGE_DIR"
-[[ "$(basename "$DEVICE_PATH")" == "Slice Labeler.amxd" ]] || die "refusing unexpected device path: $DEVICE_PATH"
+case "$(basename "$DEVICE_PATH")" in
+  "DrumSLICE ID.amxd"|"Slice Labeler.amxd") ;;
+  *) die "refusing unexpected device path: $DEVICE_PATH" ;;
+esac
 
 if [[ -e "$PACKAGE_DIR" || -L "$PACKAGE_DIR" ]]; then
   if ! is_slice_labeler_package "$PACKAGE_DIR" && [[ "$FORCE" -ne 1 ]]; then die "$PACKAGE_DIR is not a recognized SliceLabeler package; use --force only after inspecting it"; fi
@@ -128,4 +131,4 @@ else
   printf 'Cache preserved: %s (use --remove-cache to delete it)\n' "$CACHE_DIR"
 fi
 
-printf '\nSlice Labeler removal complete.\n'
+printf '\nDrumSLICE ID removal complete.\n'

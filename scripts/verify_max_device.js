@@ -33,7 +33,7 @@ function verify({artifactPath, sourcePath, requireSelfContained = false}) {
     "Generated AMXD patch graph is stale or contains saved runtime state.");
 
   const dependencies = (device.patcher.dependency_cache || []).map((entry) => ({name: entry.name, bootpath: entry.bootpath || ""}));
-  const forbiddenPath = /(?:^|[\\/])Users[\\/]|Documents[\\/]BREAKER|Max for Live Devices[\\/]Slice Labeler Project/i;
+  const forbiddenPath = /(?:^|[\\/])Users[\\/]|Documents[\\/]BREAKER|Max for Live Devices[\\/](?:Slice Labeler|DrumSLICE ID) Project/i;
   const leaked = dependencies.filter((entry) => forbiddenPath.test(entry.bootpath));
   assert.deepEqual(leaked, [], `Device dependency cache contains development/user paths: ${JSON.stringify(leaked)}`);
   assert.equal(forbiddenPath.test(parsed.patchChunk.data.toString("utf8")), false, "Device payload contains a development/user path.");
@@ -70,7 +70,7 @@ function parseArguments(argv) {
   }
   if (positional.length > 2) throw new Error("Usage: verify_max_device.js [--require-self-contained] [artifact.amxd] [source.maxpat]");
   return {
-    artifactPath: path.resolve(positional[0] || path.join(root, "dist", "Slice Labeler.amxd")),
+    artifactPath: path.resolve(positional[0] || path.join(root, "dist", "DrumSLICE ID.amxd")),
     sourcePath: path.resolve(positional[1] || path.join(root, "max", "patchers", "SliceLabeler.maxpat")),
     requireSelfContained,
   };
@@ -80,7 +80,7 @@ if (require.main === module) {
   try {
     process.stdout.write(`${JSON.stringify(verify(parseArguments(process.argv.slice(2))), null, 2)}\n`);
   } catch (error) {
-    process.stderr.write(`Slice Labeler device verification failed: ${error.message}\n`);
+    process.stderr.write(`DrumSLICE ID device verification failed: ${error.message}\n`);
     process.exitCode = 1;
   }
 }

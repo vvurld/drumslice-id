@@ -148,7 +148,7 @@
         "box": {
           "id": "runtime-help",
           "maxclass": "comment",
-          "text": "Leave Python executable blank for the installed Slice Labeler environment. Use an override only for development or a custom runtime.",
+          "text": "Leave Python executable blank for the installed DrumSLICE ID environment. Use an override only for development or a custom runtime.",
           "fontname": "Ableton Sans",
           "fontsize": 10,
           "textcolor": [0.6509803922, 0.6705882353, 0.7254901961, 1.0],
@@ -173,7 +173,7 @@
         "box": {
           "id": "title",
           "maxclass": "comment",
-          "text": "Slice Labeler Settings",
+          "text": "DrumSLICE ID Settings",
           "fontname": "Ableton Sans",
           "fontface": 1,
           "fontsize": 20,
@@ -1356,9 +1356,37 @@
             22
           ]
         }
+      },
+      {
+        "box": {
+          "id": "window-title",
+          "maxclass": "message",
+          "text": "title \"DrumSLICE ID — Settings\"",
+          "patching_rect": [620, 500, 195, 22]
+        }
+      },
+      {
+        "box": {
+          "id": "window-thispatcher",
+          "maxclass": "newobj",
+          "text": "thispatcher",
+          "patching_rect": [825, 500, 75, 22]
+        }
       }
     ],
     "lines": [
+      {
+        "patchline": {
+          "source": ["loadbang", 0],
+          "destination": ["window-title", 0]
+        }
+      },
+      {
+        "patchline": {
+          "source": ["window-title", 0],
+          "destination": ["window-thispatcher", 0]
+        }
+      },
       {
         "patchline": {
           "source": [
