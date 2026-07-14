@@ -67,8 +67,10 @@ function Assert-SourceComplete {
   $Node = Get-Command node -ErrorAction SilentlyContinue
   $NodeIsCurrent = $false
   if ($null -ne $Node) {
-    & $Node.Source -e 'process.exit(Number(process.versions.node.split(".")[0]) >= 18 ? 0 : 1)'
-    $NodeIsCurrent = ($LASTEXITCODE -eq 0)
+    $NodeVersion = & $Node.Source --version
+    if ($LASTEXITCODE -eq 0 -and $NodeVersion -match '^v?([0-9]+)\.') {
+      $NodeIsCurrent = ([int]$Matches[1] -ge 18)
+    }
   }
   if ($NodeIsCurrent) {
     Invoke-NativeChecked $Node.Source @(
