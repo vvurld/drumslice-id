@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-Removes Slice Labeler from Windows.
+Removes DrumSLICE ID from Windows.
 
 .DESCRIPTION
 By default removes the copied Max package and AMXD while preserving the backend
@@ -50,7 +50,7 @@ $ConfigPath = Resolve-InstallPath $ConfigPath "Backend configuration path"
 $CacheDir = Resolve-InstallPath $CacheDir "Cache directory"
 $ManifestPath = Join-Path $InstallRoot "install-manifest.json"
 $PackageDir = Join-Path $MaxPackagesDir "SliceLabeler"
-$DevicePath = Join-Path $UserLibrary "Presets\MIDI Effects\Max MIDI Effect\Slice Labeler.amxd"
+$DevicePath = Join-Path $UserLibrary "Presets\MIDI Effects\Max MIDI Effect\DrumSLICE ID.amxd"
 
 if (Test-Path -LiteralPath $ManifestPath -PathType Leaf) {
   try {
@@ -62,7 +62,7 @@ if (Test-Path -LiteralPath $ManifestPath -PathType Leaf) {
 }
 
 if ([System.IO.Path]::GetFileName($PackageDir) -ne "SliceLabeler") { throw "Refusing unexpected package path: $PackageDir" }
-if ([System.IO.Path]::GetFileName($DevicePath) -ne "Slice Labeler.amxd") { throw "Refusing unexpected device path: $DevicePath" }
+if ([System.IO.Path]::GetFileName($DevicePath) -notin @("DrumSLICE ID.amxd", "Slice Labeler.amxd")) { throw "Refusing unexpected device path: $DevicePath" }
 
 if (Test-Path -LiteralPath $PackageDir) {
   if (-not (Test-SliceLabelerPackage $PackageDir) -and -not $Force) { throw "$PackageDir is not a recognized SliceLabeler package. Use -Force only after inspecting it." }
@@ -92,4 +92,4 @@ if ($RemoveCache) {
   if (Test-Path -LiteralPath $CacheDir) { Write-Step "Removing cache: $CacheDir"; Remove-Item -LiteralPath $CacheDir -Recurse -Force }
 } else { Write-Host "Cache preserved: $CacheDir (use -RemoveCache to delete it)" }
 
-Write-Host "`nSlice Labeler removal complete."
+Write-Host "`nDrumSLICE ID removal complete."

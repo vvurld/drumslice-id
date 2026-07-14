@@ -10,7 +10,7 @@ from pathlib import Path
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Check the configured Slice Labeler Python worker and ADTOF backend.")
+    parser = argparse.ArgumentParser(description="Check the configured DrumSLICE ID Python worker and ADTOF backend.")
     parser.add_argument("--python", default=sys.executable, help="Python executable to check")
     parser.add_argument("--backend", default="adtof", choices=("adtof", "mock"))
     parser.add_argument("--source-tree", action="store_true", help="Check the repository source instead of the installed worker package")

@@ -17,7 +17,7 @@ function runtime() {
     thisDeviceTrackId: 1,
     objects: {
       1: {type: "Track", path: "live_set tracks 0", props: {name: "Breaks", devices: ids(10, 20)}},
-      10: {type: "MaxDevice", path: "live_set tracks 0 devices 0", props: {name: "Slice Labeler", can_have_drum_pads: 0}},
+      10: {type: "MaxDevice", path: "live_set tracks 0 devices 0", props: {name: "DrumSLICE ID", can_have_drum_pads: 0}},
       20: {type: "RackDevice", path: "live_set tracks 0 devices 1", props: {name: "Amen Rack", can_have_drum_pads: 1, has_drum_pads: 1, drum_pads: ids(30)}},
       30: {type: "DrumPad", path: "live_set tracks 0 devices 1 drum_pads 36", props: {note: 36, name: "Slice 1", chains: ids(40)}},
       40: {type: "Chain", path: "live_set tracks 0 devices 1 chains 0", props: {name: "Slice 1", devices: ids(50)}},

@@ -151,7 +151,7 @@ function mergeSettings(input, allowMockBackend = process.env.SLICE_LABELER_DEBUG
   });
   if (!["adtof", "mock"].includes(merged.backend)) throw coded("INVALID_SETTINGS", "backend must be adtof or mock.");
   if (merged.backend === "mock" && allowMockBackend !== true) {
-    throw coded("MOCK_BACKEND_DISABLED", "The mock backend is available only when the explicit Slice Labeler debug flag is enabled.");
+    throw coded("MOCK_BACKEND_DISABLED", "The mock backend is available only when the explicit DrumSLICE ID debug flag is enabled.");
   }
   const modelKeys = new Set(["device", "fps", "maxThreads", "weightsPath", "mockActivations", "thresholds"]);
   const unknownModelKeys = Object.keys(merged.modelOptions).filter((key) => !modelKeys.has(key));

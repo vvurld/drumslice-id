@@ -1,10 +1,10 @@
 {
   "name": "SliceLabeler",
-  "displayname": "Slice Labeler",
+  "displayname": "DrumSLICE ID",
   "version": "1.0.0",
-  "author": "Slice Labeler contributors",
+  "author": "DrumSLICE ID contributors",
   "authors": [],
-  "description": "Max for Live device support files for Slice Labeler.",
+  "description": "Max for Live drum-slice identification support files for DrumSLICE ID.",
   "tags": ["Max for Live", "MIDI", "drums"],
   "website": "",
   "extends": "Max for Live",

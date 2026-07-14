@@ -216,9 +216,9 @@ function initialized() {
     if (state !== "INITIALIZING" && state !== "ERROR") { return; }
     try {
         device = makeApi("this_device");
-        if (!device.id) { fail("DEVICE_NOT_READY", "Slice Labeler is waiting for Live to initialize the device."); return; }
+        if (!device.id) { fail("DEVICE_NOT_READY", "DrumSLICE ID is waiting for Live to initialize the device."); return; }
         track = makeApi("this_device canonical_parent");
-        if (apiType(track) !== "Track") { fail("NOT_ON_MIDI_TRACK", "Place Slice Labeler on a MIDI track."); return; }
+        if (apiType(track) !== "Track") { fail("NOT_ON_MIDI_TRACK", "Place DrumSLICE ID on a MIDI track."); return; }
         trackPath = apiPath(track);
         discoverRacks();
     } catch (exception) { fail("LIVE_API_INITIALIZATION_FAILED", "Could not initialize the Live connection.", {message: String(exception)}); }
@@ -226,7 +226,7 @@ function initialized() {
 
 function discoverRacks() {
     var previousRack = rackCandidates[targetRackIndex], device = makeApi("this_device"), devicePath = apiPath(device), track = makeApi("this_device canonical_parent"), resolvedTrackPath = apiPath(track), normalizedDevicePath, normalizedTrackPath, ids, current = -1, pathMatch, fallbackIndex, previousIndex = -1, i, candidate, drum, hasDrumPads;
-    if (apiType(track) !== "Track" || !resolvedTrackPath) { fail("NOT_ON_MIDI_TRACK", "Place Slice Labeler on a MIDI track."); return; }
+    if (apiType(track) !== "Track" || !resolvedTrackPath) { fail("NOT_ON_MIDI_TRACK", "Place DrumSLICE ID on a MIDI track."); return; }
     /* The device may have moved since initialization. Never reuse the old
        track path when resolving downstream devices. */
     trackPath = resolvedTrackPath;
@@ -245,14 +245,14 @@ function discoverRacks() {
         fallbackIndex = pathMatch ? Number(pathMatch[1]) : -1;
         if (fallbackIndex >= 0 && fallbackIndex < ids.length && normalizedDevicePath === normalizedTrackPath + " devices " + fallbackIndex) { current = fallbackIndex; }
     }
-    if (current < 0) { fail("DEVICE_NOT_ON_TRACK", "Slice Labeler could not resolve its position on the track.", {deviceId: Number(device.id), devicePath: devicePath, trackPath: trackPath, trackDeviceIds: ids}); return; }
+    if (current < 0) { fail("DEVICE_NOT_ON_TRACK", "DrumSLICE ID could not resolve its position on the track.", {deviceId: Number(device.id), devicePath: devicePath, trackPath: trackPath, trackDeviceIds: ids}); return; }
     for (i = current + 1; i < ids.length; i += 1) {
         candidate = makeApi(ids[i]); drum = V.number(get(candidate, "can_have_drum_pads"), 0); hasDrumPads = get(candidate, "has_drum_pads");
         if (drum === 1 && (hasDrumPads == null || V.number(hasDrumPads, 0) === 1)) { rackCandidates.push({id: ids[i], path: apiPath(candidate), name: V.string(get(candidate, "name")), deviceIndex: i, downstreamOffset: i - current}); }
     }
     outlet(0, "rack_menu_clear");
     for (i = 0; i < rackCandidates.length; i += 1) { outlet(0, "rack_menu_append", rackCandidates[i].name + " · +" + rackCandidates[i].downstreamOffset); }
-    if (!rackCandidates.length) { setState("NO_RACK"); emitStatus("NO_DOWNSTREAM_DRUM_RACK", "Place Slice Labeler before a Drum Rack on the same MIDI track."); return; }
+    if (!rackCandidates.length) { setState("NO_RACK"); emitStatus("NO_DOWNSTREAM_DRUM_RACK", "Place DrumSLICE ID before a Drum Rack on the same MIDI track."); return; }
     if (previousRack) {
         for (i = 0; i < rackCandidates.length; i += 1) {
             if (Number(rackCandidates[i].id) === Number(previousRack.id)) { previousIndex = i; break; }

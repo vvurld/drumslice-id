@@ -1,3 +1,3 @@
-"""Slice Labeler worker package."""
+"""DrumSLICE ID worker package."""
 
 __version__ = "0.1.0"

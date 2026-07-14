@@ -66,9 +66,9 @@ function writeAtomic(filePath, data) {
 function parseArguments(argv) {
   const options = {
     check: false,
-    templatePath: path.join(root, "dist", "Slice Labeler.amxd"),
+    templatePath: path.join(root, "dist", "DrumSLICE ID.amxd"),
     sourcePath: path.join(root, "max", "patchers", "SliceLabeler.maxpat"),
-    outputPath: path.join(root, "dist", "Slice Labeler.amxd"),
+    outputPath: path.join(root, "dist", "DrumSLICE ID.amxd"),
   };
   for (let index = 0; index < argv.length; index += 1) {
     const argument = argv[index];
@@ -100,7 +100,7 @@ if (require.main === module) {
   try {
     process.stdout.write(`${JSON.stringify(run(parseArguments(process.argv.slice(2))), null, 2)}\n`);
   } catch (error) {
-    process.stderr.write(`Slice Labeler device build failed: ${error.message}\n`);
+    process.stderr.write(`DrumSLICE ID device build failed: ${error.message}\n`);
     process.exitCode = 1;
   }
 }
