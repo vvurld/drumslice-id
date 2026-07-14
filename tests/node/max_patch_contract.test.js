@@ -30,7 +30,11 @@ test("main Max patch preserves MIDI and wires state/progress/runtime paths", () 
   assert.equal(hasLine(patch, "status-route", 2, "progress-unpack", 0), true);
   assert.equal(hasLine(patch, "status-route", 1, "state-ui-route", 0), true);
   assert.equal(hasLine(patch, "status-route", 5, "revert-active", 0), true);
+  assert.equal(hasLine(patch, "status-route", 6, "status-set", 0), true);
+  assert.equal(hasLine(patch, "progress-unpack", 2, "progress-label-set", 0), true);
   assert.equal(hasLine(patch, "state-ui-route", 1, "state-ready-scan", 0), true, "NO_RACK must leave Scan available for rediscovery");
+  assert.equal(boxes.get("analyze-msg").text, "scanandanalyze");
+  assert.equal(boxes.get("progress").maxclass, "multislider");
   for (const id of ["scan-active", "analyze-active", "cancel-active", "apply-active", "revert-active", "results-active"]) {
     assert.ok(boxes.has(id), `missing state gate ${id}`);
   }
@@ -40,6 +44,7 @@ test("main Max patch preserves MIDI and wires state/progress/runtime paths", () 
 test("Settings exposes every required classifier control with persisted safe ranges", () => {
   const patch = patcher("SliceLabelerSettings.maxpat");
   const boxes = boxesById(patch);
+  assert.equal(patch.openinpresentation, 1);
   assert.equal(boxes.get("controller").text, "js slice_labeler_settings_bundle_v2.js");
   for (const id of ["kick", "snare", "tom", "hihat", "cymbal"]) {
     const box = boxes.get(id);
@@ -59,9 +64,12 @@ test("Settings exposes every required classifier control with persisted safe ran
 test("Results text editing strips Max's text selector and has synchronized controls", () => {
   const patch = patcher("SliceLabelerResults.maxpat");
   const boxes = boxesById(patch);
+  assert.equal(patch.openinpresentation, 1);
   assert.equal(boxes.get("controller").text, "js slice_labeler_results_bundle_v2.js");
   assert.equal(boxes.get("name").varname, "proposed_name_editor");
   assert.equal(boxes.get("keep").varname, "keep_original_toggle");
   assert.equal(hasLine(patch, "name", 0, "name-route-text", 0), true);
   assert.equal(hasLine(patch, "name-route-text", 0, "edit-prepend", 0), true);
+  assert.equal(hasLine(patch, "apply", 0, "apply-msg", 0), true);
+  assert.equal(hasLine(patch, "apply-msg", 0, "outlet", 0), true);
 });

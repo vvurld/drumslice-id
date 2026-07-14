@@ -11,9 +11,83 @@
 ,
 		"classnamespace" : "box",
 		"rect" : [ 134.0, 167.0, 920.0, 980.0 ],
+		"devicewidth" : 802.0,
+		"default_fontname" : "Ableton Sans",
+		"default_fontsize" : 11.0,
 		"openinpresentation" : 1,
 		"gridsize" : [ 15.0, 15.0 ],
 		"boxes" : [ 			{
+				"box" : 				{
+					"background" : 1,
+					"bgcolor" : [ 0.1058823529, 0.1137254902, 0.137254902, 1.0 ],
+					"border" : 0,
+					"id" : "surface",
+					"ignoreclick" : 1,
+					"maxclass" : "panel",
+					"mode" : 0,
+					"numinlets" : 1,
+					"numoutlets" : 0,
+					"patching_rect" : [ 20.0, 770.0, 802.0, 176.0 ],
+					"presentation" : 1,
+					"presentation_rect" : [ 0.0, 0.0, 802.0, 176.0 ],
+					"proportion" : 0.5,
+					"rounded" : 0
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"background" : 1,
+					"bgcolor" : [ 0.1647058824, 0.1764705882, 0.2117647059, 1.0 ],
+					"border" : 0,
+					"id" : "status-card",
+					"ignoreclick" : 1,
+					"maxclass" : "panel",
+					"mode" : 0,
+					"numinlets" : 1,
+					"numoutlets" : 0,
+					"patching_rect" : [ 20.0, 950.0, 774.0, 69.0 ],
+					"presentation" : 1,
+					"presentation_rect" : [ 14.0, 92.0, 774.0, 69.0 ],
+					"proportion" : 0.5,
+					"rounded" : 8
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"fontface" : 1,
+					"fontname" : "Ableton Sans",
+					"fontsize" : 9.0,
+					"id" : "source-eyebrow",
+					"maxclass" : "comment",
+					"numinlets" : 1,
+					"numoutlets" : 0,
+					"patching_rect" : [ 20.0, 1035.0, 70.0, 18.0 ],
+					"presentation" : 1,
+					"presentation_rect" : [ 16.0, 10.0, 56.0, 18.0 ],
+					"text" : "SOURCE",
+					"textcolor" : [ 0.6509803922, 0.6705882353, 0.7254901961, 1.0 ]
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"fontname" : "Ableton Sans",
+					"fontsize" : 10.0,
+					"id" : "workflow-hint",
+					"maxclass" : "comment",
+					"numinlets" : 1,
+					"numoutlets" : 0,
+					"patching_rect" : [ 100.0, 1035.0, 320.0, 20.0 ],
+					"presentation" : 1,
+					"presentation_rect" : [ 16.0, 62.0, 408.0, 20.0 ],
+					"text" : "Analyze  →  review  →  apply. Names change only when you apply.",
+					"textcolor" : [ 0.6509803922, 0.6705882353, 0.7254901961, 1.0 ]
+				}
+
+			}
+, 			{
 				"box" : 				{
 					"id" : "midi-in",
 					"maxclass" : "newobj",
@@ -120,13 +194,16 @@
 , 			{
 				"box" : 				{
 					"id" : "rack-label",
+					"fontname" : "Ableton Sans",
+					"fontsize" : 11.0,
 					"maxclass" : "comment",
 					"numinlets" : 1,
 					"numoutlets" : 0,
 					"patching_rect" : [ 35.0, 90.0, 73.0, 20.0 ],
 					"presentation" : 1,
-					"presentation_rect" : [ 8.0, 7.0, 73.0, 20.0 ],
-					"text" : "Target Rack"
+					"presentation_rect" : [ 16.0, 29.0, 56.0, 20.0 ],
+					"text" : "Rack",
+					"textcolor" : [ 0.8509803922, 0.862745098, 0.8980392157, 1.0 ]
 				}
 
 			}
@@ -141,7 +218,8 @@
 					"parameter_enable" : 0,
 					"patching_rect" : [ 120.0, 90.0, 190.0, 22.0 ],
 					"presentation" : 1,
-					"presentation_rect" : [ 80.0, 6.0, 190.0, 22.0 ],
+					"presentation_rect" : [ 72.0, 26.0, 288.0, 26.0 ],
+					"annotation" : "Choose the downstream Drum Rack whose slices will be analyzed and labeled.",
 					"varname" : "target_rack"
 				}
 
@@ -160,8 +238,13 @@
 			}
 , 			{
 					"box" : 				{
-						"active" : 0,
-						"id" : "scan",
+					"active" : 0,
+					"annotation" : "Refresh the rack and slice inventory without starting analysis.",
+					"bgcolor" : [ 0.2117647059, 0.2235294118, 0.2588235294, 1.0 ],
+					"bgoncolor" : [ 0.2745098039, 0.2901960784, 0.3333333333, 1.0 ],
+					"fontname" : "Ableton Sans",
+					"fontsize" : 11.0,
+					"id" : "scan",
 					"maxclass" : "textbutton",
 					"numinlets" : 1,
 					"numoutlets" : 3,
@@ -169,8 +252,11 @@
 					"parameter_enable" : 0,
 					"patching_rect" : [ 35.0, 175.0, 55.0, 22.0 ],
 					"presentation" : 1,
-					"presentation_rect" : [ 278.0, 6.0, 55.0, 22.0 ],
-					"text" : "Scan"
+					"presentation_rect" : [ 368.0, 26.0, 72.0, 26.0 ],
+					"rounded" : 6,
+					"text" : "Refresh",
+					"textcolor" : [ 0.8862745098, 0.8980392157, 0.9254901961, 1.0 ],
+					"textoncolor" : [ 0.968627451, 0.9725490196, 0.9843137255, 1.0 ]
 				}
 
 			}
@@ -188,8 +274,14 @@
 			}
 , 			{
 					"box" : 				{
-						"active" : 0,
-						"id" : "analyze",
+					"active" : 0,
+					"annotation" : "Scan the selected rack and analyze every supported slice.",
+					"bgcolor" : [ 0.9058823529, 0.3215686275, 0.5960784314, 1.0 ],
+					"bgoncolor" : [ 0.9529411765, 0.4156862745, 0.6705882353, 1.0 ],
+					"fontface" : 1,
+					"fontname" : "Ableton Sans",
+					"fontsize" : 11.0,
+					"id" : "analyze",
 					"maxclass" : "textbutton",
 					"numinlets" : 1,
 					"numoutlets" : 3,
@@ -197,8 +289,11 @@
 					"parameter_enable" : 0,
 					"patching_rect" : [ 105.0, 175.0, 65.0, 22.0 ],
 					"presentation" : 1,
-					"presentation_rect" : [ 338.0, 6.0, 65.0, 22.0 ],
-					"text" : "Analyze"
+					"presentation_rect" : [ 448.0, 26.0, 116.0, 26.0 ],
+					"rounded" : 6,
+					"text" : "Analyze Rack",
+					"textcolor" : [ 0.1254901961, 0.1019607843, 0.1215686275, 1.0 ],
+					"textoncolor" : [ 0.1254901961, 0.1019607843, 0.1215686275, 1.0 ]
 				}
 
 			}
@@ -210,14 +305,18 @@
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
 					"patching_rect" : [ 105.0, 210.0, 50.0, 22.0 ],
-					"text" : "analyze"
+					"text" : "scanandanalyze"
 				}
 
 			}
 , 			{
 					"box" : 				{
-						"active" : 0,
-						"id" : "cancel",
+					"active" : 0,
+					"annotation" : "Stop the current analysis safely.",
+					"bgcolor" : [ 0.2117647059, 0.2235294118, 0.2588235294, 1.0 ],
+					"fontname" : "Ableton Sans",
+					"fontsize" : 11.0,
+					"id" : "cancel",
 					"maxclass" : "textbutton",
 					"numinlets" : 1,
 					"numoutlets" : 3,
@@ -225,8 +324,10 @@
 					"parameter_enable" : 0,
 					"patching_rect" : [ 180.0, 175.0, 55.0, 22.0 ],
 					"presentation" : 1,
-					"presentation_rect" : [ 408.0, 6.0, 55.0, 22.0 ],
-					"text" : "Cancel"
+					"presentation_rect" : [ 572.0, 26.0, 66.0, 26.0 ],
+					"rounded" : 6,
+					"text" : "Cancel",
+					"textcolor" : [ 0.8862745098, 0.8980392157, 0.9254901961, 1.0 ]
 				}
 
 			}
@@ -244,8 +345,13 @@
 			}
 , 			{
 					"box" : 				{
-						"active" : 0,
-						"id" : "apply",
+					"active" : 0,
+					"annotation" : "Apply the reviewed names to the Drum Rack chains.",
+					"bgcolor" : [ 0.9058823529, 0.3215686275, 0.5960784314, 1.0 ],
+					"fontface" : 1,
+					"fontname" : "Ableton Sans",
+					"fontsize" : 11.0,
+					"id" : "apply",
 					"maxclass" : "textbutton",
 					"numinlets" : 1,
 					"numoutlets" : 3,
@@ -253,8 +359,10 @@
 					"parameter_enable" : 0,
 					"patching_rect" : [ 250.0, 175.0, 55.0, 22.0 ],
 					"presentation" : 1,
-					"presentation_rect" : [ 468.0, 6.0, 55.0, 22.0 ],
-					"text" : "Apply"
+					"presentation_rect" : [ 662.0, 58.0, 126.0, 26.0 ],
+					"rounded" : 6,
+					"text" : "Apply Names",
+					"textcolor" : [ 0.1254901961, 0.1019607843, 0.1215686275, 1.0 ]
 				}
 
 			}
@@ -272,8 +380,12 @@
 			}
 , 			{
 					"box" : 				{
-						"active" : 0,
-						"id" : "revert",
+					"active" : 0,
+					"annotation" : "Restore every chain name changed by the most recent Apply.",
+					"bgcolor" : [ 0.2117647059, 0.2235294118, 0.2588235294, 1.0 ],
+					"fontname" : "Ableton Sans",
+					"fontsize" : 11.0,
+					"id" : "revert",
 					"maxclass" : "textbutton",
 					"numinlets" : 1,
 					"numoutlets" : 3,
@@ -281,8 +393,10 @@
 					"parameter_enable" : 0,
 					"patching_rect" : [ 320.0, 175.0, 110.0, 22.0 ],
 					"presentation" : 1,
-					"presentation_rect" : [ 528.0, 6.0, 110.0, 22.0 ],
-					"text" : "Revert Last Apply"
+					"presentation_rect" : [ 552.0, 58.0, 102.0, 26.0 ],
+					"rounded" : 6,
+					"text" : "Undo Apply",
+					"textcolor" : [ 0.8862745098, 0.8980392157, 0.9254901961, 1.0 ]
 				}
 
 			}
@@ -300,8 +414,12 @@
 			}
 , 			{
 					"box" : 				{
-						"active" : 0,
-						"id" : "results",
+					"active" : 0,
+					"annotation" : "Open the detailed slice review window.",
+					"bgcolor" : [ 0.2117647059, 0.2235294118, 0.2588235294, 1.0 ],
+					"fontname" : "Ableton Sans",
+					"fontsize" : 11.0,
+					"id" : "results",
 					"maxclass" : "textbutton",
 					"numinlets" : 1,
 					"numoutlets" : 3,
@@ -309,8 +427,10 @@
 					"parameter_enable" : 0,
 					"patching_rect" : [ 455.0, 175.0, 87.0, 22.0 ],
 					"presentation" : 1,
-					"presentation_rect" : [ 643.0, 6.0, 87.0, 22.0 ],
-					"text" : "Open Results"
+					"presentation_rect" : [ 442.0, 58.0, 102.0, 26.0 ],
+					"rounded" : 6,
+					"text" : "Review",
+					"textcolor" : [ 0.8862745098, 0.8980392157, 0.9254901961, 1.0 ]
 				}
 
 			}
@@ -353,6 +473,10 @@
 , 			{
 				"box" : 				{
 					"id" : "settings",
+					"annotation" : "Open labeling, detection, and runtime settings.",
+					"bgcolor" : [ 0.2117647059, 0.2235294118, 0.2588235294, 1.0 ],
+					"fontname" : "Ableton Sans",
+					"fontsize" : 11.0,
 					"maxclass" : "textbutton",
 					"numinlets" : 1,
 					"numoutlets" : 3,
@@ -360,8 +484,10 @@
 					"parameter_enable" : 0,
 					"patching_rect" : [ 555.0, 175.0, 67.0, 22.0 ],
 					"presentation" : 1,
-					"presentation_rect" : [ 735.0, 6.0, 67.0, 22.0 ],
-					"text" : "Settings"
+					"presentation_rect" : [ 646.0, 26.0, 142.0, 26.0 ],
+					"rounded" : 6,
+					"text" : "Settings",
+					"textcolor" : [ 0.8862745098, 0.8980392157, 0.9254901961, 1.0 ]
 				}
 
 			}
@@ -406,11 +532,11 @@
 				"box" : 				{
 					"id" : "status-route",
 					"maxclass" : "newobj",
-					"numinlets" : 7,
-					"numoutlets" : 7,
-					"outlettype" : [ "", "", "", "", "", "", "" ],
+					"numinlets" : 8,
+					"numoutlets" : 8,
+					"outlettype" : [ "", "", "", "", "", "", "", "" ],
 					"patching_rect" : [ 340.0, 375.0, 445.0, 22.0 ],
-					"text" : "route status state progress rack_menu_clear rack_menu_append revert_available"
+					"text" : "route status state progress rack_menu_clear rack_menu_append revert_available display_status"
 				}
 
 			}
@@ -429,24 +555,29 @@
 , 			{
 				"box" : 				{
 					"id" : "status",
+					"fontname" : "Ableton Sans",
+					"fontsize" : 11.0,
 					"maxclass" : "comment",
 					"numinlets" : 1,
 					"numoutlets" : 0,
 					"patching_rect" : [ 340.0, 415.0, 500.0, 20.0 ],
 					"presentation" : 1,
-					"presentation_rect" : [ 8.0, 34.0, 794.0, 20.0 ],
-					"text" : "DEVICE_NOT_READY Slice Labeler is waiting for Live to initialize the device."
+					"presentation_rect" : [ 30.0, 101.0, 744.0, 20.0 ],
+					"text" : "Waiting for Live to initialize…",
+					"textcolor" : [ 0.9176470588, 0.9254901961, 0.9450980392, 1.0 ]
 				}
 
 			}
 , 			{
 				"box" : 				{
+					"bgcolor" : [ 0.1058823529, 0.1137254902, 0.137254902, 1.0 ],
+					"contdata" : 0,
 					"id" : "progress",
-					"maxclass" : "live.slider",
+					"maxclass" : "multislider",
 					"numinlets" : 1,
 					"numoutlets" : 2,
-						"orientation" : 1,
-						"outlettype" : [ "", "float" ],
+					"orientation" : 0,
+						"outlettype" : [ "", "" ],
 						"parameter_enable" : 0,
 						"saved_attribute_attributes" : 					{
 							"valueof" : 						{
@@ -459,10 +590,15 @@
 
 						}
 ,
-						"patching_rect" : [ 340.0, 445.0, 300.0, 41.0 ],
+						"patching_rect" : [ 340.0, 445.0, 300.0, 8.0 ],
 					"presentation" : 1,
-					"presentation_rect" : [ 8.0, 57.0, 794.0, 41.0 ],
-					"varname" : "live.slider"
+					"presentation_rect" : [ 30.0, 126.0, 744.0, 8.0 ],
+					"setminmax" : [ 0.0, 1.0 ],
+					"setstyle" : 1,
+					"size" : 1,
+					"slidercolor" : [ 0.9058823529, 0.3215686275, 0.5960784314, 1.0 ],
+					"thickness" : 8,
+					"varname" : "analysis_progress"
 				}
 
 			}
@@ -472,6 +608,34 @@
 					"maxclass" : "newobj",
 					"patching_rect" : [ 340.0, 505.0, 100.0, 22.0 ],
 					"text" : "unpack 0. 1. s"
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"id" : "progress-label-set",
+					"maxclass" : "newobj",
+					"numinlets" : 1,
+					"numoutlets" : 1,
+					"outlettype" : [ "" ],
+					"patching_rect" : [ 565.0, 505.0, 75.0, 22.0 ],
+					"text" : "prepend set"
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"fontname" : "Ableton Sans",
+					"fontsize" : 9.0,
+					"id" : "progress-label",
+					"maxclass" : "comment",
+					"numinlets" : 1,
+					"numoutlets" : 0,
+					"patching_rect" : [ 655.0, 505.0, 185.0, 18.0 ],
+					"presentation" : 1,
+					"presentation_rect" : [ 30.0, 138.0, 744.0, 18.0 ],
+					"text" : "Ready",
+					"textcolor" : [ 0.6509803922, 0.6705882353, 0.7254901961, 1.0 ]
 				}
 
 			}
@@ -516,7 +680,7 @@
 					"id" : "state-ready-scan",
 					"maxclass" : "message",
 					"patching_rect" : [ 445.0, 610.0, 95.0, 22.0 ],
-					"text" : "1 0 0 0 0 0"
+					"text" : "1 1 0 0 0 0"
 				}
 
 			}
@@ -543,7 +707,7 @@
 					"id" : "state-review",
 					"maxclass" : "message",
 					"patching_rect" : [ 760.0, 610.0, 95.0, 22.0 ],
-					"text" : "1 0 0 1 0 1"
+					"text" : "1 1 0 1 0 1"
 				}
 
 			}
@@ -552,7 +716,7 @@
 					"id" : "state-applied",
 					"maxclass" : "message",
 					"patching_rect" : [ 865.0, 610.0, 95.0, 22.0 ],
-					"text" : "1 0 0 0 1 1"
+					"text" : "1 1 0 0 1 1"
 				}
 
 			}
@@ -561,7 +725,7 @@
 					"id" : "state-error",
 					"maxclass" : "message",
 					"patching_rect" : [ 970.0, 610.0, 95.0, 22.0 ],
-					"text" : "1 0 0 0 0 1"
+					"text" : "1 1 0 0 0 1"
 				}
 
 			}
@@ -873,7 +1037,7 @@
 , 			{
 				"patchline" : 				{
 					"destination" : [ "status-set", 0 ],
-					"source" : [ "status-route", 0 ]
+					"source" : [ "status-route", 6 ]
 				}
 
 			}
@@ -909,6 +1073,20 @@
 				"patchline" : 				{
 					"destination" : [ "progress", 0 ],
 					"source" : [ "progress-divide", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "progress-label-set", 0 ],
+					"source" : [ "progress-unpack", 2 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "progress-label", 0 ],
+					"source" : [ "progress-label-set", 0 ]
 				}
 
 			}

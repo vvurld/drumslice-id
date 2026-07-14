@@ -103,6 +103,7 @@ test("structured Node error selector reaches the response parser", () => {
   context.anything(JSON.stringify({code: "BACKEND_NOT_INSTALLED", message: "Configure Python."}));
   assert.equal(context.state, "ERROR");
   assert.ok(emitted.some((message) => message[0] === 0 && message[1] === "status" && message[2] === "BACKEND_NOT_INSTALLED"));
+  assert.ok(emitted.some((message) => message[0] === 0 && message[1] === "display_status" && message[2] === "Configure Python."));
 });
 
 test("late cancelled responses cannot overwrite a newer scan", () => {
@@ -165,6 +166,17 @@ test("Scan recovers after a downstream Drum Rack is added or becomes available",
   context.scan();
   assert.equal(context.state, "SCAN_READY");
   assert.equal(context.snapshot.rack.sessionId, 20);
+});
+
+test("primary Analyze action refreshes the rack before starting analysis", () => {
+  const {context, emitted} = runtime();
+  assert.equal(context.state, "READY_TO_SCAN");
+
+  context.scanandanalyze();
+
+  assert.equal(context.state, "ANALYZING");
+  assert.ok(context.snapshot);
+  assert.ok(emitted.some((message) => message[0] === 1 && message[1] === "analyze"));
 });
 
 test("rack refresh retains the selected rack by identity after reordering", () => {

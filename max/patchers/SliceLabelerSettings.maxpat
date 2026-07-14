@@ -12,11 +12,151 @@
     "rect": [
       180,
       180,
-      620,
+      760,
       660
     ],
-    "default_fontname": "Arial",
+    "default_fontname": "Ableton Sans",
+    "default_fontsize": 11,
+    "openinpresentation": 1,
     "boxes": [
+      {
+        "box": {
+          "id": "surface",
+          "maxclass": "panel",
+          "background": 1,
+          "ignoreclick": 1,
+          "border": 0,
+          "rounded": 0,
+          "bgcolor": [0.1058823529, 0.1137254902, 0.137254902, 1.0],
+          "patching_rect": [0, 0, 760, 660],
+          "presentation": 1,
+          "presentation_rect": [0, 0, 760, 660]
+        }
+      },
+      {
+        "box": {
+          "id": "labels-card",
+          "maxclass": "panel",
+          "background": 1,
+          "ignoreclick": 1,
+          "border": 0,
+          "rounded": 8,
+          "bgcolor": [0.1647058824, 0.1764705882, 0.2117647059, 1.0],
+          "patching_rect": [16, 76, 352, 250],
+          "presentation": 1,
+          "presentation_rect": [16, 76, 352, 250]
+        }
+      },
+      {
+        "box": {
+          "id": "detection-card",
+          "maxclass": "panel",
+          "background": 1,
+          "ignoreclick": 1,
+          "border": 0,
+          "rounded": 8,
+          "bgcolor": [0.1647058824, 0.1764705882, 0.2117647059, 1.0],
+          "patching_rect": [380, 76, 364, 250],
+          "presentation": 1,
+          "presentation_rect": [380, 76, 364, 250]
+        }
+      },
+      {
+        "box": {
+          "id": "sensitivity-card",
+          "maxclass": "panel",
+          "background": 1,
+          "ignoreclick": 1,
+          "border": 0,
+          "rounded": 8,
+          "bgcolor": [0.1647058824, 0.1764705882, 0.2117647059, 1.0],
+          "patching_rect": [16, 338, 728, 118],
+          "presentation": 1,
+          "presentation_rect": [16, 338, 728, 118]
+        }
+      },
+      {
+        "box": {
+          "id": "runtime-card",
+          "maxclass": "panel",
+          "background": 1,
+          "ignoreclick": 1,
+          "border": 0,
+          "rounded": 8,
+          "bgcolor": [0.1647058824, 0.1764705882, 0.2117647059, 1.0],
+          "patching_rect": [16, 468, 728, 150],
+          "presentation": 1,
+          "presentation_rect": [16, 468, 728, 150]
+        }
+      },
+      {
+        "box": {
+          "id": "subtitle",
+          "maxclass": "comment",
+          "text": "Tune label formatting, transient context, confidence, and the local analysis runtime.",
+          "fontname": "Ableton Sans",
+          "fontsize": 11,
+          "textcolor": [0.6509803922, 0.6705882353, 0.7254901961, 1.0],
+          "patching_rect": [24, 44, 690, 20],
+          "presentation": 1,
+          "presentation_rect": [24, 44, 690, 20]
+        }
+      },
+      {
+        "box": {
+          "id": "labels-section",
+          "maxclass": "comment",
+          "text": "LABEL FORMAT",
+          "fontname": "Ableton Sans",
+          "fontface": 1,
+          "fontsize": 9,
+          "textcolor": [0.6509803922, 0.6705882353, 0.7254901961, 1.0],
+          "patching_rect": [32, 90, 160, 18],
+          "presentation": 1,
+          "presentation_rect": [32, 90, 160, 18]
+        }
+      },
+      {
+        "box": {
+          "id": "detection-section",
+          "maxclass": "comment",
+          "text": "SLICE CONTEXT",
+          "fontname": "Ableton Sans",
+          "fontface": 1,
+          "fontsize": 9,
+          "textcolor": [0.6509803922, 0.6705882353, 0.7254901961, 1.0],
+          "patching_rect": [396, 90, 160, 18],
+          "presentation": 1,
+          "presentation_rect": [396, 90, 160, 18]
+        }
+      },
+      {
+        "box": {
+          "id": "runtime-section",
+          "maxclass": "comment",
+          "text": "ANALYSIS RUNTIME",
+          "fontname": "Ableton Sans",
+          "fontface": 1,
+          "fontsize": 9,
+          "textcolor": [0.6509803922, 0.6705882353, 0.7254901961, 1.0],
+          "patching_rect": [32, 482, 160, 18],
+          "presentation": 1,
+          "presentation_rect": [32, 482, 160, 18]
+        }
+      },
+      {
+        "box": {
+          "id": "runtime-help",
+          "maxclass": "comment",
+          "text": "Leave Python executable blank for the installed Slice Labeler environment. Use an override only for development or a custom runtime.",
+          "fontname": "Ableton Sans",
+          "fontsize": 10,
+          "textcolor": [0.6509803922, 0.6705882353, 0.7254901961, 1.0],
+          "patching_rect": [32, 584, 688, 22],
+          "presentation": 1,
+          "presentation_rect": [32, 584, 688, 22]
+        }
+      },
       {
         "box": {
           "id": "inlet",
@@ -34,19 +174,22 @@
           "id": "title",
           "maxclass": "comment",
           "text": "Slice Labeler Settings",
-          "fontsize": 16,
+          "fontname": "Ableton Sans",
+          "fontface": 1,
+          "fontsize": 20,
+          "textcolor": [0.9411764706, 0.9490196078, 0.968627451, 1.0],
           "patching_rect": [
-            20,
-            15,
+            24,
+            14,
             250,
-            24
+            28
           ],
           "presentation": 1,
           "presentation_rect": [
-            20,
-            15,
+            24,
+            14,
             250,
-            24
+            28
           ]
         }
       },
@@ -54,6 +197,9 @@
         "box": {
           "id": "multi-label",
           "maxclass": "live.toggle",
+          "annotation": "Allow more than one instrument label when sounds overlap.",
+          "activebgoncolor": [0.9058823529, 0.3215686275, 0.5960784314, 1.0],
+          "bgoncolor": [0.9058823529, 0.3215686275, 0.5960784314, 1.0],
           "varname": "multi_label",
           "parameter_enable": 1,
           "saved_attribute_attributes": {
@@ -70,15 +216,15 @@
             }
           },
           "patching_rect": [
-            210,
-            55,
+            320,
+            116,
             24,
             24
           ],
           "presentation": 1,
           "presentation_rect": [
-            210,
-            55,
+            320,
+            116,
             24,
             24
           ]
@@ -88,18 +234,20 @@
         "box": {
           "id": "multi-label-label",
           "maxclass": "comment",
-          "text": "Multi-label",
+          "text": "Layered labels",
+          "fontname": "Ableton Sans",
+          "textcolor": [0.8745098039, 0.8862745098, 0.9176470588, 1.0],
           "patching_rect": [
-            20,
-            57,
-            170,
+            32,
+            118,
+            220,
             20
           ],
           "presentation": 1,
           "presentation_rect": [
-            20,
-            57,
-            170,
+            32,
+            118,
+            220,
             20
           ]
         }
@@ -108,6 +256,7 @@
         "box": {
           "id": "pre",
           "maxclass": "live.numbox",
+          "annotation": "Include this many milliseconds before each slice marker.",
           "varname": "pre_tolerance_ms",
           "parameter_enable": 1,
           "saved_attribute_attributes": {
@@ -124,15 +273,15 @@
             }
           },
           "patching_rect": [
-            210,
-            95,
+            656,
+            116,
             70,
             22
           ],
           "presentation": 1,
           "presentation_rect": [
-            210,
-            95,
+            656,
+            116,
             70,
             22
           ]
@@ -142,18 +291,20 @@
         "box": {
           "id": "pre-label",
           "maxclass": "comment",
-          "text": "Pre-tolerance (ms)",
+          "text": "Look before marker (ms)",
+          "fontname": "Ableton Sans",
+          "textcolor": [0.8745098039, 0.8862745098, 0.9176470588, 1.0],
           "patching_rect": [
-            20,
-            97,
-            170,
+            396,
+            118,
+            240,
             20
           ],
           "presentation": 1,
           "presentation_rect": [
-            20,
-            97,
-            170,
+            396,
+            118,
+            240,
             20
           ]
         }
@@ -162,6 +313,7 @@
         "box": {
           "id": "post",
           "maxclass": "live.numbox",
+          "annotation": "Include this many milliseconds after each slice marker.",
           "varname": "post_tolerance_ms",
           "parameter_enable": 1,
           "saved_attribute_attributes": {
@@ -178,15 +330,15 @@
             }
           },
           "patching_rect": [
-            210,
-            130,
+            656,
+            154,
             70,
             22
           ],
           "presentation": 1,
           "presentation_rect": [
-            210,
-            130,
+            656,
+            154,
             70,
             22
           ]
@@ -196,18 +348,20 @@
         "box": {
           "id": "post-label",
           "maxclass": "comment",
-          "text": "Post-tolerance (ms)",
+          "text": "Look after marker (ms)",
+          "fontname": "Ableton Sans",
+          "textcolor": [0.8745098039, 0.8862745098, 0.9176470588, 1.0],
           "patching_rect": [
-            20,
-            132,
-            170,
+            396,
+            156,
+            240,
             20
           ],
           "presentation": 1,
           "presentation_rect": [
-            20,
-            132,
-            170,
+            396,
+            156,
+            240,
             20
           ]
         }
@@ -216,6 +370,7 @@
         "box": {
           "id": "cluster",
           "maxclass": "live.numbox",
+          "annotation": "Group near-simultaneous detections into a layered hit.",
           "varname": "cluster_ms",
           "parameter_enable": 1,
           "saved_attribute_attributes": {
@@ -232,15 +387,15 @@
             }
           },
           "patching_rect": [
-            210,
-            165,
+            656,
+            192,
             70,
             22
           ],
           "presentation": 1,
           "presentation_rect": [
-            210,
-            165,
+            656,
+            192,
             70,
             22
           ]
@@ -250,18 +405,20 @@
         "box": {
           "id": "cluster-label",
           "maxclass": "comment",
-          "text": "Cluster window (ms)",
+          "text": "Layer window (ms)",
+          "fontname": "Ableton Sans",
+          "textcolor": [0.8745098039, 0.8862745098, 0.9176470588, 1.0],
           "patching_rect": [
-            20,
-            167,
-            170,
+            396,
+            194,
+            240,
             20
           ],
           "presentation": 1,
           "presentation_rect": [
-            20,
-            167,
-            170,
+            396,
+            194,
+            240,
             20
           ]
         }
@@ -270,6 +427,9 @@
         "box": {
           "id": "fallback",
           "maxclass": "live.toggle",
+          "annotation": "Use the strongest activation when the model emits no discrete onset.",
+          "activebgoncolor": [0.9058823529, 0.3215686275, 0.5960784314, 1.0],
+          "bgoncolor": [0.9058823529, 0.3215686275, 0.5960784314, 1.0],
           "varname": "fallback_enabled",
           "parameter_enable": 1,
           "saved_attribute_attributes": {
@@ -286,15 +446,15 @@
             }
           },
           "patching_rect": [
-            210,
-            200,
+            702,
+            230,
             24,
             24
           ],
           "presentation": 1,
           "presentation_rect": [
-            210,
-            200,
+            702,
+            230,
             24,
             24
           ]
@@ -304,18 +464,20 @@
         "box": {
           "id": "fallback-label",
           "maxclass": "comment",
-          "text": "Activation fallback",
+          "text": "Fallback detection",
+          "fontname": "Ableton Sans",
+          "textcolor": [0.8745098039, 0.8862745098, 0.9176470588, 1.0],
           "patching_rect": [
-            20,
-            202,
-            170,
+            396,
+            232,
+            240,
             20
           ],
           "presentation": 1,
           "presentation_rect": [
-            20,
-            202,
-            170,
+            396,
+            232,
+            240,
             20
           ]
         }
@@ -324,6 +486,7 @@
         "box": {
           "id": "floor",
           "maxclass": "live.numbox",
+          "annotation": "Minimum normalized activation accepted by fallback detection.",
           "varname": "fallback_floor",
           "parameter_enable": 1,
           "saved_attribute_attributes": {
@@ -339,15 +502,15 @@
             }
           },
           "patching_rect": [
-            210,
-            235,
+            656,
+            268,
             70,
             22
           ],
           "presentation": 1,
           "presentation_rect": [
-            210,
-            235,
+            656,
+            268,
             70,
             22
           ]
@@ -357,18 +520,20 @@
         "box": {
           "id": "floor-label",
           "maxclass": "comment",
-          "text": "Fallback normalized floor",
+          "text": "Fallback sensitivity",
+          "fontname": "Ableton Sans",
+          "textcolor": [0.8745098039, 0.8862745098, 0.9176470588, 1.0],
           "patching_rect": [
-            20,
-            237,
-            180,
+            396,
+            270,
+            240,
             20
           ],
           "presentation": 1,
           "presentation_rect": [
-            20,
-            237,
-            180,
+            396,
+            270,
+            240,
             20
           ]
         }
@@ -377,6 +542,7 @@
         "box": {
           "id": "numbering",
           "maxclass": "live.menu",
+          "annotation": "Choose when duplicate labels receive numeric suffixes.",
           "varname": "numbering",
           "parameter_enable": 1,
           "saved_attribute_attributes": {
@@ -393,16 +559,16 @@
             }
           },
           "patching_rect": [
-            210,
-            275,
-            130,
+            200,
+            154,
+            144,
             22
           ],
           "presentation": 1,
           "presentation_rect": [
-            210,
-            275,
-            130,
+            200,
+            154,
+            144,
             22
           ]
         }
@@ -411,18 +577,20 @@
         "box": {
           "id": "numbering-label",
           "maxclass": "comment",
-          "text": "Numbering",
+          "text": "Number duplicate labels",
+          "fontname": "Ableton Sans",
+          "textcolor": [0.8745098039, 0.8862745098, 0.9176470588, 1.0],
           "patching_rect": [
-            20,
-            277,
-            170,
+            32,
+            156,
+            158,
             20
           ],
           "presentation": 1,
           "presentation_rect": [
-            20,
-            277,
-            170,
+            32,
+            156,
+            158,
             20
           ]
         }
@@ -431,6 +599,9 @@
         "box": {
           "id": "long",
           "maxclass": "live.toggle",
+          "annotation": "Use full instrument names instead of compact abbreviations.",
+          "activebgoncolor": [0.9058823529, 0.3215686275, 0.5960784314, 1.0],
+          "bgoncolor": [0.9058823529, 0.3215686275, 0.5960784314, 1.0],
           "varname": "long_names",
           "parameter_enable": 1,
           "saved_attribute_attributes": {
@@ -447,15 +618,15 @@
             }
           },
           "patching_rect": [
-            210,
-            310,
+            320,
+            192,
             24,
             24
           ],
           "presentation": 1,
           "presentation_rect": [
-            210,
-            310,
+            320,
+            192,
             24,
             24
           ]
@@ -465,17 +636,19 @@
         "box": {
           "id": "long-label",
           "maxclass": "comment",
-          "text": "Long class names",
+          "text": "Full instrument names",
+          "fontname": "Ableton Sans",
+          "textcolor": [0.8745098039, 0.8862745098, 0.9176470588, 1.0],
           "patching_rect": [
-            20,
-            312,
+            32,
+            194,
             170,
             20
           ],
           "presentation": 1,
           "presentation_rect": [
-            20,
-            312,
+            32,
+            194,
             170,
             20
           ]
@@ -485,6 +658,9 @@
         "box": {
           "id": "unknown",
           "maxclass": "live.toggle",
+          "annotation": "Do not overwrite a chain name when the classifier is uncertain.",
+          "activebgoncolor": [0.9058823529, 0.3215686275, 0.5960784314, 1.0],
+          "bgoncolor": [0.9058823529, 0.3215686275, 0.5960784314, 1.0],
           "varname": "preserve_unknown",
           "parameter_enable": 1,
           "saved_attribute_attributes": {
@@ -501,15 +677,15 @@
             }
           },
           "patching_rect": [
-            210,
-            345,
+            320,
+            230,
             24,
             24
           ],
           "presentation": 1,
           "presentation_rect": [
-            210,
-            345,
+            320,
+            230,
             24,
             24
           ]
@@ -519,18 +695,20 @@
         "box": {
           "id": "unknown-label",
           "maxclass": "comment",
-          "text": "Preserve names for unknown",
+          "text": "Keep names when uncertain",
+          "fontname": "Ableton Sans",
+          "textcolor": [0.8745098039, 0.8862745098, 0.9176470588, 1.0],
           "patching_rect": [
-            20,
-            347,
-            180,
+            32,
+            232,
+            240,
             20
           ],
           "presentation": 1,
           "presentation_rect": [
-            20,
-            347,
-            180,
+            32,
+            232,
+            240,
             20
           ]
         }
@@ -539,6 +717,7 @@
         "box": {
           "id": "threads",
           "maxclass": "live.numbox",
+          "annotation": "Limit analysis CPU threads. Zero lets the runtime choose.",
           "varname": "max_threads",
           "parameter_enable": 1,
           "saved_attribute_attributes": {
@@ -554,15 +733,15 @@
             }
           },
           "patching_rect": [
-            210,
-            380,
+            200,
+            508,
             70,
             22
           ],
           "presentation": 1,
           "presentation_rect": [
-            210,
-            380,
+            200,
+            508,
             70,
             22
           ]
@@ -572,17 +751,19 @@
         "box": {
           "id": "threads-label",
           "maxclass": "comment",
-          "text": "Maximum Torch CPU threads",
+          "text": "CPU thread limit",
+          "fontname": "Ableton Sans",
+          "textcolor": [0.8745098039, 0.8862745098, 0.9176470588, 1.0],
           "patching_rect": [
-            20,
-            382,
+            32,
+            510,
             180,
             20
           ],
           "presentation": 1,
           "presentation_rect": [
-            20,
-            382,
+            32,
+            510,
             180,
             20
           ]
@@ -592,21 +773,25 @@
         "box": {
           "id": "backend",
           "maxclass": "textedit",
+          "annotation": "Optional Python executable path. Leave blank to use the bundled or default runtime.",
+          "fontname": "Ableton Sans",
+          "bgcolor": [0.1058823529, 0.1137254902, 0.137254902, 1.0],
+          "textcolor": [0.9411764706, 0.9490196078, 0.968627451, 1.0],
           "varname": "python_path",
           "keymode": 1,
           "wordwrap": 0,
           "patching_rect": [
-            210,
-            420,
-            360,
-            24
+            200,
+            544,
+            386,
+            28
           ],
           "presentation": 1,
           "presentation_rect": [
-            210,
-            420,
-            360,
-            24
+            200,
+            544,
+            386,
+            28
           ]
         }
       },
@@ -614,17 +799,19 @@
         "box": {
           "id": "backend-label",
           "maxclass": "comment",
-          "text": "Backend Python path",
+          "text": "Python executable",
+          "fontname": "Ableton Sans",
+          "textcolor": [0.8745098039, 0.8862745098, 0.9176470588, 1.0],
           "patching_rect": [
-            20,
-            422,
+            32,
+            548,
             170,
             20
           ],
           "presentation": 1,
           "presentation_rect": [
-            20,
-            422,
+            32,
+            548,
             170,
             20
           ]
@@ -634,19 +821,24 @@
         "box": {
           "id": "check",
           "maxclass": "textbutton",
-          "text": "Check Backend",
+          "text": "Check Runtime",
+          "annotation": "Verify that the local analysis runtime and model are available.",
+          "fontname": "Ableton Sans",
+          "rounded": 6,
+          "bgcolor": [0.9058823529, 0.3215686275, 0.5960784314, 1.0],
+          "textcolor": [0.1254901961, 0.1019607843, 0.1215686275, 1.0],
           "patching_rect": [
-            210,
-            465,
-            110,
-            26
+            600,
+            544,
+            120,
+            28
           ],
           "presentation": 1,
           "presentation_rect": [
-            210,
-            465,
-            110,
-            26
+            600,
+            544,
+            120,
+            28
           ]
         }
       },
@@ -655,17 +847,21 @@
           "id": "thresholds",
           "maxclass": "comment",
           "varname": "threshold_summary",
+          "fontname": "Ableton Sans",
+          "fontface": 1,
+          "fontsize": 9,
+          "textcolor": [0.6509803922, 0.6705882353, 0.7254901961, 1.0],
           "text": "Thresholds: Kick 0.22 · Snare 0.24 · Tom 0.32 · Hi-hat 0.22 · Cymbal 0.30",
           "patching_rect": [
-            20,
-            515,
+            32,
+            352,
             540,
             20
           ],
           "presentation": 1,
           "presentation_rect": [
-            20,
-            515,
+            32,
+            352,
             540,
             20
           ]
@@ -883,9 +1079,11 @@
           "id": "kick-threshold-label",
           "maxclass": "comment",
           "text": "Kick",
+          "fontname": "Ableton Sans",
+          "textcolor": [0.8745098039, 0.8862745098, 0.9176470588, 1.0],
           "patching_rect": [20, 625, 55, 20],
           "presentation": 1,
-          "presentation_rect": [20, 547, 55, 20]
+          "presentation_rect": [32, 382, 96, 20]
         }
       },
       {
@@ -893,9 +1091,11 @@
           "id": "snare-threshold-label",
           "maxclass": "comment",
           "text": "Snare",
+          "fontname": "Ableton Sans",
+          "textcolor": [0.8745098039, 0.8862745098, 0.9176470588, 1.0],
           "patching_rect": [80, 625, 55, 20],
           "presentation": 1,
-          "presentation_rect": [170, 547, 55, 20]
+          "presentation_rect": [172, 382, 96, 20]
         }
       },
       {
@@ -903,9 +1103,11 @@
           "id": "tom-threshold-label",
           "maxclass": "comment",
           "text": "Tom",
+          "fontname": "Ableton Sans",
+          "textcolor": [0.8745098039, 0.8862745098, 0.9176470588, 1.0],
           "patching_rect": [140, 625, 45, 20],
           "presentation": 1,
-          "presentation_rect": [315, 547, 40, 20]
+          "presentation_rect": [312, 382, 96, 20]
         }
       },
       {
@@ -913,9 +1115,11 @@
           "id": "hihat-threshold-label",
           "maxclass": "comment",
           "text": "Hi-hat",
+          "fontname": "Ableton Sans",
+          "textcolor": [0.8745098039, 0.8862745098, 0.9176470588, 1.0],
           "patching_rect": [200, 625, 55, 20],
           "presentation": 1,
-          "presentation_rect": [20, 582, 55, 20]
+          "presentation_rect": [452, 382, 96, 20]
         }
       },
       {
@@ -923,15 +1127,18 @@
           "id": "cymbal-threshold-label",
           "maxclass": "comment",
           "text": "Cymbal",
+          "fontname": "Ableton Sans",
+          "textcolor": [0.8745098039, 0.8862745098, 0.9176470588, 1.0],
           "patching_rect": [260, 625, 60, 20],
           "presentation": 1,
-          "presentation_rect": [170, 582, 60, 20]
+          "presentation_rect": [592, 382, 96, 20]
         }
       },
       {
         "box": {
           "id": "kick",
           "maxclass": "live.numbox",
+          "annotation": "Minimum confidence required to label a kick.",
           "varname": "kick_threshold",
           "parameter_enable": 1,
           "saved_attribute_attributes": {
@@ -953,13 +1160,14 @@
             22
           ],
           "presentation": 1,
-          "presentation_rect": [85, 545, 60, 22]
+          "presentation_rect": [32, 405, 96, 22]
         }
       },
       {
         "box": {
           "id": "snare",
           "maxclass": "live.numbox",
+          "annotation": "Minimum confidence required to label a snare.",
           "varname": "snare_threshold",
           "parameter_enable": 1,
           "saved_attribute_attributes": {
@@ -981,13 +1189,14 @@
             22
           ],
           "presentation": 1,
-          "presentation_rect": [230, 545, 60, 22]
+          "presentation_rect": [172, 405, 96, 22]
         }
       },
       {
         "box": {
           "id": "tom",
           "maxclass": "live.numbox",
+          "annotation": "Minimum confidence required to label a tom.",
           "varname": "tom_threshold",
           "parameter_enable": 1,
           "saved_attribute_attributes": {
@@ -1009,13 +1218,14 @@
             22
           ],
           "presentation": 1,
-          "presentation_rect": [360, 545, 60, 22]
+          "presentation_rect": [312, 405, 96, 22]
         }
       },
       {
         "box": {
           "id": "hihat",
           "maxclass": "live.numbox",
+          "annotation": "Minimum confidence required to label a hi-hat.",
           "varname": "hihat_threshold",
           "parameter_enable": 1,
           "saved_attribute_attributes": {
@@ -1037,13 +1247,14 @@
             22
           ],
           "presentation": 1,
-          "presentation_rect": [85, 580, 60, 22]
+          "presentation_rect": [452, 405, 96, 22]
         }
       },
       {
         "box": {
           "id": "cymbal",
           "maxclass": "live.numbox",
+          "annotation": "Minimum confidence required to label a cymbal.",
           "varname": "cymbal_threshold",
           "parameter_enable": 1,
           "saved_attribute_attributes": {
@@ -1065,7 +1276,7 @@
             22
           ],
           "presentation": 1,
-          "presentation_rect": [235, 580, 60, 22]
+          "presentation_rect": [592, 405, 96, 22]
         }
       },
       {

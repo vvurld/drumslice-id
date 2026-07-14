@@ -15,27 +15,223 @@
       1240,
       620
     ],
-    "default_fontname": "Arial",
+    "default_fontname": "Ableton Sans",
+    "default_fontsize": 11,
+    "openinpresentation": 1,
     "boxes": [
+      {
+        "box": {
+          "id": "surface",
+          "maxclass": "panel",
+          "background": 1,
+          "ignoreclick": 1,
+          "border": 0,
+          "rounded": 0,
+          "bgcolor": [0.1058823529, 0.1137254902, 0.137254902, 1.0],
+          "patching_rect": [0, 0, 1240, 620],
+          "presentation": 1,
+          "presentation_rect": [0, 0, 1240, 620]
+        }
+      },
+      {
+        "box": {
+          "id": "footer-card",
+          "maxclass": "panel",
+          "background": 1,
+          "ignoreclick": 1,
+          "border": 0,
+          "rounded": 8,
+          "bgcolor": [0.1647058824, 0.1764705882, 0.2117647059, 1.0],
+          "patching_rect": [16, 497, 1208, 107],
+          "presentation": 1,
+          "presentation_rect": [16, 497, 1208, 107]
+        }
+      },
+      {
+        "box": {
+          "id": "name-label",
+          "maxclass": "comment",
+          "text": "SELECTED NAME",
+          "fontname": "Ableton Sans",
+          "fontface": 1,
+          "fontsize": 9,
+          "textcolor": [0.6509803922, 0.6705882353, 0.7254901961, 1.0],
+          "patching_rect": [30, 505, 160, 18],
+          "presentation": 1,
+          "presentation_rect": [30, 505, 160, 18]
+        }
+      },
+      {
+        "box": {
+          "id": "apply",
+          "maxclass": "textbutton",
+          "text": "Apply Names",
+          "annotation": "Apply all reviewed names to the Drum Rack.",
+          "fontname": "Ableton Sans",
+          "fontface": 1,
+          "rounded": 6,
+          "bgcolor": [0.9058823529, 0.3215686275, 0.5960784314, 1.0],
+          "textcolor": [0.1254901961, 0.1019607843, 0.1215686275, 1.0],
+          "patching_rect": [1066, 526, 134, 34],
+          "presentation": 1,
+          "presentation_rect": [1066, 526, 134, 34]
+        }
+      },
+      {
+        "box": {
+          "id": "apply-msg",
+          "maxclass": "message",
+          "text": "apply",
+          "patching_rect": [1066, 565, 40, 22]
+        }
+      },
       {
         "box": {
           "id": "title",
           "maxclass": "comment",
-          "text": "Slice Labeler Results — Pad | Current | Proposed | Classes | All raw scores | Decision | Status | Warnings",
-          "fontsize": 16,
+          "text": "Review slice labels",
+          "fontname": "Ableton Sans",
+          "fontface": 1,
+          "textcolor": [0.9411764706, 0.9490196078, 0.968627451, 1.0],
+          "fontsize": 20,
           "patching_rect": [
-            20,
-            15,
-            1160,
-            24
+            24,
+            14,
+            400,
+            28
           ],
           "presentation": 1,
           "presentation_rect": [
-            20,
-            15,
-            1160,
-            24
+            24,
+            14,
+            400,
+            28
           ]
+        }
+      },
+      {
+        "box": {
+          "id": "subtitle",
+          "maxclass": "comment",
+          "text": "Select a slice to edit its proposed name, preserve the original, or inspect the model scores.",
+          "fontname": "Ableton Sans",
+          "fontsize": 11,
+          "textcolor": [0.6509803922, 0.6705882353, 0.7254901961, 1.0],
+          "patching_rect": [24, 43, 900, 20],
+          "presentation": 1,
+          "presentation_rect": [24, 43, 900, 20]
+        }
+      },
+      {
+        "box": {
+          "id": "column-headings",
+          "maxclass": "comment",
+          "text": "PAD",
+          "fontname": "Ableton Sans",
+          "fontface": 1,
+          "fontsize": 9,
+          "textcolor": [0.6509803922, 0.6705882353, 0.7254901961, 1.0],
+          "patching_rect": [24, 73, 51, 18],
+          "presentation": 1,
+          "presentation_rect": [24, 73, 51, 18]
+        }
+      },
+      {
+        "box": {
+          "id": "heading-current",
+          "maxclass": "comment",
+          "text": "CURRENT NAME",
+          "fontname": "Ableton Sans",
+          "fontface": 1,
+          "fontsize": 9,
+          "textcolor": [0.6509803922, 0.6705882353, 0.7254901961, 1.0],
+          "patching_rect": [79, 73, 111, 18],
+          "presentation": 1,
+          "presentation_rect": [79, 73, 111, 18]
+        }
+      },
+      {
+        "box": {
+          "id": "heading-proposed",
+          "maxclass": "comment",
+          "text": "PROPOSED NAME",
+          "fontname": "Ableton Sans",
+          "fontface": 1,
+          "fontsize": 9,
+          "textcolor": [0.6509803922, 0.6705882353, 0.7254901961, 1.0],
+          "patching_rect": [194, 73, 111, 18],
+          "presentation": 1,
+          "presentation_rect": [194, 73, 111, 18]
+        }
+      },
+      {
+        "box": {
+          "id": "heading-labels",
+          "maxclass": "comment",
+          "text": "LABELS",
+          "fontname": "Ableton Sans",
+          "fontface": 1,
+          "fontsize": 9,
+          "textcolor": [0.6509803922, 0.6705882353, 0.7254901961, 1.0],
+          "patching_rect": [309, 73, 106, 18],
+          "presentation": 1,
+          "presentation_rect": [309, 73, 106, 18]
+        }
+      },
+      {
+        "box": {
+          "id": "heading-scores",
+          "maxclass": "comment",
+          "text": "MODEL SCORES",
+          "fontname": "Ableton Sans",
+          "fontface": 1,
+          "fontsize": 9,
+          "textcolor": [0.6509803922, 0.6705882353, 0.7254901961, 1.0],
+          "patching_rect": [419, 73, 296, 18],
+          "presentation": 1,
+          "presentation_rect": [419, 73, 296, 18]
+        }
+      },
+      {
+        "box": {
+          "id": "heading-decision",
+          "maxclass": "comment",
+          "text": "DECISION",
+          "fontname": "Ableton Sans",
+          "fontface": 1,
+          "fontsize": 9,
+          "textcolor": [0.6509803922, 0.6705882353, 0.7254901961, 1.0],
+          "patching_rect": [719, 73, 121, 18],
+          "presentation": 1,
+          "presentation_rect": [719, 73, 121, 18]
+        }
+      },
+      {
+        "box": {
+          "id": "heading-status",
+          "maxclass": "comment",
+          "text": "STATUS",
+          "fontname": "Ableton Sans",
+          "fontface": 1,
+          "fontsize": 9,
+          "textcolor": [0.6509803922, 0.6705882353, 0.7254901961, 1.0],
+          "patching_rect": [844, 73, 86, 18],
+          "presentation": 1,
+          "presentation_rect": [844, 73, 86, 18]
+        }
+      },
+      {
+        "box": {
+          "id": "heading-notes",
+          "maxclass": "comment",
+          "text": "NOTES",
+          "fontname": "Ableton Sans",
+          "fontface": 1,
+          "fontsize": 9,
+          "textcolor": [0.6509803922, 0.6705882353, 0.7254901961, 1.0],
+          "patching_rect": [934, 73, 270, 18],
+          "presentation": 1,
+          "presentation_rect": [934, 73, 270, 18]
         }
       },
       {
@@ -56,20 +252,33 @@
           "maxclass": "jit.cellblock",
           "cols": 8,
           "rows": 129,
-          "colhead": 1,
+          "colhead": 0,
           "rowhead": 0,
+          "fontname": "Ableton Sans",
+          "fontsize": 10,
+          "rowheight": 23,
+          "selmode": 3,
+          "just": 0,
+          "hscroll": 0,
+          "bgcolor": [0.1254901961, 0.1333333333, 0.1607843137, 1.0],
+          "textcolor": [0.8745098039, 0.8862745098, 0.9176470588, 1.0],
+          "fgcolor": [0.8745098039, 0.8862745098, 0.9176470588, 1.0],
+          "gridlinecolor": [0.2117647059, 0.2235294118, 0.2588235294, 1.0],
+          "bordercolor": [0.2117647059, 0.2235294118, 0.2588235294, 1.0],
+          "hcellcolor": [0.4784313725, 0.2117647059, 0.3411764706, 1.0],
+          "headercolor": [0.1647058824, 0.1764705882, 0.2117647059, 1.0],
           "patching_rect": [
             20,
-            105,
+            94,
             1200,
-            385
+            391
           ],
           "presentation": 1,
           "presentation_rect": [
             20,
-            105,
+            94,
             1200,
-            385
+            391
           ]
         }
       },
@@ -77,20 +286,25 @@
         "box": {
           "id": "name",
           "maxclass": "textedit",
+          "annotation": "Edit the proposed chain name for the selected slice.",
+          "fontname": "Ableton Sans",
+          "fontsize": 11,
+          "bgcolor": [0.1058823529, 0.1137254902, 0.137254902, 1.0],
+          "textcolor": [0.9411764706, 0.9490196078, 0.968627451, 1.0],
           "varname": "proposed_name_editor",
           "patching_rect": [
-            20,
-            520,
-            250,
-            24
+            30,
+            529,
+            270,
+            28
           ],
           "keymode": 1,
           "presentation": 1,
           "presentation_rect": [
-            20,
-            520,
-            250,
-            24
+            30,
+            529,
+            270,
+            28
           ]
         }
       },
@@ -98,17 +312,18 @@
         "box": {
           "id": "keep",
           "maxclass": "toggle",
+          "annotation": "Keep the original chain name for the selected slice.",
           "varname": "keep_original_toggle",
           "patching_rect": [
-            290,
-            520,
+            318,
+            531,
             24,
             24
           ],
           "presentation": 1,
           "presentation_rect": [
-            290,
-            520,
+            318,
+            531,
             24,
             24
           ]
@@ -118,18 +333,20 @@
         "box": {
           "id": "keep-label",
           "maxclass": "comment",
-          "text": "Keep Original",
+          "text": "Keep original name",
+          "fontname": "Ableton Sans",
+          "textcolor": [0.8745098039, 0.8862745098, 0.9176470588, 1.0],
           "patching_rect": [
-            320,
-            522,
-            85,
+            348,
+            533,
+            120,
             20
           ],
           "presentation": 1,
           "presentation_rect": [
-            320,
-            522,
-            85,
+            348,
+            533,
+            120,
             20
           ]
         }
@@ -138,19 +355,24 @@
         "box": {
           "id": "reset-row",
           "maxclass": "textbutton",
-          "text": "Reset Row",
+          "text": "Reset Selected",
+          "annotation": "Discard manual edits for the selected slice.",
+          "fontname": "Ableton Sans",
+          "rounded": 6,
+          "bgcolor": [0.2117647059, 0.2235294118, 0.2588235294, 1.0],
+          "textcolor": [0.8862745098, 0.8980392157, 0.9254901961, 1.0],
           "patching_rect": [
-            420,
-            518,
-            85,
-            26
+            482,
+            530,
+            110,
+            28
           ],
           "presentation": 1,
           "presentation_rect": [
-            420,
-            518,
-            85,
-            26
+            482,
+            530,
+            110,
+            28
           ]
         }
       },
@@ -158,19 +380,24 @@
         "box": {
           "id": "reset-all",
           "maxclass": "textbutton",
-          "text": "Reset All Overrides",
+          "text": "Reset All",
+          "annotation": "Discard every manual name and keep-original override.",
+          "fontname": "Ableton Sans",
+          "rounded": 6,
+          "bgcolor": [0.2117647059, 0.2235294118, 0.2588235294, 1.0],
+          "textcolor": [0.8862745098, 0.8980392157, 0.9254901961, 1.0],
           "patching_rect": [
-            515,
-            518,
-            135,
-            26
+            600,
+            530,
+            88,
+            28
           ],
           "presentation": 1,
           "presentation_rect": [
-            515,
-            518,
-            135,
-            26
+            600,
+            530,
+            88,
+            28
           ]
         }
       },
@@ -178,19 +405,25 @@
         "box": {
           "id": "export",
           "maxclass": "textbutton",
-          "text": "Export Diagnostics JSON",
+          "text": "Export Diagnostics",
+          "annotation": "Export the current snapshot, plan, and diagnostics as JSON.",
+          "fontname": "Ableton Sans",
+          "fontsize": 10,
+          "rounded": 6,
+          "bgcolor": [0.2117647059, 0.2235294118, 0.2588235294, 1.0],
+          "textcolor": [0.7333333333, 0.7529411765, 0.8, 1.0],
           "patching_rect": [
-            660,
-            518,
-            160,
-            26
+            734,
+            567,
+            132,
+            24
           ],
           "presentation": 1,
           "presentation_rect": [
-            660,
-            518,
-            160,
-            26
+            734,
+            567,
+            132,
+            24
           ]
         }
       },
@@ -199,18 +432,24 @@
           "id": "clear",
           "maxclass": "textbutton",
           "text": "Clear Cache",
+          "annotation": "Clear cached analysis results. This does not modify Live.",
+          "fontname": "Ableton Sans",
+          "fontsize": 10,
+          "rounded": 6,
+          "bgcolor": [0.2117647059, 0.2235294118, 0.2588235294, 1.0],
+          "textcolor": [0.7333333333, 0.7529411765, 0.8, 1.0],
           "patching_rect": [
-            830,
-            518,
+            874,
+            567,
             90,
-            26
+            24
           ],
           "presentation": 1,
           "presentation_rect": [
-            830,
-            518,
+            874,
+            567,
             90,
-            26
+            24
           ]
         }
       },
@@ -218,19 +457,25 @@
         "box": {
           "id": "cancel",
           "maxclass": "textbutton",
-          "text": "Cancel Analysis",
+          "text": "Stop Analysis",
+          "annotation": "Stop an analysis that is still running.",
+          "fontname": "Ableton Sans",
+          "fontsize": 10,
+          "rounded": 6,
+          "bgcolor": [0.2117647059, 0.2235294118, 0.2588235294, 1.0],
+          "textcolor": [0.7333333333, 0.7529411765, 0.8, 1.0],
           "patching_rect": [
-            930,
-            518,
+            972,
+            567,
             105,
-            26
+            24
           ],
           "presentation": 1,
           "presentation_rect": [
-            930,
-            518,
+            972,
+            567,
             105,
-            26
+            24
           ]
         }
       },
@@ -395,16 +640,17 @@
         "box": {
           "id": "overwrite",
           "maxclass": "toggle",
+          "annotation": "Allow Apply to replace a chain name that changed after analysis.",
           "patching_rect": [
-            20,
-            590,
+            30,
+            569,
             24,
             24
           ],
           "presentation": 1,
           "presentation_rect": [
-            20,
-            590,
+            30,
+            569,
             24,
             24
           ]
@@ -414,18 +660,21 @@
         "box": {
           "id": "overwrite-label",
           "maxclass": "comment",
-          "text": "Overwrite manual name conflicts on Apply",
+          "text": "Overwrite names changed since analysis",
+          "fontname": "Ableton Sans",
+          "fontsize": 10,
+          "textcolor": [0.7333333333, 0.7529411765, 0.8, 1.0],
           "patching_rect": [
-            50,
-            592,
-            260,
+            60,
+            571,
+            245,
             20
           ],
           "presentation": 1,
           "presentation_rect": [
-            50,
-            592,
-            260,
+            60,
+            571,
+            245,
             20
           ]
         }
@@ -445,6 +694,30 @@
       }
     ],
     "lines": [
+      {
+        "patchline": {
+          "source": [
+            "apply",
+            0
+          ],
+          "destination": [
+            "apply-msg",
+            0
+          ]
+        }
+      },
+      {
+        "patchline": {
+          "source": [
+            "apply-msg",
+            0
+          ],
+          "destination": [
+            "outlet",
+            0
+          ]
+        }
+      },
       {
         "patchline": {
           "source": [
