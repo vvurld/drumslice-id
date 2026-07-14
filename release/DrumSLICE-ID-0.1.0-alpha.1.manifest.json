@@ -1,8 +1,8 @@
 {
   "archive": {
-    "bytes": 175087,
+    "bytes": 175102,
     "name": "DrumSLICE-ID-0.1.0-alpha.1.zip",
-    "sha256": "2d5df3d812ed5093054d62c5702b2dcf1306c3f7adacb67b9a16da8c2f42ac2a"
+    "sha256": "1a628eb94527ef5b3d0784e13c50fca275971a7630ee48e38b0e070e5e17f76e"
   },
   "channel": "alpha",
   "containsAdtofCodeOrWeights": false,
@@ -98,9 +98,9 @@
       "sha256": "24e4b57b80c6da81ec8e417d2327ead7a2e1ecb58a5bfba878f83dec5baae25f"
     },
     {
-      "bytes": 13357,
+      "bytes": 13389,
       "path": "install.ps1",
-      "sha256": "3207cd09e07e8901a15f233c872425b983edf0ce800284b28d3ba2f2af404426"
+      "sha256": "c097ff01cf6d1428f911bac57b1c70ca537222234085cbce8eea916779686101"
     },
     {
       "bytes": 12193,
@@ -338,9 +338,9 @@
       "sha256": "15ad1b61b1c98d83915134d1a451f533f94e00298d2042b16103da320baf70fc"
     },
     {
-      "bytes": 2837,
+      "bytes": 2877,
       "path": "scripts/build_max_js_bundle.js",
-      "sha256": "cce8496d1cd8629fac3191bcd9ab6d22a1f5161aa5db716b2066654bda1053ea"
+      "sha256": "24ed7ae41be9d18c456bbda0d52e49d4eb8ceca26da270562d43d837c3e3bda5"
     },
     {
       "bytes": 4885,
