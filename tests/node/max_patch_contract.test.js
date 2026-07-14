@@ -39,7 +39,9 @@ test("main Max patch preserves MIDI and wires state/progress/runtime paths", () 
   assert.notEqual(boxes.get("progress").presentation, 1, "progress bar should stay out of the device UI");
   assert.notEqual(boxes.get("progress-label").presentation, 1, "duplicate progress text should stay out of the device UI");
   assert.equal(patch.devicewidth, 560);
-  assert.deepEqual(boxes.get("surface").presentation_rect, [0, 0, 560, 124]);
+  assert.deepEqual(patch.openrect, [0, 0, 0, 169]);
+  assert.deepEqual(boxes.get("surface").presentation_rect, [0, 0, 560, 169]);
+  assert.deepEqual(boxes.get("status-card").presentation_rect, [14, 102, 532, 50]);
   assert.notEqual(boxes.get("rack-label").presentation, 1);
   assert.notEqual(boxes.get("workflow-hint").presentation, 1);
   for (let i = 1; i <= 7; i += 1) assert.equal(boxes.get(`slice-mark-${i}`).presentation, 1);

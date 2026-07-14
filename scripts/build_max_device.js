@@ -27,6 +27,8 @@ function mergeDevelopmentPatcher(templateDocument, sourceDocument) {
   target.fileversion = source.fileversion;
   target.classnamespace = source.classnamespace;
   target.openinpresentation = source.openinpresentation || 0;
+  if (Array.isArray(source.openrect)) target.openrect = clone(source.openrect);
+  if (Number.isFinite(source.devicewidth) && source.devicewidth > 0) target.devicewidth = source.devicewidth;
   target.boxes = clone(source.boxes);
   target.lines = clone(source.lines);
   target.parameters = clone(source.parameters || {});
