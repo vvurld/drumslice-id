@@ -1,8 +1,8 @@
 {
   "archive": {
-    "bytes": 249189,
+    "bytes": 1502787,
     "name": "DrumSLICE-ID-0.1.0-alpha.1.zip",
-    "sha256": "3f39aff0ef5bbd48e831a6d49827c4b913cb34913be957c140ce06e8a8496a84"
+    "sha256": "9b00676d6f6c650660d9624f8e481f2cd27a1053f4b489fffedd966223fce8fb"
   },
   "channel": "alpha",
   "containsAdtofCodeOrWeights": false,
@@ -33,9 +33,9 @@
       "sha256": "b1e4c5428bc43fd2a2d9d136e7d2e313cc834c9898bdd2cd3f5a855e91f9e9e6"
     },
     {
-      "bytes": 4548,
+      "bytes": 4605,
       "path": "README.md",
-      "sha256": "1ccf288a95ce40a4aea9a778298a22d6000d0cdaf2690cdab951446bf316b041"
+      "sha256": "a6a5611c09b40120782071816102b1e844b5b3543d8141ebdc75158c05119ae3"
     },
     {
       "bytes": 1095,
@@ -101,6 +101,11 @@
       "bytes": 80990,
       "path": "docs/images/drumslice-id-device-hires.png",
       "sha256": "577a31937019cfb7dbedc0b4c095fe040586fad4d9ffc4c375b42b56441b4f79"
+    },
+    {
+      "bytes": 1258229,
+      "path": "docs/images/drumslice-id-logo.png",
+      "sha256": "b7703ec944cb31cfb9ff32194f31943e0dea388241df921149a829268d01ec04"
     },
     {
       "bytes": 13389,
