@@ -1,6 +1,6 @@
 # DrumSLICE ID for Ableton
 
-[![CI](https://github.com/vvurld/drumslice-id/actions/workflows/ci.yml/badge.svg)](https://github.com/vvurld/drumslice-id/actions/workflows/ci.yml)
+[![CI](https://github.com/sjfbo/drumslice-id/actions/workflows/ci.yml/badge.svg)](https://github.com/sjfbo/drumslice-id/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-4c9ed9.svg)](LICENSE)
 
 ![DrumSLICE ID running in Ableton](docs/images/drumslice-id-device-hires.png)
@@ -15,7 +15,7 @@ DrumSLICE ID listens to the slices already in the rack and suggests useful names
 
 ## Install
 
-Download the current archive and `SHA256SUMS` from [Releases](https://github.com/vvurld/drumslice-id/releases), then extract it.
+Download the current archive and `SHA256SUMS` from [Releases](https://github.com/sjfbo/drumslice-id/releases), then extract it.
 
 You will need Ableton Live 12 with Max for Live, Git, and CPython 3.10–3.12. The backend installer also needs an internet connection and enough space for a private PyTorch environment.
 
