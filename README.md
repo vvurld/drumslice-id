@@ -1,5 +1,7 @@
 # DrumSLICE ID for Ableton
 
+![DrumSLICE ID logo](docs/images/drumslice-id-logo.png)
+
 [![CI](https://github.com/sjfbo/drumslice-id/actions/workflows/ci.yml/badge.svg)](https://github.com/sjfbo/drumslice-id/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-4c9ed9.svg)](LICENSE)
 
